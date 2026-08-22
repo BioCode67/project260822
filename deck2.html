@@ -1,0 +1,170 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
+:root{
+ --bg:#F4F6FA;--surface:#FFFFFF;--ink:#0F151E;--muted:#5C6675;
+ --accent:#2560C4;--accent-soft:#EAF1FC;--warn:#A85614;--warn-soft:#FBF0E4;
+ --ok:#147350;--ok-soft:#E8F4EE;--line:#E2E8F1;
+ --sans:Pretendard,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);color:var(--ink);word-break:keep-all;-webkit-font-smoothing:antialiased}
+.page{width:1600px;height:900px;background:var(--bg);padding:56px 64px;display:flex;flex-direction:column;overflow:hidden}
+.eyebrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.eyebrow .l{font-size:19px;font-weight:700;color:var(--accent);letter-spacing:-.01em}
+.eyebrow .r{font-size:17px;color:var(--muted);font-weight:600;letter-spacing:.04em}
+h1{font-size:57px;line-height:1.24;letter-spacing:-.024em;font-weight:800}
+h1 .g{color:var(--muted)}
+h1 .a{color:var(--accent)}
+.lead{margin-top:20px;font-size:25px;line-height:1.55;color:var(--muted);font-weight:500;letter-spacing:-.014em;max-width:1200px}
+.lead b{color:var(--ink);font-weight:700}
+.grow{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+.foot{margin-top:auto;padding-top:20px;display:flex;justify-content:space-between;align-items:baseline;
+ font-size:17px;color:var(--muted);font-weight:600;border-top:1px solid var(--line)}
+.foot b{color:var(--ink);font-weight:800}
+/* 실사 2장 비교 */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.shot{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+ box-shadow:0 2px 14px rgba(15,21,30,.05)}
+.shot .im{height:404px;overflow:hidden;background:#0B0E14;position:relative}
+.shot .im img{position:absolute;width:214%;left:-34%;top:-196px;display:block}
+.shot .cp{padding:20px 24px;display:flex;align-items:center;gap:14px}
+.tag{font-size:19px;font-weight:800;padding:7px 15px;border-radius:999px;white-space:nowrap;letter-spacing:-.01em}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.wn{background:var(--warn-soft);color:var(--warn)}
+.shot .cp .tx{font-size:21px;font-weight:600;letter-spacing:-.014em;line-height:1.4}
+.shot .cp .tx s{text-decoration:none;color:var(--muted);font-weight:500}
+/* 3지표 */
+.tri{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.mt{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:30px 30px 28px}
+.mt .n{font-size:26px;font-weight:800;letter-spacing:-.018em}
+.mt .th{margin-top:14px;font-size:40px;font-weight:800;color:var(--accent);letter-spacing:-.022em}
+.mt .d{margin-top:12px;font-size:20px;color:var(--muted);line-height:1.55;font-weight:500;letter-spacing:-.012em}
+/* 타임라인 */
+.cells{display:grid;grid-template-columns:repeat(8,1fr);gap:11px}
+.c{border-radius:14px;padding:22px 8px 20px;text-align:center;background:var(--ok-soft)}
+.c.w{background:var(--warn-soft)}
+.c .r{font-size:19px;color:var(--muted);font-weight:700}
+.c .v{font-size:42px;font-weight:800;margin-top:8px;color:var(--ok);letter-spacing:-.022em}
+.c.w .v{color:var(--warn)}
+.c .s{font-size:17px;margin-top:9px;color:var(--ok);font-weight:700}
+.c.w .s{color:var(--warn)}
+/* 큰 대비 */
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:34px;align-items:center}
+.bx{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:40px 38px}
+.bx .k{font-size:20px;font-weight:700;color:var(--muted);letter-spacing:-.01em}
+.bx .v{margin-top:16px;font-size:38px;font-weight:800;line-height:1.32;letter-spacing:-.02em}
+.bx.on{border-color:#B9D2F5;background:var(--accent-soft)}
+.bx.on .v{color:var(--accent)}
+.arw{font-size:44px;color:var(--muted);font-weight:300}
+/* 종목칩 */
+.chips{display:flex;flex-wrap:wrap;gap:14px}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:16px 28px;
+ font-size:25px;font-weight:700;letter-spacing:-.014em}
+.chip b{color:var(--accent)}
+.note{margin-top:26px;background:var(--accent-soft);border-left:4px solid var(--accent);
+ border-radius:0 12px 12px 0;padding:24px 28px;font-size:22px;line-height:1.6;font-weight:600;letter-spacing:-.014em}
+.note b{color:var(--accent);font-weight:800}
+.big{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.45}
+.big .a{color:var(--accent)}
+</style></head><body>
+
+<!-- 1 -->
+<div class="page">
+  <div class="eyebrow"><span class="l">AI 자세 트레이너</span><span class="r">01 / 05</span></div>
+  <h1>집에서 운동할 때,<br><span class="g">내 자세 봐주는 사람이 없습니다.</span></h1>
+  <p class="lead">웹캠 앞에서 운동하면 <b>관절 각도를 매 프레임 재서</b> 그 자리에서 알려 줍니다. 실제 화면입니다.</p>
+  <div class="grow"><div class="duo">
+    <div class="shot">
+      <div class="im"><img src="live_ok.jpg" alt=""></div>
+      <div class="cp"><span class="tag ok">좋음</span>
+        <span class="tx">무릎 <b>92°</b> · 좌우 <b>2.8%</b><br><s>기준 안에서 내려갔습니다</s></span></div>
+    </div>
+    <div class="shot">
+      <div class="im"><img src="live_warn.jpg" alt=""></div>
+      <div class="cp"><span class="tag wn">무너짐</span>
+        <span class="tx">무릎 <b>112°</b> · 좌우 <b>15.8%</b><br><s>한쪽으로 힘이 쏠렸습니다</s></span></div>
+    </div>
+  </div></div>
+  <div class="foot"><span><b>ai-home-trainer.netlify.app</b> · 설치도 가입도 없이 링크만 열면 됩니다</span>
+    <span>제1회 일상뒤집기 AI 어플 아이디어 공모전</span></div>
+</div>
+
+<!-- 2 -->
+<div class="page">
+  <div class="eyebrow"><span class="l">무엇이 문제인가</span><span class="r">02 / 05</span></div>
+  <h1>정작 무너지는 구간은<br><span class="a">아무도 못 봅니다.</span></h1>
+  <p class="lead">자세가 무너지는 건 힘들어서 <b>거울 볼 여유가 없는 마지막 몇 회</b>입니다.
+    확인이 가장 필요한 구간이 확인이 가장 안 되는 구간입니다.</p>
+  <div class="grow"><div class="vs">
+    <div class="bx"><div class="k">지금까지</div>
+      <div class="v">몇 개 했는지만<br>세어 줍니다</div></div>
+    <div class="arw">→</div>
+    <div class="bx on"><div class="k">AI 자세 트레이너</div>
+      <div class="v">몇 번째부터 무너졌는지를<br>남깁니다</div></div>
+  </div>
+  <div class="note">헬스장에는 봐주는 사람이 있는데 집에는 없습니다. 유튜브를 따라 해도 화면 속 트레이너는 내 자세를 볼 수 없습니다.
+    <b>홈트를 그만두는 건 귀찮아서가 아니라, 맞게 하고 있는지 알 방법이 없어서입니다.</b></div>
+  </div>
+  <div class="foot"><span><b>ai-home-trainer.netlify.app</b></span><span>02 / 05</span></div>
+</div>
+
+<!-- 3 -->
+<div class="page">
+  <div class="eyebrow"><span class="l">어떻게 재는가</span><span class="r">03 / 05</span></div>
+  <h1>관절 <span class="a">33점</span>을 매 프레임 추정해<br>세 가지를 잽니다.</h1>
+  <div class="grow"><div class="tri">
+    <div class="mt"><div class="n">무릎 각도</div><div class="th">90° 이하</div>
+      <div class="d">고관절–무릎–발목이 이루는 각.<br>이 아래로 내려가야 <b style="color:var(--ink)">깊이를 인정</b>합니다.</div></div>
+    <div class="mt"><div class="n">상체 기울기</div><div class="th">55° 초과 경고</div>
+      <div class="d">어깨–고관절 선이 수직에서 벗어난 각.<br>넘으면 <b style="color:var(--ink)">허리로 무게가 옮겨간</b> 신호입니다.</div></div>
+    <div class="mt"><div class="n">좌우 비대칭</div><div class="th">8% 초과 경고</div>
+      <div class="d">골반 높이차 ÷ 어깨너비.<br>넘으면 <b style="color:var(--ink)">한쪽으로 쏠린</b> 것으로 봅니다.</div></div>
+  </div>
+  <div class="note">AI가 "자세가 틀렸습니다"라고만 말하지 않습니다. <b>무엇을 어떻게 쟀는지 화면에 숫자로 그대로 띄웁니다.</b>
+    틀렸을 때 왜 그런지 설명이 안 되면 믿고 쓰기 어렵기 때문입니다.</div>
+  </div>
+  <div class="foot"><span><b>ai-home-trainer.netlify.app</b></span><span>03 / 05</span></div>
+</div>
+
+<!-- 4 -->
+<div class="page">
+  <div class="eyebrow"><span class="l">무엇이 남는가</span><span class="r">04 / 05</span></div>
+  <h1>세트가 끝나면<br><span class="a">무너진 순간</span>이 증거로 남습니다.</h1>
+  <p class="lead">회차별 최저 무릎 각도. 앞의 4회는 멀쩡하고, <b>무너짐은 세트 후반에 몰려 있습니다.</b></p>
+  <div class="grow"><div class="cells">
+    <div class="c"><div class="r">1회</div><div class="v">70°</div><div class="s">깊이 인정</div></div>
+    <div class="c"><div class="r">2회</div><div class="v">74°</div><div class="s">깊이 인정</div></div>
+    <div class="c"><div class="r">3회</div><div class="v">78°</div><div class="s">깊이 인정</div></div>
+    <div class="c"><div class="r">4회</div><div class="v">82°</div><div class="s">깊이 인정</div></div>
+    <div class="c w"><div class="r">5회</div><div class="v">86°</div><div class="s">비대칭 8.3%</div></div>
+    <div class="c w"><div class="r">6회</div><div class="v">90°</div><div class="s">비대칭 10.4%</div></div>
+    <div class="c w"><div class="r">7회</div><div class="v">94°</div><div class="s">비대칭 12.5%</div></div>
+    <div class="c w"><div class="r">8회</div><div class="v">98°</div><div class="s">비대칭 14.6%</div></div>
+  </div>
+  <div class="note">기준을 넘긴 프레임은 <b>회차당 한 장씩 자동으로 저장</b>됩니다.
+    첫 무너짐 회차, 가동범위, 처음 3회 대비 몇 도나 얕아졌는지까지 한 장의 리포트로 남습니다.</div>
+  </div>
+  <div class="foot"><span><b>ai-home-trainer.netlify.app</b></span><span>04 / 05</span></div>
+</div>
+
+<!-- 5 -->
+<div class="page">
+  <div class="eyebrow"><span class="l">왜 이 방식인가</span><span class="r">05 / 05</span></div>
+  <h1>서버가 없습니다.<br><span class="a">영상이 기기를 떠나지 않습니다.</span></h1>
+  <p class="lead">MediaPipe Pose Landmarker를 <b>WebAssembly로 브라우저에서 직접</b> 실행합니다.
+    미리 만든 화면을 재생하는 것이 아닙니다.</p>
+  <div class="grow">
+    <div class="big" style="margin-bottom:26px">운동 영상은 사람들이 가장 올리기 꺼려지는 데이터입니다.<br>
+      <span class="a">되돌려 볼 눈은 생기되, 영상은 어디로도 가지 않습니다.</span></div>
+    <div class="chips">
+      <span class="chip">스쿼트</span><span class="chip">푸시업</span><span class="chip">런지</span>
+      <span class="chip">벤치프레스</span><span class="chip">점핑잭</span>
+      <span class="chip">플랭크 <b>시간</b></span><span class="chip">목 스트레칭 <b>시간</b></span>
+    </div>
+    <div class="note">종목이 바뀌어도 바뀌는 건 <b>재는 각도와 임계값뿐</b>입니다.
+      횟수 판정·캡처 규칙·리포트는 일곱 종목이 같은 코드를 씁니다. 그래서 종목을 늘리는 비용이 낮습니다.</div>
+  </div>
+  <div class="foot"><span><b>AI 자세 트레이너</b> / 김주형 · ai-home-trainer.netlify.app</span>
+    <span>제1회 일상뒤집기 AI 어플 아이디어 공모전</span></div>
+</div>
+
+</body></html>
