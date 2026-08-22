@@ -11,6 +11,7 @@
 <meta property="og:locale" content="ko_KR" />
 <meta name="twitter:card" content="summary" />
 <meta name="theme-color" content="#081130" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
@@ -26,14 +27,27 @@
     --alarm:#FF6B3D;
     --ok:#7CE0B0;
     --line:rgba(140,170,225,.22);
+    /* CDN(jsDelivr·Google Fonts)이 막혀도 한글이 시스템 글꼴로 제대로 떨어지게 한다.
+       한 번 겪은 문제라 폴백을 길게 적어 둔다. */
+    --sans:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,
+           'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',
+           system-ui,'Segoe UI',Roboto,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,
+           'Apple SD Gothic Neo','Malgun Gothic',monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
   body{
     background:var(--blueprint);
     color:var(--chalk);
-    font-family:'Pretendard Variable',Pretendard,-apple-system,system-ui,sans-serif;
+    font-family:var(--sans);
     -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    -webkit-text-size-adjust:100%;
+    /* 한글은 단어 중간에서 끊기면 읽기가 급격히 나빠진다. 어절 단위로 접는다. */
+    word-break:keep-all;
+    overflow-wrap:break-word;
     background-image:
       linear-gradient(var(--grid) 1px,transparent 1px),
       linear-gradient(90deg,var(--grid) 1px,transparent 1px);
@@ -41,20 +55,22 @@
     min-height:100vh;
   }
   .wrap{max-width:1160px;margin:0 auto;padding:0 22px}
-  .mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+  /* 숫자는 자릿수가 바뀌어도 폭이 흔들리면 안 된다 — 계측값이 덜덜 떨려 보인다 */
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
+  .n,.val,.v,.cscore{font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
 
   /* ---------- header ---------- */
   header{border-bottom:1px solid var(--line);backdrop-filter:blur(6px);position:sticky;top:0;z-index:40;background:rgba(8,17,48,.82)}
   .hd{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:16px}
   .logo{display:flex;align-items:baseline;gap:10px}
-  .logo b{font-size:22px;font-weight:800;letter-spacing:-.03em}
+  .logo b{font-size:22px;font-weight:800;letter-spacing:-.018em}
   .logo span{font-size:11px;color:var(--muted);letter-spacing:.18em}
   .badge{font-size:11px;color:var(--cyan);border:1px solid rgba(84,214,238,.4);padding:5px 10px;border-radius:999px;letter-spacing:.04em;white-space:nowrap}
 
   /* ---------- hero ---------- */
   .hero{padding:46px 0 30px;max-width:820px}
   .eyebrow{font-size:12px;letter-spacing:.22em;color:var(--cyan);margin-bottom:20px}
-  h1{font-size:clamp(30px,5.2vw,52px);line-height:1.12;letter-spacing:-.045em;font-weight:800}
+  h1{font-size:clamp(30px,5.2vw,52px);line-height:1.24;letter-spacing:-.028em;font-weight:800}
   h1 .dim{color:var(--muted);font-weight:500}
   .sub{margin-top:18px;font-size:clamp(15px,2.1vw,18px);line-height:1.75;color:#C3D0E8;max-width:640px}
   .sub b{color:var(--chalk);font-weight:700}
@@ -104,7 +120,7 @@
   .guide .dotq{width:7px;height:7px;border-radius:50%;flex:none;background:var(--ok);box-shadow:0 0 8px var(--ok)}
   .guide.warn .dotq{background:var(--alarm);box-shadow:0 0 8px var(--alarm)}
   .guide.warn .lead2{color:var(--alarm)}
-  .guide .hint{color:var(--muted);font-size:11.5px;margin-top:3px}
+  .guide .hint{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.6}
 
   /* ---------- panel ---------- */
   .panel{border:1px solid var(--line);border-radius:6px;background:rgba(14,28,66,.55)}
@@ -118,7 +134,7 @@
   .g .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
   .g .name{font-size:13px;font-weight:600}
   .g .val{font-size:19px;font-weight:700}
-  .g .desc{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
+  .g .desc{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.62}
   .bar{height:3px;background:rgba(140,170,225,.16);margin-top:8px;border-radius:2px;overflow:hidden}
   .bar i{display:block;height:100%;background:var(--cyan);width:0;transition:width .12s linear}
   .warn .val,.warn .name{color:var(--alarm)}
@@ -171,11 +187,30 @@
   .cellx.void{opacity:.32}
   .cellx .r{font-size:10.5px;color:var(--muted);letter-spacing:.08em}
   .cellx .v{font-size:21px;font-weight:800;margin-top:7px;letter-spacing:-.04em;line-height:1}
-  .cellx .s{font-size:10.5px;margin-top:6px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cellx .s{font-size:11px;margin-top:6px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .cellx.bad{border-color:rgba(255,107,61,.5);background:rgba(255,107,61,.08)}
   .cellx.bad .v,.cellx.bad .s{color:var(--alarm)}
   .cellx.good .v{color:var(--ok)}
   .cellx .ch{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 6px var(--ok)}
+
+  /* ---------- set report ---------- */
+  .rcard{border:1px solid var(--line);border-radius:6px;background:rgba(14,28,66,.55);padding:20px 22px;margin-top:26px;display:none}
+  .rcard.on{display:block}
+  .rct{font-size:11px;letter-spacing:.2em;color:var(--muted);font-weight:600}
+  .rcs{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
+  @media(max-width:640px){.rcs{grid-template-columns:repeat(2,1fr)}}
+  .rcs .k{font-size:11.5px;color:var(--muted);letter-spacing:.03em}
+  .rcs .v{font-size:31px;font-weight:800;letter-spacing:-.035em;margin-top:7px;line-height:1}
+  .rcs .v small{font-size:14px;color:var(--muted);font-weight:700;letter-spacing:0;margin-left:5px}
+  .rcs .c2 .v{color:var(--cyan)} .rcs .c3 .v{color:var(--alarm)} .rcs .c4 .v{color:var(--ok)}
+  .rcline{margin-top:19px;padding-top:16px;border-top:1px solid var(--line);font-size:14.5px;line-height:1.8;color:#C3D0E8}
+  .rcline b{color:var(--chalk)}
+  .rcprev{margin-top:12px;font-size:13px;line-height:1.7;color:var(--muted);display:none}
+  .rcprev.on{display:block}
+  .rcprev b{color:var(--cyan)} .rcprev .worse{color:var(--alarm)}
+  .rcact{margin-top:17px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .rcact .btn{padding:12px 20px;font-size:13.5px}
+  .rcact .note{font-size:11.5px;color:var(--muted);line-height:1.6}
 
   /* ---------- lightbox ---------- */
   .lb{position:fixed;inset:0;z-index:100;background:rgba(4,9,24,.94);display:none;align-items:center;justify-content:center;padding:24px}
@@ -195,12 +230,12 @@
   /* ---------- evidence ---------- */
   section.block{padding:56px 0;border-top:1px solid var(--line)}
   .stitle{font-size:11px;letter-spacing:.22em;color:var(--cyan);margin-bottom:14px}
-  h2{font-size:clamp(24px,3.6vw,34px);letter-spacing:-.035em;font-weight:800;line-height:1.25}
+  h2{font-size:clamp(24px,3.6vw,34px);letter-spacing:-.022em;font-weight:800;line-height:1.38}
   .lead{margin-top:14px;color:#B9C7E2;font-size:15.5px;line-height:1.8;max-width:660px}
   .shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:26px}
   .shot{border:1px solid var(--line);border-radius:5px;overflow:hidden;background:#050B1E}
   .shot img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover}
-  .shot .cap{padding:9px 11px;font-size:11.5px;color:var(--alarm);line-height:1.5}
+  .shot .cap{padding:10px 11px;font-size:11.5px;color:var(--alarm);line-height:1.6}
   .shot .cap span{display:block}
   .shot .cap span:last-child{color:var(--muted);margin-top:3px}
   .empty{border:1px dashed var(--line);border-radius:5px;padding:34px 20px;text-align:center;color:var(--muted);font-size:13.5px;margin-top:24px;line-height:1.7}
@@ -210,7 +245,7 @@
   .row{display:grid;grid-template-columns:52px 1fr 210px;gap:18px;padding:20px 0;border-bottom:1px solid var(--line);align-items:start}
   @media(max-width:760px){.row{grid-template-columns:44px 1fr}.row .meas{grid-column:2}}
   .row .idx{font-size:12px;color:var(--cyan);padding-top:3px}
-  .row .ttl{font-size:16.5px;font-weight:700;letter-spacing:-.02em}
+  .row .ttl{font-size:16.5px;font-weight:700;letter-spacing:-.012em;line-height:1.45}
   .row .txt{margin-top:7px;font-size:13.5px;color:var(--muted);line-height:1.7}
   .row .meas{font-size:11.5px;color:#9FB3D8;border-left:1px solid var(--line);padding-left:16px;line-height:1.75}
   .row .meas b{color:var(--cyan);font-weight:700}
@@ -218,7 +253,7 @@
   .oss{margin-top:26px;border-top:1px solid var(--line)}
   .oss .o{display:grid;grid-template-columns:210px 1fr 130px;gap:16px;padding:15px 0;border-bottom:1px solid var(--line);align-items:baseline}
   @media(max-width:760px){.oss .o{grid-template-columns:1fr;gap:5px;padding:14px 0}}
-  .oss .nm{font-size:14px;font-weight:700;letter-spacing:-.01em}
+  .oss .nm{font-size:14px;font-weight:700;letter-spacing:-.005em;line-height:1.45}
   .oss .ds{font-size:13px;color:var(--muted);line-height:1.65}
   .oss .lc{font-size:11.5px;color:var(--cyan);letter-spacing:.04em}
   .oss .own{border-left:2px solid var(--cyan);padding-left:16px;margin-top:22px}
@@ -256,7 +291,7 @@
     </p>
     <div class="cta">
       <button class="btn" id="startBtn">카메라 켜고 측정 시작</button>
-      <button class="btn ghost" id="demoBtn">카메라 없이 시연 보기</button>
+      <button class="btn ghost" id="demoBtn">카메라 없이 시연 보기 <span class="mono" style="opacity:.6">20초</span></button>
     </div>
     <div class="privacy"><span class="dot"></span> 브라우저 안에서만 계산합니다. 서버가 없어 영상이 기기 밖으로 나가지 않습니다.</div>
   </div>
@@ -335,6 +370,21 @@
     <p class="lead">
       경고가 뜬 프레임은 자동으로 캡처됩니다. 세트가 끝난 뒤 다시 보면, 내 자세가 정확히 몇 회차에서 어떤 값으로 무너졌는지 숫자와 그림으로 남아 있습니다.
     </p>
+    <div class="rcard" id="rcard">
+      <div class="rct mono">SET REPORT</div>
+      <div class="rcs">
+        <div class="c1"><div class="k">총 회차</div><div class="v mono" id="rcTotal">0</div></div>
+        <div class="c2"><div class="k">깊이 도달</div><div class="v mono" id="rcDeep">0</div></div>
+        <div class="c3"><div class="k">첫 무너짐</div><div class="v mono" id="rcFirst">—</div></div>
+        <div class="c4"><div class="k">챌린지 성공</div><div class="v mono" id="rcChal">0</div></div>
+      </div>
+      <div class="rcline" id="rcLine"></div>
+      <div class="rcprev" id="rcPrev"></div>
+      <div class="rcact">
+        <button class="btn" id="saveBtn">결과 이미지 저장</button>
+        <span class="note">한 장짜리 PNG로 저장됩니다. 저장도 브라우저 안에서 처리되며 어디로도 전송되지 않습니다.</span>
+      </div>
+    </div>
     <div class="empty" id="shotsEmpty">아직 캡처된 순간이 없습니다. 측정을 시작하면 여기에 쌓입니다.</div>
     <div class="shots" id="shots"></div>
   </section>
@@ -685,7 +735,7 @@ function recordRep(low){
   }
   lastRepT=performance.now();
   timeline.push({n:reps, low:Math.round(low), deep:low<=TH.DEPTH, tag, all, chal:chOn?chDone:null});
-  renderTimeline();
+  renderTimeline(); renderReport();
 }
 function renderTimeline(){
   const n=Math.max(8,timeline.length), out=[];
@@ -696,7 +746,7 @@ function renderTimeline(){
     const sub=bad?r.tag:(r.deep?'깊이 인정':'깊이 부족');
     out.push('<div class="cellx '+(bad?'bad':(r.deep?'good':''))+'" title="'+r.n+'회차 · 최저 무릎각 '+r.low+'°'+(r.all?' · '+r.all:'')+'">'+
       (r.chal?'<span class="ch" title="챌린지 성공"></span>':'')+
-      '<div class="r mono">'+r.n+'회</div><div class="v mono">'+r.low+'°</div><div class="s">'+sub+'</div></div>');
+      '<div class="r"><span class="mono">'+r.n+'</span>회</div><div class="v mono">'+r.low+'°</div><div class="s">'+sub+'</div></div>');
   }
   $('cells').innerHTML=out.join('');
   const done=timeline.length;
@@ -731,6 +781,159 @@ $('shots').addEventListener('keydown',e=>{
 $('lbX').onclick=closeLb;
 $('lb').addEventListener('click',e=>{ if(e.target===$('lb')) closeLb(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLb(); });
+/* ---------- 세트 리포트 ----------
+   흩어져 있던 값을 한 장으로 모은다. "세트가 끝나면 증거를 보여준다"는 약속의 마지막 조각. */
+function summary(){
+  return {
+    total: timeline.length,
+    deep:  timeline.filter(r=>r.deep).length,
+    first: timeline.find(r=>!!r.tag) || null,
+    chal:  timeline.filter(r=>r.chal).length,
+    hasChal: timeline.some(r=>r.chal!==null)
+  };
+}
+/* 지난 세트 기록은 이 브라우저에만 남는다. 서버가 없으니 남길 곳이 여기뿐이고,
+   그게 이 서비스의 원칙이기도 하다. */
+const PREV_KEY='rewind.lastSet';
+let setSaved=false;
+const readPrev=()=>{ try{ return JSON.parse(localStorage.getItem(PREV_KEY)||'null'); }catch(e){ return null; } };
+function finishSet(){
+  if(setSaved) return;
+  const S=summary(); if(!S.total) return;
+  setSaved=true;
+  const prev=readPrev();
+  const cur={t:Date.now(), total:S.total, deep:S.deep, first:S.first?S.first.n:0, chal:S.chal};
+  try{ localStorage.setItem(PREV_KEY, JSON.stringify(cur)); }catch(e){}
+  if(!prev) return;
+  const d=new Date(prev.t), p2=n=>String(n).padStart(2,'0');
+  const when=(d.getMonth()+1)+'/'+d.getDate()+' '+p2(d.getHours())+':'+p2(d.getMinutes());
+  const parts=[];
+  if(prev.first&&cur.first){
+    const diff=cur.first-prev.first;
+    parts.push('첫 무너짐 '+prev.first+'회차 → <b class="'+(diff<0?'worse':'')+'">'+cur.first+'회차</b>'+
+               (diff===0?' (그대로)':' ('+(diff>0?'+':'')+diff+')'));
+  }
+  parts.push('깊이 '+prev.deep+'/'+prev.total+' → <b>'+cur.deep+'/'+cur.total+'</b>');
+  $('rcPrev').innerHTML='지난 세트('+when+')와 비교 — '+parts.join(' · ')+
+    ' <span style="opacity:.7">· 이 기록은 이 브라우저에만 저장됩니다.</span>';
+  $('rcPrev').classList.add('on');
+}
+
+function renderReport(){
+  const S=summary();
+  $('rcard').classList.toggle('on', S.total>0);
+  if(!S.total) return;
+  $('rcTotal').textContent=S.total;
+  $('rcDeep').innerHTML=S.deep+'<small> / '+S.total+'</small>';
+  $('rcFirst').innerHTML=S.first?(S.first.n+'<small>회차</small>'):'<small>없음</small>';
+  $('rcChal').innerHTML=S.hasChal?(S.chal+'<small> / '+S.total+'</small>'):'<small>꺼짐</small>';
+  $('rcLine').innerHTML = S.first
+    ? '이번 세트는 <b>'+S.first.n+'회차</b>에서 처음 기준을 넘겼습니다 ('+S.first.all+'). '+
+      '깊이는 <b>'+S.deep+'회</b> 도달했고'+(S.hasChal?', 90° 아래 0.5초 유지는 <b>'+S.chal+'회</b> 성공했습니다.':'습니다.')
+    : '아직 기준을 넘긴 회차가 없습니다. 깊이는 <b>'+S.deep+'회</b> 도달했습니다.';
+}
+
+/* 결과를 한 장의 PNG로 합성한다. 서버로 보내지 않고 캔버스에서 바로 만든다. */
+const SANS="'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif";
+const MONOF="'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace";
+function loadImg(u){ return new Promise(r=>{ const i=new Image(); i.onload=()=>r(i); i.onerror=()=>r(null); i.src=u; }); }
+async function saveReport(){
+  const S=summary(); if(!S.total) return;
+  const btn=$('saveBtn'); const label=btn.textContent;
+  btn.disabled=true; btn.textContent='만드는 중…';
+  try{
+    const pics=shots.slice(0,4);
+    const imgs=await Promise.all(pics.map(p=>loadImg(p.url)));
+    const W=1200, H=pics.length?812:560, c=document.createElement('canvas');
+    c.width=W; c.height=H;
+    const g=c.getContext('2d');
+    g.fillStyle='#081130'; g.fillRect(0,0,W,H);
+    g.strokeStyle='rgba(140,170,225,.10)'; g.lineWidth=1;
+    for(let x=0;x<W;x+=34){ g.beginPath(); g.moveTo(x+.5,0); g.lineTo(x+.5,H); g.stroke(); }
+    for(let y=0;y<H;y+=34){ g.beginPath(); g.moveTo(0,y+.5); g.lineTo(W,y+.5); g.stroke(); }
+    const PAD=56;
+    g.textBaseline='alphabetic';
+    g.fillStyle='#EAF0FB'; g.font='800 30px '+SANS;
+    g.fillText('되감기', PAD, 74);
+    g.fillStyle='#54D6EE'; g.font='700 15px '+MONOF;
+    g.fillText('REWIND · SET REPORT', PAD+104, 72);
+    const d=new Date(), p2=n=>String(n).padStart(2,'0');
+    const stamp=d.getFullYear()+'.'+p2(d.getMonth()+1)+'.'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes());
+    g.fillStyle='#94A6C9'; g.font='400 14px '+MONOF;
+    g.fillText(stamp, W-PAD-g.measureText(stamp).width, 72);
+    g.strokeStyle='rgba(140,170,225,.22)'; g.beginPath(); g.moveTo(PAD,100); g.lineTo(W-PAD,100); g.stroke();
+
+    const stats=[['총 회차',String(S.total),'','#EAF0FB'],
+                 ['깊이 도달',String(S.deep),' / '+S.total,'#54D6EE'],
+                 ['첫 무너짐',S.first?String(S.first.n):'—',S.first?'회차':'','#FF6B3D'],
+                 ['챌린지 성공',S.hasChal?String(S.chal):'—',S.hasChal?' / '+S.total:'','#7CE0B0']];
+    const cw=(W-PAD*2)/4;
+    stats.forEach((st,i)=>{
+      const x=PAD+cw*i;
+      g.fillStyle='#94A6C9'; g.font='400 14px '+SANS; g.fillText(st[0], x, 146);
+      g.fillStyle=st[3];     g.font='800 46px '+MONOF; g.fillText(st[1], x, 196);
+      const w=g.measureText(st[1]).width;
+      g.fillStyle='#94A6C9'; g.font='700 17px '+MONOF; g.fillText(st[2], x+w+6, 196);
+    });
+
+    // 회차별 최저 무릎각
+    g.fillStyle='#94A6C9'; g.font='700 13px '+MONOF; g.fillText('SET TIMELINE · 회차별 최저 무릎 각도', PAD, 250);
+    const n=Math.min(timeline.length,8), bw=(W-PAD*2-10*(n-1))/n;
+    for(let i=0;i<n;i++){
+      const r=timeline[i], x=PAD+(bw+10)*i, y=266, h=92, bad=!!r.tag;
+      g.fillStyle=bad?'rgba(255,107,61,.10)':'rgba(14,28,66,.6)';
+      g.strokeStyle=bad?'rgba(255,107,61,.55)':'rgba(140,170,225,.22)';
+      g.beginPath(); g.rect(x+.5,y+.5,bw,h); g.fill(); g.stroke();
+      g.textAlign='center';
+      g.fillStyle='#94A6C9'; g.font='400 12px '+SANS; g.fillText(r.n+'회', x+bw/2, y+24);
+      g.fillStyle=bad?'#FF6B3D':(r.deep?'#7CE0B0':'#EAF0FB'); g.font='800 26px '+MONOF;
+      g.fillText(r.low+'°', x+bw/2, y+58);
+      g.fillStyle=bad?'#FF6B3D':'#94A6C9'; g.font='400 11.5px '+SANS;
+      g.fillText(bad?r.tag:(r.deep?'깊이 인정':'깊이 부족'), x+bw/2, y+79);
+      g.textAlign='left';
+    }
+
+    // 한 줄 요약
+    g.fillStyle='#C3D0E8'; g.font='400 16px '+SANS;
+    const line=S.first
+      ? S.first.n+'회차에서 처음 기준을 넘겼습니다 ('+S.first.all+'). 깊이 '+S.deep+'회 도달'+(S.hasChal?' · 챌린지 '+S.chal+'회 성공':'')+'.'
+      : '기준을 넘긴 회차가 없습니다. 깊이 '+S.deep+'회 도달.';
+    g.fillText(line, PAD, 404);
+
+    if(pics.length){
+      g.fillStyle='#94A6C9'; g.font='700 13px '+MONOF; g.fillText('EVIDENCE · 무너진 순간', PAD, 452);
+      const tw=(W-PAD*2-14*3)/4, th=tw*0.75;
+      imgs.forEach((im,i)=>{
+        const x=PAD+(tw+14)*i, y=468;
+        g.fillStyle='#050B1E'; g.fillRect(x,y,tw,th);
+        if(im) g.drawImage(im,x,y,tw,th);
+        g.strokeStyle='rgba(255,107,61,.45)'; g.strokeRect(x+.5,y+.5,tw,th);
+        g.fillStyle='#FF6B3D'; g.font='700 13px '+SANS; g.fillText(pics[i].tags, x, y+th+24);
+        g.fillStyle='#94A6C9'; g.font='400 12.5px '+SANS;
+        g.fillText(pics[i].rep+'회차 · 최저 무릎각 '+pics[i].depth, x, y+th+44);
+      });
+    }
+    g.strokeStyle='rgba(140,170,225,.22)'; g.beginPath(); g.moveTo(PAD,H-72); g.lineTo(W-PAD,H-72); g.stroke();
+    g.fillStyle='#94A6C9'; g.font='400 13px '+SANS;
+    g.fillText('브라우저 안에서만 계산했습니다. 영상 프레임은 기기를 떠나지 않았습니다.', PAD, H-44);
+    g.fillStyle='#54D6EE'; g.font='400 12px '+MONOF;
+    const t2='MediaPipe Pose Landmarker · ON-DEVICE';
+    g.fillText(t2, W-PAD-g.measureText(t2).width, H-44);
+
+    // data: URL은 큰 이미지에서 브라우저마다 한계가 달라 Blob으로 내려준다
+    const blob=await new Promise(r=>c.toBlob(r,'image/png'));
+    const url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.download='rewind-set-report-'+d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+'-'+p2(d.getHours())+p2(d.getMinutes())+'.png';
+    a.href=url;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),4000);
+    toast('세트 리포트를 저장했습니다');
+  }catch(e){
+    console.error(e); toast('이미지를 만들지 못했습니다');
+  }finally{ btn.disabled=false; btn.textContent=label; }
+}
+$('saveBtn').onclick=saveReport;
+
 /* ---------- 게임 모드 A-1 · 깊이 게이지 챌린지 ----------
    계측을 게임으로 바꾸지 않는다. tick()이 이미 계산해 둔 값을 읽어 표시만 얹는다.
    임계값(TH)·상태머신·캡처 로직은 건드리지 않는다.
@@ -788,7 +991,9 @@ function resetSet(){
   reps=0;deepReps=0;minKnee=180;state='up';bestSev=0;bestM=null;shots=[];
   $('repN').textContent='0'; $('depthRate').textContent='—'; renderShots();
   chReset();
-  timeline=[]; lastRepT=0; renderTimeline();
+  timeline=[]; lastRepT=0; setSaved=false;
+  $('rcPrev').classList.remove('on');
+  renderTimeline(); renderReport();
 }
 $('resetBtn').onclick=resetSet;
 
@@ -881,6 +1086,7 @@ function loopCam(){
   }
   // 한동안 회차가 없으면 세트가 끝난 것으로 보고 증거를 보러 가라고 알린다
   if(reps>0 && lastRepT && now-lastRepT>15000 && state==='up'){
+    finishSet();
     $('guide').classList.add('on'); $('guide').classList.remove('warn');
     $('guide').innerHTML='<div class="lead2"><span class="dotq"></span>15초째 움직임이 없습니다</div>'+
       '<div class="hint">세트를 마쳤다면 아래 <b>무너진 순간</b> 갤러리에서 '+reps+'회차분 기록을 확인해 보세요.</div>';
@@ -936,7 +1142,14 @@ function loopDemo(){
   const m=metrics(lm);
   const warn=tick(m);
   draw(lm,m,warn);
-  if(reps>=8){ running=false; toast('세트 종료 · 아래에서 무너진 순간을 확인하세요'); return; }
+  if(reps>=8){
+    running=false; finishSet();
+    toast('세트 종료 · 아래에서 무너진 순간을 확인하세요');
+    // 심사위원이 스크롤을 내릴 이유를 모를 수 있다. 결과까지 데려다 준다.
+    const soft=matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
+    setTimeout(()=>$('rcard').scrollIntoView({behavior:soft,block:'center'}),900);
+    return;
+  }
   raf=requestAnimationFrame(loopDemo);
 }
 
