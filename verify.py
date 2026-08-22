@@ -24,8 +24,10 @@ def chromium_path():
 TARGET = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else "index.html")
 # 종목별 시연 시나리오 기대값 (모두 결정적이다)
 CASES = [
-    ("스쿼트", "squat",  {"reps": "8", "depth": "6 / 8", "shots": 4}),
-    ("푸시업", "pushup", {"reps": "8", "depth": "4 / 8", "shots": 2}),
+    ("스쿼트", "squat",  {"segs": 8, "depth": "6 / 8", "shots": 4}),
+    ("푸시업", "pushup", {"segs": 8, "depth": "4 / 8", "shots": 2}),
+    # 버티기 종목: 회차가 아니라 '기준 안에 머문 구간'을 센다. 시연은 실시간 구동이라 약 30초.
+    ("플랭크", "plank",  {"segs": 3, "depth": "1 / 3", "shots": 2}),
 ]
 
 with sync_playwright() as p:
@@ -43,20 +45,22 @@ with sync_playwright() as p:
         pg.click('.exsel .ex[data-ex="%s"]' % key)
         pg.wait_for_timeout(250)
         pg.click("#demoBtn")
-        # 세트 종료(8회)까지 대기. 문서상 약 20초.
+        # 세트가 끝날 때까지 대기 (스쿼트·푸시업 약 20초, 플랭크 약 30초)
         try:
-            pg.wait_for_function("() => document.getElementById('repN').textContent === '8'", timeout=45000)
+            pg.wait_for_function(
+                "n => document.querySelectorAll('.cellx:not(.void)').length >= n",
+                arg=expect["segs"], timeout=60000)
         except Exception:
             pass
-        pg.wait_for_timeout(800)
+        pg.wait_for_timeout(1000)
 
-        got = {"reps":  pg.inner_text("#repN"),
+        got = {"segs":  pg.eval_on_selector_all(".cellx:not(.void)", "e=>e.length"),
                "depth": pg.inner_text("#depthRate"),
                "shots": pg.eval_on_selector_all(".shot", "e=>e.length")}
         print("[%s]" % label)
-        print("  reps  ", got["reps"],  " (기대 %s)" % expect["reps"])
-        print("  depth ", got["depth"], " (기대 %s)" % expect["depth"])
-        print("  shots ", got["shots"], " (기대 %s)" % expect["shots"])
+        print("  회차/구간", got["segs"], " (기대 %s)" % expect["segs"])
+        print("  달성    ", got["depth"], " (기대 %s)" % expect["depth"])
+        print("  캡처    ", got["shots"], " (기대 %s)" % expect["shots"])
         print("  chal  ", pg.inner_text("#chalScore"), " (참고값, 합/불 판정 대상 아님)")
         for k, v in expect.items():
             if got[k] != v:
