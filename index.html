@@ -80,15 +80,15 @@
   /* ---------- hero ---------- */
   .hero{padding:64px 0 40px;max-width:840px}
   .eyebrow{font-size:var(--t-xs);letter-spacing:.2em;color:var(--cyan);margin-bottom:22px;opacity:.85}
-  h1{font-size:clamp(30px,5.2vw,52px);line-height:1.24;letter-spacing:-.028em;font-weight:800}
+  h1{font-size:clamp(30px,5.2vw,52px);line-height:1.24;letter-spacing:-.028em;font-weight:800;text-wrap:balance}
   h1 .dim{color:var(--muted);font-weight:500}
-  .sub{margin-top:22px;font-size:clamp(15px,2.1vw,17.5px);line-height:var(--lh-loose);color:#C3D0E8;max-width:660px}
+  .sub{margin-top:22px;font-size:clamp(15px,2.1vw,17.5px);line-height:var(--lh-loose);color:#C3D0E8;max-width:660px;text-wrap:pretty}
   .sub b{color:var(--chalk);font-weight:700}
   .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
   button{font-family:inherit;cursor:pointer;border:none}
   .btn{
     background:var(--cyan);color:#04122A;font-weight:800;font-size:15px;
-    padding:15px 26px;border-radius:4px;letter-spacing:-.01em;transition:transform .12s ease,box-shadow .12s ease;
+    padding:15px 26px;border-radius:var(--r-md);letter-spacing:-.01em;transition:transform .12s ease,box-shadow .12s ease;
     box-shadow:0 0 0 0 rgba(84,214,238,.5);
   }
   .btn:hover{transform:translateY(-2px);box-shadow:0 8px 26px -8px rgba(84,214,238,.7)}
@@ -156,6 +156,7 @@
   .panel h3{font-size:var(--t-xs);letter-spacing:.18em;color:var(--muted);padding:18px var(--pad) 12px;font-weight:600}
   .rep{padding:0 var(--pad) 18px;border-bottom:1px solid var(--line-soft)}
   .rep .n{font-size:60px;font-weight:700;line-height:.92;letter-spacing:-.045em}
+  .rep .n .u{font-size:22px;font-weight:600;color:var(--muted);margin-left:5px;letter-spacing:0}
   .rep .l{font-size:var(--t-sm);color:var(--muted);margin-top:10px;line-height:var(--lh-tight)}
   .gauges{padding:10px var(--pad) 6px}
   .g{padding:13px 0}
@@ -176,9 +177,9 @@
   .chal .cttl{font-size:var(--t-xs);letter-spacing:.18em;color:var(--muted);font-weight:600}
   .chal .cscore{font-size:15px;font-weight:800}
   .track{position:relative;height:26px;margin-top:12px;border:1px solid var(--line-soft);border-radius:var(--r-sm);background:rgba(5,11,30,.5);overflow:hidden;transition:border-color .15s}
-  .track .zone{position:absolute;top:0;bottom:0;left:81.8%;right:0;background:rgba(124,224,176,.09);border-left:1px dashed rgba(124,224,176,.5)}
+  .track .zone{position:absolute;top:0;bottom:0;right:0;background:rgba(124,224,176,.09);border-left:1px dashed rgba(124,224,176,.5)}
   .track .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(84,214,238,.42);transition:width .1s linear}
-  .track .goal{position:absolute;left:81.8%;top:50%;transform:translate(7px,-50%);font-size:10.5px;color:var(--ok);letter-spacing:.06em}
+  .track .goal{position:absolute;top:50%;transform:translate(7px,-50%);font-size:10.5px;color:var(--ok);letter-spacing:.06em}
   .hold{height:4px;margin-top:6px;background:rgba(140,170,225,.16);border-radius:2px;overflow:hidden}
   .hold i{display:block;height:100%;width:0;background:var(--ok);transition:width .1s linear}
   .cmsg{font-size:var(--t-xs);color:var(--muted);margin-top:10px;line-height:1.62;min-height:3.2em}
@@ -201,7 +202,7 @@
   .cue.warn b{color:var(--alarm)}
 
   .ctrlrow{display:flex;gap:8px;padding:14px var(--pad) 18px}
-  .ctrlrow button{flex:1;font-size:13px;padding:13px 8px;border-radius:4px;min-height:44px}
+  .ctrlrow button{flex:1;font-size:var(--t-sm);padding:13px 8px;border-radius:var(--r-md);min-height:46px}
 
   /* ---------- game: combo / tempo ---------- */
   .combo{
@@ -249,6 +250,8 @@
   .cellx.bad{border-color:rgba(255,107,61,.3);background:rgba(255,107,61,.09)}
   .cellx.bad .v,.cellx.bad .s{color:var(--alarm)}
   .cellx.good .v{color:var(--ok)}
+  .cellx{transition:background .14s}
+  .cellx:not(.void):hover{background:var(--tint-2)}
   .cellx .ch{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 6px var(--ok)}
 
   /* ---------- set report ---------- */
@@ -283,13 +286,16 @@
   /* ---------- a11y ---------- */
   :focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:3px}
   .shot{cursor:zoom-in}
-  .shot:hover{border-color:rgba(255,107,61,.55)}
+  .shot:hover{border-color:rgba(255,107,61,.45);transform:translateY(-1px)}
+  .shot{transition:border-color .14s,transform .14s}
 
   /* ---------- evidence ---------- */
   section.block{padding:72px 0;border-top:1px solid var(--line-soft)}
-  .stitle{font-size:var(--t-xs);letter-spacing:.2em;color:var(--cyan);margin-bottom:18px;opacity:.85}
-  h2{font-size:clamp(24px,3.6vw,34px);letter-spacing:-.022em;font-weight:800;line-height:1.38}
-  .lead{margin-top:18px;color:#B9C7E2;font-size:var(--t-lg);line-height:var(--lh-loose);max-width:680px}
+  .stitle{font-size:var(--t-xs);letter-spacing:.2em;color:var(--cyan);margin-bottom:18px;opacity:.85;
+    display:flex;align-items:center;gap:10px}
+  .stitle::before{content:'';width:18px;height:1px;background:var(--cyan);opacity:.55;flex:none}
+  h2{font-size:clamp(24px,3.6vw,34px);letter-spacing:-.022em;font-weight:800;line-height:1.38;text-wrap:balance}
+  .lead{margin-top:18px;color:#B9C7E2;font-size:var(--t-lg);line-height:var(--lh-loose);max-width:680px;text-wrap:pretty}
   .shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:26px}
   .shot{border:1px solid var(--line-soft);border-radius:var(--r-md);overflow:hidden;background:#050B1E;transition:border-color .14s}
   .shot img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover}
@@ -379,7 +385,7 @@
       <div class="beatlbl mono" id="beatLbl"></div>
       <div class="guide" id="guide" aria-live="polite"></div>
       <div class="placeholder" id="ph">
-        <div class="mono" style="font-size:12px;letter-spacing:.2em;color:var(--muted)">POSE LANDMARKER · 33 POINTS</div>
+        <div class="mono" style="font-size:11.5px;letter-spacing:.2em;color:var(--muted);opacity:.8">POSE LANDMARKER · 33 POINTS</div>
         <p id="phHint"></p>
       </div>
     </div>
@@ -415,9 +421,9 @@
           <span class="cscore mono" id="chalScore">—</span>
         </div>
         <div class="track" id="chalTrack">
-          <span class="zone"></span>
+          <span class="zone" id="chalZone"></span>
           <i class="fill" id="chalFill"></i>
-          <span class="goal mono">90°</span>
+          <span class="goal mono" id="chalGoal">90°</span>
         </div>
         <div class="hold"><i id="chalHold"></i></div>
         <div class="cmsg" id="chalMsg">무릎을 <b>90° 아래로 0.5초</b> 버티면 그 회차는 성공입니다. 깊이 도달이 스쳐 지나간 순간을 본다면, 챌린지는 <b>버틴 시간</b>을 봅니다.</div>
@@ -966,7 +972,7 @@ const EX = {
     arc:{L:[L.LEar,L.LS,L.LH],R:[L.REar,L.RS,L.RH]}, viz:{pri:'arc',sec:'vertical'}
   },
   jack:{
-    kind:'rep', holdMs:400, demoEnd:8, priPct:v=>Math.max(0,Math.min(100,(180-v)/150*100)),
+    kind:'rep', holdMs:400, demoEnd:8, priPct:v=>Math.max(0,Math.min(100,(180-v)/170*100)),
     unit:'회차', depthLbl:'끝까지 올린 횟수',
     name:'점핑잭', cnt:'JUMPING JACK', joint:'팔', hint:'카메라를 정면으로 보고',
     TH:{STAND:140, DOWN:60, DEPTH:30, TORSO:15, TILT:0.08},
@@ -1568,7 +1574,7 @@ function chFrame(m){
   if(state==='down'&&m.knee<=TH.DEPTH){ chHold=Math.min(goal(),chHold+dt); chRaw+=dt; chBest=Math.max(chBest,chRaw); }
   else if(!chDone){ chHold=0; chRaw=0; }                    // 존을 벗어나면 다시 0부터 (성공 후에는 유지)
   $('chalHold').style.width=(chHold/goal()*100)+'%';
-  if(CUR.kind==='hold') $('repN').textContent=(chRaw/1000).toFixed(1);
+  if(CUR.kind==='hold') $('repN').innerHTML=(chRaw/1000).toFixed(1)+'<span class="u">초</span>';
   if(!chDone&&chHold>=goal()){ chDone=true; chFx('hit'); }
 }
 function chEnd(low){                            // 회차 종료 시 판정 (reps 증가 이후 호출)
@@ -1598,7 +1604,7 @@ $('chalBtn').onclick=()=>{
 
 function resetSet(){
   reps=0;deepReps=0;minKnee=180;state='up';bestSev=0;bestM=null;shots=[];
-  $('repN').textContent='0'; $('depthRate').textContent='—'; renderShots();
+  $('repN').innerHTML=CUR.kind==='hold'?'0.0<span class="u">초</span>':'0'; $('depthRate').textContent='—'; renderShots();
   chReset();
   timeline=[]; lastRepT=0; setSaved=false;
   combo=0; bestCombo=0; descents=[]; topT=0; renderCombo();
@@ -1795,9 +1801,13 @@ function applyEx(){
   g('gKnee','g1'); g('gTorso','g2'); g('gTilt','g3');
   $('cntTitle').textContent=CUR.cnt;
   $('depthLbl').textContent=CUR.depthLbl;
-  $('repN').textContent=CUR.kind==='hold'?'0.0':'0';
+  $('repN').innerHTML=CUR.kind==='hold'?'0.0<span class="u">초</span>':'0';
   $('tlNote').innerHTML='회차별 <b>최저 '+CUR.joint+' 각도</b>가 여기에 쌓입니다. 무너짐이 몇 번째부터 시작되는지 한눈에 보입니다.';
   $('rcName').textContent=CUR.name;
+  // 목표선은 종목마다 다른 자리에 선다 (스쿼트 90°, 플랭크 12°, 목 스트레칭 158° …)
+  const gp=CUR.priPct(CUR.TH.DEPTH)+'%';
+  $('chalZone').style.left=gp; $('chalGoal').style.left=gp;
+  $('chalGoal').textContent=CUR.TH.DEPTH+'°';
   $('chalTitle').textContent=CUR.chal[0];
   CH_HELP=CUR.chal[1];
   document.querySelectorAll('.exsel .ex').forEach(b=>{
