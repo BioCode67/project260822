@@ -11,6 +11,7 @@
 <meta property="og:locale" content="ko_KR" />
 <meta name="twitter:card" content="summary" />
 <meta name="theme-color" content="#081130" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23081130'/%3E%3Cpath d='M9 8v16M9 8h8a5 5 0 0 1 0 10H9m6 0 8 6' stroke='%2354D6EE' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -98,6 +99,10 @@
   .screen video,.screen canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .screen video{transform:scaleX(-1);opacity:0}
   #overlay{z-index:2}
+  /* 웹캠 화면이 밝으면(창가·하늘·흰 벽) 계측선이 묻힌다. 얇은 스크림을 깔아 대비를 확보한다. */
+  .scrim{position:absolute;inset:0;z-index:1;pointer-events:none;display:none;
+    background:radial-gradient(125% 95% at 50% 45%,rgba(8,17,48,.08),rgba(8,17,48,.58))}
+  .scrim.on{display:block}
   .placeholder{
     position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:14px;text-align:center;padding:30px;z-index:5
@@ -301,6 +306,7 @@
   <div class="stage">
     <div class="screen" id="screen">
       <video id="cam" playsinline muted></video>
+      <div class="scrim" id="scrim"></div>
       <canvas id="overlay"></canvas>
       <div class="corner tl mono" id="cornerL">STANDBY</div>
       <div class="corner tr mono" id="cornerR">0 FPS</div>
@@ -511,7 +517,7 @@ const L = {LS:11,RS:12,LH:23,RH:24,LK:25,RK:26,LA:27,RA:28};
 let landmarker=null, running=false, mode=null, raf=null, lastT=-1, delegate='—';
 let state='up', reps=0, deepReps=0, minKnee=180, shots=[];
 let bestSev=0, bestM=null;
-let fpsT=performance.now(), fpsN=0;
+let fpsT=performance.now(), fpsN=0, lowN=0, lowSaid=false;
 const snap=document.createElement('canvas');
 
 /* ---------- geometry ---------- */
@@ -599,8 +605,9 @@ function arc(ctx,c,r,a1,a2){
 function tag(ctx,x,y,txt,color,W){
   ctx.font=`700 ${Math.max(13,W/30)}px 'JetBrains Mono',monospace`;
   const w=ctx.measureText(txt).width, h=Math.max(20,W/24);
-  ctx.fillStyle='rgba(8,17,48,.86)';
+  ctx.fillStyle='rgba(6,13,36,.93)';
   ctx.fillRect(x,y-h/2,w+12,h);
+  ctx.strokeStyle='rgba(140,170,225,.35)'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y-h/2+.5,w+12,h);
   ctx.fillStyle=color; ctx.textBaseline='middle';
   ctx.fillText(txt,x+6,y+1);
 }
@@ -649,13 +656,14 @@ function draw(lm,m,warn){
   const kneeCol=m.knee<=TH.DEPTH?'#7CE0B0':main;
   const rK=Math.max(24,W/9);
 
+  ctx.shadowColor='rgba(4,9,24,.95)'; ctx.shadowBlur=Math.max(4,W/120);
   ctx.setLineDash([Math.max(3,W/180),Math.max(4,W/150)]);
-  ctx.lineWidth=Math.max(1.2,W/480); ctx.strokeStyle='rgba(234,240,251,.42)';
+  ctx.lineWidth=Math.max(1.4,W/420); ctx.strokeStyle='rgba(234,240,251,.72)';
   ctx.beginPath(); ctx.moveTo(hipM.x,hipM.y); ctx.lineTo(hipM.x,hipM.y-Math.max(46,W/4)); ctx.stroke();  // 수직 기준선
   ctx.beginPath(); ctx.moveTo(kp.x,kp.y); ctx.lineTo(hp.x,hp.y); ctx.moveTo(kp.x,kp.y); ctx.lineTo(ap.x,ap.y); ctx.stroke();
   ctx.setLineDash([]);
 
-  ctx.lineWidth=Math.max(2,W/300); ctx.strokeStyle=kneeCol;
+  ctx.lineWidth=Math.max(2.4,W/260); ctx.strokeStyle=kneeCol;
   const mA=arc(ctx,kp,rK,Math.atan2(hp.y-kp.y,hp.x-kp.x),Math.atan2(ap.y-kp.y,ap.x-kp.x));
   tag(ctx,kp.x+Math.cos(mA)*(rK+8),kp.y+Math.sin(mA)*(rK+8),Math.round(m.knee)+'°',kneeCol,W);
 
@@ -665,6 +673,7 @@ function draw(lm,m,warn){
   const mT=arc(ctx,hipM,rT,-Math.PI/2,Math.atan2(shM.y-hipM.y,shM.x-hipM.x));
   tag(ctx,hipM.x+Math.cos(mT)*(rT+6),hipM.y+Math.sin(mT)*(rT+6),Math.round(m.torso)+'°',
       m.torso>TH.TORSO?'#FF6B3D':'#EAF0FB',W);
+  ctx.shadowBlur=0;
 }
 /* ---------- ui ---------- */
 function gauge(el,barEl,valEl,val,unit,warn,good){
@@ -1047,8 +1056,9 @@ async function startCam(){
     cam.style.opacity='1';
     if(!landmarker) await loadModel();
     sizeCanvas(cam.videoWidth||960, cam.videoHeight||720);
-    ph.style.display='none'; cornerL.textContent='LIVE · ON-DEVICE · '+delegate;
-    running=true; mode='cam'; resetSet(); loopCam();
+    ph.style.display='none'; $('scrim').classList.add('on');
+    cornerL.textContent='LIVE · ON-DEVICE · '+delegate;
+    running=true; mode='cam'; lowN=0; lowSaid=false; resetSet(); loopCam();
   }catch(e){
     console.error(e);
     const n=e&&e.name;
@@ -1092,7 +1102,18 @@ function loopCam(){
       '<div class="hint">세트를 마쳤다면 아래 <b>무너진 순간</b> 갤러리에서 '+reps+'회차분 기록을 확인해 보세요.</div>';
   }
   fpsN++;
-  if(now-fpsT>800){ cornerR.textContent=Math.round(fpsN*1000/(now-fpsT))+' FPS'; fpsT=now; fpsN=0; }
+  if(now-fpsT>800){
+    const fps=Math.round(fpsN*1000/(now-fpsT));
+    cornerR.textContent=fps+' FPS';
+    // 인식이 느린 기기에서 빠르게 움직이면 최저점을 놓친다. 숨기지 말고 알린다.
+    cornerR.style.color = fps<10 ? 'var(--alarm)' : '';
+    lowN = fps<10 ? lowN+1 : 0;
+    if(lowN>=3 && !lowSaid){
+      lowSaid=true;
+      toast('이 기기에서는 인식이 초당 '+fps+'회입니다 · 동작을 조금 천천히 해 주세요');
+    }
+    fpsT=now; fpsN=0;
+  }
   raf=requestAnimationFrame(loopCam);
 }
 
@@ -1129,7 +1150,7 @@ function synth(t,repIdx){
 let demoT=0;
 function startDemo(){
   if(running&&mode==='cam'){ running=false; cancelAnimationFrame(raf); }
-  cam.style.opacity='0'; ph.style.display='none'; setGuide(null);
+  cam.style.opacity='0'; ph.style.display='none'; $('scrim').classList.remove('on'); setGuide(null);
   sizeCanvas(720,540);
   cornerL.textContent='SIMULATION · 합성 좌표';
   cornerR.textContent='DEMO';
