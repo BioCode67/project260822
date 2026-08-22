@@ -5,113 +5,107 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bp:#0B0E14; --bp2:#12161F; --chalk:#EDF1F6; --muted:#8A93A3;
-  --cyan:#79B8FF; --alarm:#E8A25E; --ok:#5CCB9B;
-  --line:rgba(214,226,245,.13); --tint:rgba(214,226,245,.035);
+  /* 밝은 청사진 — 흰 종이 위의 파란 선. 앱 스크린샷(어두움)과 대비를 만든다 */
+  --bg:#F4F6FA; --surface:#FFFFFF; --ink:#0F151E; --muted:#5C6675;
+  --accent:#2560C4; --accent-soft:#EAF1FC;
+  --warn:#A85614; --warn-soft:#FBF0E4;
+  --ok:#147350;  --ok-soft:#E8F4EE;
+  --line:#E2E8F1; --line-2:#D2DBE7;
   --sans:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --shadow:0 1px 2px rgba(16,32,56,.05),0 6px 18px -8px rgba(16,32,56,.10);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#000;font-family:var(--sans);-webkit-font-smoothing:antialiased;
      word-break:keep-all;overflow-wrap:break-word}
 .page{
-  width:1600px;height:900px;background:var(--bp);color:var(--chalk);
+  width:1600px;height:900px;background:var(--bg);color:var(--ink);
   position:relative;overflow:hidden;padding:58px 76px 72px;
   display:flex;flex-direction:column;
-  background-image:radial-gradient(rgba(214,226,245,.05) 1px,transparent 1px);
+  background-image:radial-gradient(rgba(37,96,196,.055) 1px,transparent 1px);
   background-size:30px 30px;
 }
-.page::after{content:'';position:absolute;inset:0 0 auto 0;height:58%;pointer-events:none;
-  background:radial-gradient(70% 100% at 50% -20%,rgba(121,184,255,.075),transparent 68%)}
+.page::after{content:'';position:absolute;inset:0 0 auto 0;height:60%;pointer-events:none;
+  background:radial-gradient(72% 100% at 50% -22%,rgba(37,96,196,.09),transparent 70%)}
 .page>*{position:relative;z-index:1}
-.kicker{position:absolute;top:58px;right:76px;font-size:14px;color:var(--muted);letter-spacing:.2em;font-family:var(--mono)}
+.kicker{position:absolute;top:58px;right:76px;font-size:14px;color:#93A0B2;letter-spacing:.2em;font-family:var(--mono)}
 .brand{position:absolute;left:76px;bottom:34px;font-size:14px;color:var(--muted)}
-.brand b{color:var(--chalk)}
-.pnum{position:absolute;right:76px;bottom:34px;font-size:14px;color:var(--muted);letter-spacing:.1em;font-family:var(--mono)}
-.eyebrow{font-size:14px;letter-spacing:.22em;color:var(--cyan);margin-bottom:20px;font-weight:700;font-family:var(--mono);opacity:.9}
-h1{font-size:46px;line-height:1.3;letter-spacing:-.028em;font-weight:800;text-wrap:balance}
-h2{font-size:38px;line-height:1.32;letter-spacing:-.026em;font-weight:800;text-wrap:balance}
-h1 .dim,h2 .dim{color:var(--muted);font-weight:500}
-h1 .hi,h2 .hi{color:var(--cyan)}
-.lead{font-size:18px;line-height:1.78;color:#B3BCCA;margin-top:18px;max-width:940px;text-wrap:pretty}
-.lead b{color:var(--chalk);font-weight:700}
-.rule{height:1px;background:var(--line)}
+.brand b{color:var(--ink)}
+.pnum{position:absolute;right:76px;bottom:34px;font-size:14px;color:#93A0B2;letter-spacing:.1em;font-family:var(--mono)}
+.eyebrow{font-size:14px;letter-spacing:.22em;color:var(--accent);margin-bottom:20px;font-weight:700;font-family:var(--mono)}
+h1{font-size:46px;line-height:1.3;letter-spacing:-.03em;font-weight:800;text-wrap:balance}
+h2{font-size:38px;line-height:1.32;letter-spacing:-.028em;font-weight:800;text-wrap:balance}
+h1 .dim,h2 .dim{color:#98A3B2;font-weight:500}
+h1 .hi,h2 .hi{color:var(--accent)}
+.lead{font-size:18px;line-height:1.78;color:#4B5666;margin-top:18px;max-width:940px;text-wrap:pretty}
+.lead b{color:var(--ink);font-weight:700}
+.rule{height:1px;background:var(--line-2)}
 .big{font-size:24px;line-height:1.6;font-weight:700;letter-spacing:-.02em}
-.big .hi{color:var(--cyan)}
+.big .hi{color:var(--accent)}
 .src{font-size:13px;color:var(--muted);line-height:1.7}
 
 .grow{flex:1;display:flex;flex-direction:column;justify-content:center;gap:30px}
 .two{display:grid;gap:52px;align-items:start}
 
-/* stats */
-.stat{border:1px solid var(--line);border-radius:10px;padding:24px 26px;background:var(--tint);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}
-.stat .n{font-size:50px;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--cyan);font-family:var(--mono)}
+.stat{border:1px solid var(--line);border-radius:12px;padding:24px 26px;background:var(--surface);box-shadow:var(--shadow)}
+.stat .n{font-size:50px;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--accent);font-family:var(--mono)}
 .stat .n small{font-size:24px;font-weight:700}
 .stat .l{font-size:16px;margin-top:14px;line-height:1.55;font-weight:700}
 .stat .s{font-size:13px;color:var(--muted);margin-top:9px;line-height:1.6}
 
-/* strip */
 .strip{display:grid;grid-template-columns:repeat(8,1fr);gap:12px}
-.cell{border:1px solid transparent;border-radius:8px;padding:16px 8px 15px;text-align:center;background:var(--tint)}
+.cell{border:1px solid var(--line);border-radius:10px;padding:16px 8px 15px;text-align:center;background:var(--surface);box-shadow:var(--shadow)}
 .cell .r{font-size:13px;color:var(--muted);letter-spacing:.06em;font-family:var(--mono)}
 .cell .v{font-size:25px;font-weight:800;margin-top:10px;letter-spacing:-.03em;font-family:var(--mono)}
 .cell .s{font-size:12.5px;margin-top:8px;color:var(--muted)}
-.cell.bad{border-color:rgba(232,162,94,.3);background:rgba(232,162,94,.09)}
-.cell.bad .v,.cell.bad .s{color:var(--alarm)}
+.cell.bad{border-color:#EBC79E;background:var(--warn-soft)}
+.cell.bad .v{color:var(--warn)} .cell.bad .s{color:#8A5320}
 .cell.ok .v{color:var(--ok);font-size:19px;margin-top:13px}
 .striplab{font-size:14px;color:var(--muted);margin-top:14px;line-height:1.65}
-.striplab b{color:var(--chalk)}
+.striplab b{color:var(--ink)}
 
-/* compare */
 .cmp{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.cmp>div{border:1px solid var(--line);border-radius:10px;padding:24px 26px}
-.cmp .old{background:rgba(232,162,94,.05);border-color:rgba(232,162,94,.26)}
-.cmp .new{background:rgba(121,184,255,.055);border-color:rgba(121,184,255,.32)}
+.cmp>div{border:1px solid var(--line);border-radius:12px;padding:24px 26px;background:var(--surface);box-shadow:var(--shadow)}
+.cmp .old{background:var(--warn-soft);border-color:#EDD3B4}
+.cmp .new{background:var(--accent-soft);border-color:#C6DAF6}
 .cmp .h{font-size:15px;letter-spacing:.12em;font-weight:700;margin-bottom:14px;font-family:var(--mono)}
-.cmp .old .h{color:var(--alarm)} .cmp .new .h{color:var(--cyan)}
-.cmp li{list-style:none;font-size:16px;line-height:1.55;padding:10px 0 10px 26px;position:relative;border-bottom:1px solid var(--line)}
+.cmp .old .h{color:var(--warn)} .cmp .new .h{color:var(--accent)}
+.cmp li{list-style:none;font-size:16px;line-height:1.55;padding:10px 0 10px 26px;position:relative;border-bottom:1px solid rgba(16,32,56,.07)}
 .cmp li:last-child{border:none}
 .cmp li:before{position:absolute;left:0;top:10px;font-weight:900}
-.cmp .old li:before{content:'\2715';color:var(--alarm)}
-.cmp .new li:before{content:'\2713';color:var(--cyan)}
+.cmp .old li:before{content:'\2715';color:var(--warn)}
+.cmp .new li:before{content:'\2713';color:var(--accent)}
 
-/* cards */
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.card{border:1px solid var(--line);border-radius:10px;padding:24px 26px;background:var(--tint);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}
-.card .k{font-size:13px;letter-spacing:.16em;color:var(--cyan);margin-bottom:14px;font-weight:700;font-family:var(--mono);opacity:.9}
+.card{border:1px solid var(--line);border-radius:12px;padding:24px 26px;background:var(--surface);box-shadow:var(--shadow)}
+.card .k{font-size:13px;letter-spacing:.16em;color:var(--accent);margin-bottom:14px;font-weight:700;font-family:var(--mono)}
 .card .t{font-size:21px;font-weight:800;letter-spacing:-.025em;line-height:1.35}
 .card .d{font-size:15px;color:var(--muted);line-height:1.7;margin-top:11px}
 
-/* flow */
 .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.fl{border:1px solid var(--line);border-radius:10px;padding:18px 20px;background:var(--tint)}
-.fl .n{font-size:12.5px;color:var(--cyan);letter-spacing:.14em;font-weight:700;font-family:var(--mono);opacity:.9}
+.fl{border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:var(--surface);box-shadow:var(--shadow)}
+.fl .n{font-size:12.5px;color:var(--accent);letter-spacing:.14em;font-weight:700;font-family:var(--mono)}
 .fl .t{font-size:18px;font-weight:800;margin-top:9px;letter-spacing:-.02em}
 .fl .d{font-size:14px;color:var(--muted);margin-top:8px;line-height:1.6}
 
-/* note */
-.note{border:1px solid var(--line);border-left:3px solid var(--cyan);border-radius:0 8px 8px 0;
-      padding:20px 24px;background:rgba(121,184,255,.05)}
+.note{border:1px solid #C6DAF6;border-left:3px solid var(--accent);border-radius:0 10px 10px 0;
+      padding:20px 24px;background:var(--accent-soft)}
 .note .t{font-size:19px;font-weight:800;letter-spacing:-.025em}
-.note .d{font-size:16px;color:#B3BCCA;line-height:1.72;margin-top:9px}
+.note .d{font-size:16px;color:#3E4A5C;line-height:1.72;margin-top:9px}
 
-/* biz */
 .biz{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.b{border:1px solid var(--line);border-radius:10px;padding:22px 24px;background:var(--tint);
-   box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}
-.b .tag{display:inline-block;font-size:12.5px;font-weight:800;letter-spacing:.1em;color:#061523;
-        background:linear-gradient(180deg,#8CC4FF,#69A9F2);padding:4px 11px;border-radius:5px;font-family:var(--mono)}
+.b{border:1px solid var(--line);border-radius:12px;padding:22px 24px;background:var(--surface);box-shadow:var(--shadow)}
+.b .tag{display:inline-block;font-size:12.5px;font-weight:800;letter-spacing:.1em;color:#fff;
+        background:var(--accent);padding:5px 12px;border-radius:6px;font-family:var(--mono)}
 .b .t{font-size:21px;font-weight:800;margin-top:14px;letter-spacing:-.025em}
 .b .d{font-size:15px;color:var(--muted);line-height:1.7;margin-top:10px}
 
-/* figures */
-.fig{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#080B11;
-     box-shadow:inset 0 1px 0 rgba(255,255,255,.035);display:flex;flex-direction:column}
-.fig img{width:100%;display:block;background:#080B11}
-.fig .cap{padding:13px 17px;font-size:14px;color:var(--muted);border-top:1px solid var(--line);line-height:1.55}
-.fig .cap b{color:var(--chalk)}
+/* 앱 화면은 어둡다. 흰 카드 안에 액자처럼 넣어 제품 컷으로 읽히게 한다 */
+.fig{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface);
+     box-shadow:var(--shadow);display:flex;flex-direction:column}
+.fig img{width:100%;display:block;background:#0B0E14;border-bottom:1px solid var(--line)}
+.fig .cap{padding:13px 17px;font-size:14px;color:var(--muted);line-height:1.55}
+.fig .cap b{color:var(--ink)}
 </style></head><body>
 
 <div class="page">
@@ -194,7 +188,7 @@ h1 .hi,h2 .hi{color:var(--cyan)}
     <div class="two" style="grid-template-columns:1.35fr .65fr;align-items:center;gap:34px">
       <div class="note">
         <div class="t">핵심 니즈 한 줄</div>
-        <div class="d">“운동을 대신 짜주지 말고, <b style="color:#EDF1F6">내가 지금 무너지고 있다는 사실만</b> 제때 알려 달라.” 되감기는 프로그램을 처방하지 않습니다. 관찰만 합니다.</div>
+        <div class="d">“운동을 대신 짜주지 말고, <b style="color:#0F151E">내가 지금 무너지고 있다는 사실만</b> 제때 알려 달라.” 되감기는 프로그램을 처방하지 않습니다. 관찰만 합니다.</div>
       </div>
       <div class="big">매일 홈트 자세가 맞는지 확인하는 게 너무 귀찮다<br><span class="hi">→ AI로 무너진 순간만 잡아 되돌려 보여주는 되감기</span></div>
     </div>
@@ -227,7 +221,7 @@ h1 .hi,h2 .hi{color:var(--cyan)}
     </div>
     <div class="note">
       <div class="t">뒤집은 지점</div>
-      <div class="d">기존 운동 앱은 <b style="color:#EDF1F6">잘한 것을 세어</b> 동기를 줍니다. 되감기는 <b style="color:#EDF1F6">무너진 것을 남겨</b> 다음 세트를 바꿉니다. 기록이 아니라 증거를 만듭니다.</div>
+      <div class="d">기존 운동 앱은 <b style="color:#0F151E">잘한 것을 세어</b> 동기를 줍니다. 되감기는 <b style="color:#0F151E">무너진 것을 남겨</b> 다음 세트를 바꿉니다. 기록이 아니라 증거를 만듭니다.</div>
     </div>
   </div>
   <div class="brand"><b>되감기</b> REWIND</div>
@@ -243,15 +237,15 @@ h1 .hi,h2 .hi{color:var(--cyan)}
   </div>
   <div class="grow" style="gap:18px">
     <div style="display:grid;grid-template-columns:1.05fr 1fr;gap:18px">
-      <div class="fig"><img src="a_live.png" alt="실시간 관절 추정 화면" style="height:188px;object-fit:contain">
+      <div class="fig"><img src="a_live.png" alt="실시간 관절 추정 화면" style="height:188px;width:auto;max-width:100%;margin:0 auto;object-fit:contain;background:transparent">
         <div class="cap"><b>실시간 계측</b> — 관절 33점을 추정하고, 무릎 사잇각과 고관절의 수직 기준선을 화면 위에 직접 그립니다.</div></div>
-      <div class="fig"><img src="a_report.png" alt="세트 리포트" style="height:188px;object-fit:contain">
+      <div class="fig"><img src="a_report.png" alt="세트 리포트" style="height:188px;width:auto;max-width:100%;margin:0 auto;object-fit:contain;background:transparent">
         <div class="cap"><b>세트 리포트</b> — 총 회차·깊이 도달·첫 무너짐 회차에 더해, 가동범위와 처음 3회 대비 몇 도 얕아졌는지까지 남습니다.</div></div>
     </div>
-    <div class="fig"><img src="a_shots.png" alt="무너진 순간 캡처 갤러리" style="height:152px;object-fit:contain">
+    <div class="fig"><img src="a_shots.png" alt="무너진 순간 캡처 갤러리" style="height:152px;width:auto;max-width:100%;margin:0 auto;object-fit:contain;background:transparent">
       <div class="cap"><b>세트 종료 후 증거</b> — 회차가 쌓일수록 각도가 무너지고 깊이는 얕아집니다. “몇 개 했는지”가 아니라 <b>“몇 번째에 무너졌는지”</b>가 남습니다.</div></div>
     <div class="note">
-      <div class="d" style="margin-top:0"><b style="color:#EDF1F6">카메라를 켜지 않아도 됩니다.</b> 합성 관절 좌표를 동일한 계산 파이프라인에 통과시키는 <b style="color:#EDF1F6">시연 모드</b>가 있어, 권한 없이도 카운트·경고·캡처가 그대로 동작합니다. 스쿼트·푸시업·런지·벤치프레스·점핑잭·플랭크·목 스트레칭 <b style="color:#EDF1F6">7종</b>이 같은 코드로 돕니다.</div>
+      <div class="d" style="margin-top:0"><b style="color:#0F151E">카메라를 켜지 않아도 됩니다.</b> 합성 관절 좌표를 동일한 계산 파이프라인에 통과시키는 <b style="color:#0F151E">시연 모드</b>가 있어, 권한 없이도 카운트·경고·캡처가 그대로 동작합니다. 스쿼트·푸시업·런지·벤치프레스·점핑잭·플랭크·목 스트레칭 <b style="color:#0F151E">7종</b>이 같은 코드로 돕니다.</div>
     </div>
   </div>
   <div class="brand"><b>되감기</b> REWIND</div>
@@ -268,7 +262,7 @@ h1 .hi,h2 .hi{color:var(--cyan)}
   <div class="grow">
     <div class="biz">
       <div class="b"><span class="tag">B2C</span><div class="t">종목 확장</div>
-        <div class="d">스쿼트·푸시업·런지·벤치프레스·점핑잭·플랭크·목 스트레칭 <b style="color:#EDF1F6">7종이 이미 동작합니다.</b> 종목마다 재는 3점 각도와 임계값만 바꾸면 되므로 확장 비용이 낮습니다.</div></div>
+        <div class="d">스쿼트·푸시업·런지·벤치프레스·점핑잭·플랭크·목 스트레칭 <b style="color:#0F151E">7종이 이미 동작합니다.</b> 종목마다 재는 3점 각도와 임계값만 바꾸면 되므로 확장 비용이 낮습니다.</div></div>
       <div class="b"><span class="tag">B2B</span><div class="t">시설·기업</div>
         <div class="d">무인 헬스장, 공공 체육시설, 기업 사내 운동 프로그램에 임베드. 영상 저장이 없어 시설 측의 개인정보 부담이 없습니다.</div></div>
       <div class="b"><span class="tag">B2G</span><div class="t">재활·고령층</div>
