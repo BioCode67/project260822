@@ -393,7 +393,7 @@
       경고가 뜬 프레임은 자동으로 캡처됩니다. 세트가 끝난 뒤 다시 보면, 내 자세가 정확히 몇 회차에서 어떤 값으로 무너졌는지 숫자와 그림으로 남아 있습니다.
     </p>
     <div class="rcard" id="rcard">
-      <div class="rct mono">SET REPORT</div>
+      <div class="rct mono">SET REPORT · <span id="rcName" style="color:var(--cyan)">스쿼트</span></div>
       <div class="rcs">
         <div class="c1"><div class="k">총 회차</div><div class="v mono" id="rcTotal">0</div></div>
         <div class="c2"><div class="k">깊이 도달</div><div class="v mono" id="rcDeep">0</div></div>
@@ -616,7 +616,7 @@ function synthPush(t,repIdx){
    각 종목은 "어떤 3점 각도를 재는가"와 임계값, 라벨만 정의한다. */
 const EX = {
   squat:{
-    name:'스쿼트', hint:'옆으로 서서',
+    name:'스쿼트', cnt:'SQUAT COUNT', joint:'무릎', hint:'옆으로 서서',
     TH:{STAND:158,DOWN:100,DEPTH:90,TORSO:55,TILT:0.08},
     metrics:metricsSquat, synth:synthSquat, secMax:90,
     g1:['무릎 각도','고관절–무릎–발목. 90° 이하로 내려가야 깊이 인정'],
@@ -628,7 +628,7 @@ const EX = {
     arc:{L:[L.LH,L.LK,L.LA],R:[L.RH,L.RK,L.RA]}, ref:'vertical'
   },
   pushup:{
-    name:'푸시업', hint:'옆에서 전신이 보이게',
+    name:'푸시업', cnt:'PUSH-UP COUNT', joint:'팔꿈치', hint:'옆에서 전신이 보이게',
     TH:{STAND:158,DOWN:110,DEPTH:90,TORSO:15,TILT:0.08},
     metrics:metricsPush, synth:synthPush, secMax:45,
     g1:['팔꿈치 각도','어깨–팔꿈치–손목. 90° 이하로 내려가야 깊이 인정'],
@@ -670,7 +670,7 @@ function quality(lm){
 }
 const VIEW=f=> f<0.25?['측면','무릎·상체 계측에 가장 좋은 각도입니다. 좌우 비대칭은 이 각도에서 잴 수 없어 참고값입니다.']
              : f<0.55?['비스듬','세 값을 모두 잴 수 있는 각도입니다.']
-             :         ['정면','좌우 비대칭은 정확하지만, 무릎 각도는 옆모습보다 부정확합니다.'];
+             :         ['정면','좌우 비대칭은 정확하지만, 주 각도는 옆모습보다 부정확합니다.'];
 function setGuide(q){
   const g=$('guide');
   if(!q){ g.classList.remove('on'); return; }
@@ -864,7 +864,7 @@ function renderTimeline(){
     if(!r){ out.push('<div class="cellx void"><div class="r mono">'+(i+1)+'회</div><div class="v mono">—</div><div class="s">—</div></div>'); continue; }
     const bad=!!r.tag;
     const sub=bad?r.tag:(r.deep?'깊이 인정':'깊이 부족');
-    out.push('<div class="cellx '+(bad?'bad':(r.deep?'good':''))+'" title="'+r.n+'회차 · 최저 무릎각 '+r.low+'°'+(r.all?' · '+r.all:'')+'">'+
+    out.push('<div class="cellx '+(bad?'bad':(r.deep?'good':''))+'" title="'+r.n+'회차 · 최저 '+CUR.joint+'각 '+r.low+'°'+(r.all?' · '+r.all:'')+'">'+
       (r.chal?'<span class="ch" title="챌린지 성공"></span>':'')+
       '<div class="r"><span class="mono">'+r.n+'</span>회</div><div class="v mono">'+r.low+'°</div><div class="s">'+sub+'</div></div>');
   }
@@ -873,8 +873,8 @@ function renderTimeline(){
   if(done){
     const first=timeline.find(r=>!!r.tag);
     $('tlNote').innerHTML = first
-      ? '<b>'+first.n+'회차</b>부터 기준을 넘기 시작했습니다 ('+first.all+'). 회차별 최저 무릎 각도를 함께 보세요.'
-      : '아직 기준을 넘긴 회차가 없습니다. 회차별 <b>최저 무릎 각도</b>가 쌓이고 있습니다.';
+      ? '<b>'+first.n+'회차</b>부터 기준을 넘기 시작했습니다 ('+first.all+'). 회차별 최저 '+CUR.joint+' 각도를 함께 보세요.'
+      : '아직 기준을 넘긴 회차가 없습니다. 회차별 <b>최저 '+CUR.joint+' 각도</b>가 쌓이고 있습니다.';
   }
 }
 
@@ -889,7 +889,7 @@ function openLb(i){
   const s=shots[i]; if(!s) return;
   $('lbImg').src=s.url; $('lbImg').alt=s.rep+'회차 자세 캡처';
   $('lbTag').innerHTML='<b>'+s.tags+'</b>';
-  $('lbMeta').textContent=s.rep+'회차 · 최저 무릎각 '+s.depth;
+  $('lbMeta').textContent=s.rep+'회차 · 최저 '+CUR.joint+'각 '+s.depth;
   $('lb').classList.add('on'); $('lbX').focus();
 }
 function closeLb(){ $('lb').classList.remove('on'); $('lbImg').removeAttribute('src'); }
@@ -976,7 +976,7 @@ async function saveReport(){
     g.fillStyle='#EAF0FB'; g.font='800 30px '+SANS;
     g.fillText('되감기', PAD, 74);
     g.fillStyle='#54D6EE'; g.font='700 15px '+MONOF;
-    g.fillText('REWIND · SET REPORT', PAD+104, 72);
+    g.fillText('REWIND · SET REPORT · '+CUR.name, PAD+104, 72);
     const d=new Date(), p2=n=>String(n).padStart(2,'0');
     const stamp=d.getFullYear()+'.'+p2(d.getMonth()+1)+'.'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes());
     g.fillStyle='#94A6C9'; g.font='400 14px '+MONOF;
@@ -997,7 +997,7 @@ async function saveReport(){
     });
 
     // 회차별 최저 무릎각
-    g.fillStyle='#94A6C9'; g.font='700 13px '+MONOF; g.fillText('SET TIMELINE · 회차별 최저 무릎 각도', PAD, 250);
+    g.fillStyle='#94A6C9'; g.font='700 13px '+MONOF; g.fillText('SET TIMELINE · 회차별 최저 '+CUR.joint+' 각도', PAD, 250);
     const n=Math.min(timeline.length,8), bw=(W-PAD*2-10*(n-1))/n;
     for(let i=0;i<n;i++){
       const r=timeline[i], x=PAD+(bw+10)*i, y=266, h=92, bad=!!r.tag;
@@ -1030,7 +1030,7 @@ async function saveReport(){
         g.strokeStyle='rgba(255,107,61,.45)'; g.strokeRect(x+.5,y+.5,tw,th);
         g.fillStyle='#FF6B3D'; g.font='700 13px '+SANS; g.fillText(pics[i].tags, x, y+th+24);
         g.fillStyle='#94A6C9'; g.font='400 12.5px '+SANS;
-        g.fillText(pics[i].rep+'회차 · 최저 무릎각 '+pics[i].depth, x, y+th+44);
+        g.fillText(pics[i].rep+'회차 · 최저 '+CUR.joint+'각 '+pics[i].depth, x, y+th+44);
       });
     }
     g.strokeStyle='rgba(140,170,225,.22)'; g.beginPath(); g.moveTo(PAD,H-72); g.lineTo(W-PAD,H-72); g.stroke();
@@ -1043,7 +1043,7 @@ async function saveReport(){
     // data: URL은 큰 이미지에서 브라우저마다 한계가 달라 Blob으로 내려준다
     const blob=await new Promise(r=>c.toBlob(r,'image/png'));
     const url=URL.createObjectURL(blob), a=document.createElement('a');
-    a.download='rewind-set-report-'+d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+'-'+p2(d.getHours())+p2(d.getMinutes())+'.png';
+    a.download='rewind-'+CUR.key+'-report-'+d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+'-'+p2(d.getHours())+p2(d.getMinutes())+'.png';
     a.href=url;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),4000);
@@ -1291,6 +1291,9 @@ function applyEx(){
   const g=(id,i)=>{ const e=$(id); e.querySelector('.name').textContent=CUR[i][0];
                     e.querySelector('.desc').textContent=CUR[i][1]; };
   g('gKnee','g1'); g('gTorso','g2'); g('gTilt','g3');
+  $('cntTitle').textContent=CUR.cnt;
+  $('tlNote').innerHTML='회차별 <b>최저 '+CUR.joint+' 각도</b>가 여기에 쌓입니다. 무너짐이 몇 번째부터 시작되는지 한눈에 보입니다.';
+  $('rcName').textContent=CUR.name;
   $('chalTitle').textContent=CUR.chal[0];
   CH_HELP=CUR.chal[1];
   document.querySelectorAll('.exsel .ex').forEach(b=>{
