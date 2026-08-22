@@ -11,7 +11,7 @@
   --warn:#A85614; --warn-soft:#FBF0E4;
   --ok:#147350;  --ok-soft:#E8F4EE;
   --line:#E2E8F1; --line-2:#D2DBE7;
-  --sans:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;
+  --sans:Pretendard,'Pretendard Variable',-apple-system,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
   --shadow:0 1px 2px rgba(16,32,56,.05),0 6px 18px -8px rgba(16,32,56,.10);
 }
@@ -33,14 +33,14 @@ body{background:#000;font-family:var(--sans);-webkit-font-smoothing:antialiased;
 .brand b{color:var(--ink)}
 .pnum{position:absolute;right:76px;bottom:34px;font-size:14px;color:#93A0B2;letter-spacing:.1em;font-family:var(--mono)}
 .eyebrow{font-size:14px;letter-spacing:.22em;color:var(--accent);margin-bottom:20px;font-weight:700;font-family:var(--mono)}
-h1{font-size:46px;line-height:1.3;letter-spacing:-.03em;font-weight:800;text-wrap:balance}
-h2{font-size:38px;line-height:1.32;letter-spacing:-.028em;font-weight:800;text-wrap:balance}
+h1{font-size:46px;line-height:1.34;letter-spacing:-.021em;font-weight:800;text-wrap:balance}
+h2{font-size:38px;line-height:1.36;letter-spacing:-.019em;font-weight:800;text-wrap:balance}
 h1 .dim,h2 .dim{color:#98A3B2;font-weight:500}
 h1 .hi,h2 .hi{color:var(--accent)}
 .lead{font-size:18px;line-height:1.78;color:#4B5666;margin-top:18px;max-width:940px;text-wrap:pretty}
 .lead b{color:var(--ink);font-weight:700}
 .rule{height:1px;background:var(--line-2)}
-.big{font-size:24px;line-height:1.6;font-weight:700;letter-spacing:-.02em}
+.big{font-size:24px;line-height:1.66;font-weight:700;letter-spacing:-.012em}
 .big .hi{color:var(--accent)}
 .src{font-size:13px;color:var(--muted);line-height:1.7}
 
@@ -50,7 +50,7 @@ h1 .hi,h2 .hi{color:var(--accent)}
 .stat{border:1px solid var(--line);border-radius:12px;padding:24px 26px;background:var(--surface);box-shadow:var(--shadow)}
 .stat .n{font-size:50px;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--accent);font-family:var(--mono)}
 .stat .n small{font-size:24px;font-weight:700}
-.stat .l{font-size:16px;margin-top:14px;line-height:1.55;font-weight:700}
+.stat .l{font-size:16px;margin-top:14px;line-height:1.6;font-weight:700}
 .stat .s{font-size:13px;color:var(--muted);margin-top:9px;line-height:1.6}
 
 .strip{display:grid;grid-template-columns:repeat(8,1fr);gap:12px}
@@ -70,7 +70,7 @@ h1 .hi,h2 .hi{color:var(--accent)}
 .cmp .new{background:var(--accent-soft);border-color:#C6DAF6}
 .cmp .h{font-size:15px;letter-spacing:.12em;font-weight:700;margin-bottom:14px;font-family:var(--mono)}
 .cmp .old .h{color:var(--warn)} .cmp .new .h{color:var(--accent)}
-.cmp li{list-style:none;font-size:16px;line-height:1.55;padding:10px 0 10px 26px;position:relative;border-bottom:1px solid rgba(16,32,56,.07)}
+.cmp li{list-style:none;font-size:16px;line-height:1.62;padding:10px 0 10px 26px;position:relative;border-bottom:1px solid rgba(16,32,56,.07)}
 .cmp li:last-child{border:none}
 .cmp li:before{position:absolute;left:0;top:10px;font-weight:900}
 .cmp .old li:before{content:'\2715';color:var(--warn)}
@@ -79,32 +79,32 @@ h1 .hi,h2 .hi{color:var(--accent)}
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .card{border:1px solid var(--line);border-radius:12px;padding:24px 26px;background:var(--surface);box-shadow:var(--shadow)}
 .card .k{font-size:13px;letter-spacing:.16em;color:var(--accent);margin-bottom:14px;font-weight:700;font-family:var(--mono)}
-.card .t{font-size:21px;font-weight:800;letter-spacing:-.025em;line-height:1.35}
+.card .t{font-size:21px;font-weight:800;letter-spacing:-.014em;line-height:1.4}
 .card .d{font-size:15px;color:var(--muted);line-height:1.7;margin-top:11px}
 
 .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .fl{border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:var(--surface);box-shadow:var(--shadow)}
 .fl .n{font-size:12.5px;color:var(--accent);letter-spacing:.14em;font-weight:700;font-family:var(--mono)}
-.fl .t{font-size:18px;font-weight:800;margin-top:9px;letter-spacing:-.02em}
+.fl .t{font-size:18px;font-weight:800;margin-top:9px;letter-spacing:-.012em;line-height:1.4}
 .fl .d{font-size:14px;color:var(--muted);margin-top:8px;line-height:1.6}
 
 .note{border:1px solid #C6DAF6;border-left:3px solid var(--accent);border-radius:0 10px 10px 0;
       padding:20px 24px;background:var(--accent-soft)}
-.note .t{font-size:19px;font-weight:800;letter-spacing:-.025em}
+.note .t{font-size:19px;font-weight:800;letter-spacing:-.014em}
 .note .d{font-size:16px;color:#3E4A5C;line-height:1.72;margin-top:9px}
 
 .biz{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .b{border:1px solid var(--line);border-radius:12px;padding:22px 24px;background:var(--surface);box-shadow:var(--shadow)}
 .b .tag{display:inline-block;font-size:12.5px;font-weight:800;letter-spacing:.1em;color:#fff;
         background:var(--accent);padding:5px 12px;border-radius:6px;font-family:var(--mono)}
-.b .t{font-size:21px;font-weight:800;margin-top:14px;letter-spacing:-.025em}
+.b .t{font-size:21px;font-weight:800;margin-top:14px;letter-spacing:-.014em}
 .b .d{font-size:15px;color:var(--muted);line-height:1.7;margin-top:10px}
 
 /* 앱 화면은 어둡다. 흰 카드 안에 액자처럼 넣어 제품 컷으로 읽히게 한다 */
 .fig{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface);
      box-shadow:var(--shadow);display:flex;flex-direction:column}
 .fig img{width:100%;display:block;background:#0B0E14;border-bottom:1px solid var(--line)}
-.fig .cap{padding:13px 17px;font-size:14px;color:var(--muted);line-height:1.55}
+.fig .cap{padding:14px 18px;font-size:14px;color:var(--muted);line-height:1.62}
 .fig .cap b{color:var(--ink)}
 </style></head><body>
 
@@ -127,7 +127,7 @@ h1 .hi,h2 .hi{color:var(--accent)}
         <div class="s">연평균 2.4회 부상. 주된 원인은 무리한 동작.</div>
       </div>
       <div class="stat">
-        <div class="n">10명 중 8명</div>
+        <div class="n" style="font-family:var(--sans);font-size:42px;letter-spacing:-.035em;line-height:1.2">10명 중 8명</div>
         <div class="l">집에서 운동해 본 경험이 있는 성인</div>
         <div class="s">스쿼트·플랭크는 20대 응답률이 가장 높은 종목.</div>
       </div>

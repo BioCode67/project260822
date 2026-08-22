@@ -423,6 +423,20 @@ h1은 2단 레이아웃에 맞춰 `clamp(27px,3.2vw,37px)`로 낮췄다. 이보�
 글로우(버튼 발광·표시등·캔버스 그림자)는 전부 줄이거나 없앴다.
 명암비는 전부 5.7:1 이상이다.
 
+### ⚠ 소개서를 다시 뽑기 전에 — 한글 폰트부터 확인할 것
+이 개발 환경에는 **한글 폰트가 설치돼 있지 않았다.** `fc-list :lang=ko`에 WenQuanYi(중국어)와
+Unifont만 나온다. 그 상태로 렌더한 JPEG는 **한글이 중국어 폰트로 그려진다** — 자형이 미묘하게
+어긋나고 자간이 뭉친다. 눈으로는 "폰트가 좀 이상한데" 정도로만 보여서 놓치기 쉽다.
+
+```bash
+# Pretendard(본문) · JetBrains Mono(수치) 설치 — raw.githubusercontent.com은 이 환경에서 열린다
+mkdir -p /usr/share/fonts/truetype/pretendard && cd $_
+B=https://raw.githubusercontent.com/orioncactus/pretendard/main/packages/pretendard/dist/public/static
+for w in Regular Medium SemiBold Bold ExtraBold; do curl -sSLo Pretendard-$w.otf "$B/Pretendard-$w.otf"; done
+fc-cache -f
+```
+CSS 스택은 `Pretendard`를 **맨 앞**에 둔다. `Pretendard Variable`은 설치본에 없다.
+
 ### 소개서는 16:9 가로 슬라이드다 (2026-08-22 8차)
 세로 A4(1240×1754)로 만들었더니 홈글 피드의 가로형 이미지 영역에서 높이에 맞춰
 축소돼 글씨가 작아졌다. 경쟁작들은 전부 가로 슬라이드다. **1600×900**으로 다시 짰다.
@@ -430,6 +444,10 @@ h1은 2단 레이아웃에 맞춰 `clamp(27px,3.2vw,37px)`로 낮췄다. 이보�
 - 세로 여백이 1518px → 770px로 반 이하가 되므로 본문을 2단으로 재배치하고 타입을 약 0.6배로 줄였다
 - 4장의 계측 패널은 세로형이라 가로 슬라이드에서 읽히지 않는다. **세트 리포트**(가로형, 가동범위·피로도 포함)로 교체했다
 - 각 페이지가 900px를 넘지 않는지 렌더 시 `scrollHeight`로 검사한다
+- 잘린 글자도 함께 검사한다(`scrollHeight > clientHeight`인 말단 요소). 실제로 통계 카드의
+  "10명 중 8명"이 50px 고정폭에서 넘쳤다 — 숫자용 mono에 한글이 들어가면 폭이 어긋난다
+- 라틴 기준의 강한 음수 자간은 한글에서 글자가 붙어 보인다. h1 -.03em → -.021em,
+  h2 -.028em → -.019em, 카드 제목 -.025em → -.014em으로 풀고 행간을 함께 넓혔다
 
 ### 소개서 재생성
 `deck.html`이 참조하는 `a_live.png` · `a_report.png` · `a_shots.png`는
