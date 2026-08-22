@@ -349,6 +349,7 @@
     <button class="ex" data-ex="pushup" aria-pressed="false">푸시업</button>
     <button class="ex" data-ex="lunge" aria-pressed="false">런지</button>
     <button class="ex" data-ex="plank" aria-pressed="false">플랭크</button>
+    <button class="ex" data-ex="jack" aria-pressed="false">점핑잭</button>
     <button class="ex" data-ex="neck" aria-pressed="false">목 스트레칭</button>
     <span class="exnote">종목이 바뀌어도 바뀌는 건 <b style="color:#B9C7E2">재는 3점 각도와 임계값</b>뿐입니다. 횟수 상태머신·캡처 규칙·리포트는 그대로 재사용됩니다.</span>
   </div>
@@ -471,18 +472,21 @@
         <div class="idx mono">02</div>
         <div>
           <div class="ttl">세 각도를 매 프레임 계산</div>
-          <div class="txt">스쿼트는 무릎 굽힘·상체 전방 기울기·좌우 골반 높이차를 잽니다. 전부 좌표 간 삼각함수라 결과가 흔들리지 않고, 임계값을 넘는 순간이 명확합니다.
-            <b style="color:var(--chalk)">푸시업으로 바꾸면 재는 3점만 바뀝니다</b> — 팔꿈치 굽힘, 어깨–고관절–발목의 일직선 이탈, 좌우 어깨 높이차. 횟수 상태머신과 캡처 규칙은 그대로 재사용됩니다.</div>
+          <div class="txt">전부 좌표 간 삼각함수라 결과가 흔들리지 않고, 임계값을 넘는 순간이 명확합니다.
+            <b style="color:var(--chalk)">종목이 바뀌어도 바뀌는 건 재는 3점과 임계값뿐입니다.</b>
+            스쿼트는 무릎, 푸시업은 팔꿈치, 점핑잭은 팔이 몸통 연장선에서 벌어진 각, 목 스트레칭은 귀–어깨–고관절 사잇각을 잽니다.
+            횟수 상태머신·캡처 규칙·리포트는 여섯 종목이 같은 코드를 씁니다.</div>
         </div>
-        <div class="meas">스쿼트 <b>무릎 ≤ 90°</b> · 상체 &gt; 55°<br>푸시업 <b>팔꿈치 ≤ 90°</b> · 몸통 &gt; 15°<br>비대칭 <b>&gt; 8%</b> 공통</div>
+        <div class="meas">스쿼트 <b>무릎 ≤ 90°</b><br>푸시업 <b>팔꿈치 ≤ 90°</b><br>런지 <b>앞무릎 ≤ 95°</b><br>점핑잭 <b>남은 각 ≤ 30°</b><br>플랭크 <b>이탈 ≤ 12°</b> 유지<br>목 스트레칭 <b>≤ 158°</b> 유지</div>
       </div>
       <div class="row">
         <div class="idx mono">03</div>
         <div>
           <div class="ttl">상태 전이로 횟수를 셈</div>
-          <div class="txt">서 있음 → 내려감 → 최저점 → 올라옴을 각도로 판별해 1회로 집계합니다. 최저점의 값을 회차별로 기록해 세트 후반의 무너짐을 잡아냅니다.</div>
+          <div class="txt">서 있음 → 내려감 → 최저점 → 올라옴을 각도로 판별해 1회로 집계합니다. 최저점의 값을 회차별로 기록해 세트 후반의 무너짐을 잡아냅니다.
+            <b style="color:var(--chalk)">플랭크·스트레칭처럼 버티는 종목도 같은 코드로 셉니다</b> — 기준 안에 들어가면 '내려감', 벗어나면 '올라옴'으로 보면 한 구간이 곧 한 회차가 됩니다.</div>
         </div>
-        <div class="meas">기립 판정 <b>≥ 158°</b><br>하강 판정 <b>≤ 100°</b><br>회차별 최저각 <b>기록</b></div>
+        <div class="meas">기립 판정 <b>≥ 158°</b><br>하강 판정 <b>≤ 100°</b><br>버티기 <b>이력 6°</b><br>회차별 최저각 <b>기록</b></div>
       </div>
       <div class="row">
         <div class="idx mono">04</div>
@@ -536,9 +540,9 @@
       </div>
       <div class="own">
         <div class="h">직접 구현한 부분</div>
-        <p>종목 등록부(스쿼트·푸시업)와 각 종목의 3점 각도 정의·임계값, 횟수 상태머신, 회차별 최저각 기록,
+        <p>종목 등록부(스쿼트·푸시업·런지·점핑잭·플랭크·목 스트레칭)와 각 종목의 3점 각도 정의·임계값, 횟수/버티기 상태머신, 회차별 기록,
           가장 심하게 무너진 프레임만 회차당 한 장 고르는 캡처 규칙, 화면 위 각도 시각화,
-          카메라 없이 도는 시연 모드의 합성 좌표 모델, 깊이 게이지 챌린지, 세트 타임라인.</p>
+          카메라 없이 도는 여섯 종목의 합성 좌표 모델, 깊이 게이지 챌린지, 콤보, 템포 메트로놈, 세트 타임라인과 리포트.</p>
       </div>
     </div>
   </section>
@@ -776,6 +780,52 @@ function synthNeck(t,repIdx){
   return lm;
 }
 
+/* ---------- 종목: 점핑잭 (유산소) ----------
+   팔이 머리 위까지 올라갔는지를 잰다. 손목–어깨–고관절 사잇각은 팔을 올릴수록 커지므로
+   그대로 쓰면 다른 종목과 방향이 반대가 된다. 그래서 '머리 위까지 남은 각'(180−사잇각)으로
+   돌려놓았다. 팔을 완전히 올리면 0°에 가까워진다 — 무릎 각도와 같은 방향이 된다. */
+function metricsJack(lm){
+  const mid=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
+  const sh=mid(lm[L.LS],lm[L.RS]), hip=mid(lm[L.LH],lm[L.RH]);
+  const left =180-ang(lm[L.LW],lm[L.LS],lm[L.LH]);
+  const right=180-ang(lm[L.RW],lm[L.RS],lm[L.RH]);
+  const knee=Math.min(left,right);               // 머리 위까지 남은 각
+  const torso=vertDev(sh,hip);                   // 지치면 상체가 기운다
+  const shoulderW=Math.hypot(lm[L.LS].x-lm[L.RS].x, lm[L.LS].y-lm[L.RS].y)||0.001;
+  const tilt=Math.abs(lm[L.LS].y-lm[L.RS].y)/shoulderW;
+  return {knee,torso,tilt,sh,hip};
+}
+function synthJack(t,repIdx){
+  const d=0.5-0.5*Math.cos(t);
+  const f=Math.min(1,repIdx/8);
+  const fade=1-0.55*f;                           // 지치면 팔이 끝까지 안 올라간다
+  const psi=RAD(10+160*d*fade);                  // 팔이 아래 수직에서 벌어진 각
+  const phi=RAD(2+20*d*f);                       // 상체 기울기
+  const W=0.20, WH=0.14, UP=0.155, FO=0.155;
+  const p=(x,y)=>({x,y,visibility:1});
+  const SH={x:0.50,y:0.40};
+  const HIP={x:SH.x-0.22*Math.sin(phi), y:SH.y+0.22*Math.cos(phi)};
+  const spread=0.055+0.155*d*fade;               // 다리도 함께 벌어진다
+  const asym=0.010*d*f;
+  const arm=(sx,sy,side)=>{
+    const ex=sx+side*UP*Math.sin(psi), ey=sy+UP*Math.cos(psi);
+    return [{x:ex,y:ey},{x:ex+side*FO*Math.sin(psi), y:ey+FO*Math.cos(psi)}];
+  };
+  const SL={x:SH.x+W/2,y:SH.y+asym}, SR={x:SH.x-W/2,y:SH.y-asym};
+  const [EL,WL]=arm(SL.x,SL.y,+1), [ER,WR2]=arm(SR.x,SR.y,-1);
+  const lm2=new Array(33).fill(null).map(()=>p(0.5,0.5));
+  lm2[11]=p(SL.x,SL.y);           lm2[12]=p(SR.x,SR.y);
+  lm2[13]=p(EL.x,EL.y);           lm2[14]=p(ER.x,ER.y);
+  lm2[15]=p(WL.x,WL.y);           lm2[16]=p(WR2.x,WR2.y);
+  lm2[23]=p(HIP.x+WH/2,HIP.y);    lm2[24]=p(HIP.x-WH/2,HIP.y);
+  lm2[25]=p(HIP.x+WH/2+spread*0.5,0.76); lm2[26]=p(HIP.x-WH/2-spread*0.5,0.76);
+  lm2[27]=p(HIP.x+WH/2+spread,0.95);     lm2[28]=p(HIP.x-WH/2-spread,0.95);
+  lm2[0]=p(SH.x+0.10*Math.sin(phi), SH.y-0.11);
+  lm2[7]=p(lm2[0].x+0.045,lm2[0].y); lm2[8]=p(lm2[0].x-0.045,lm2[0].y);
+  lm2[31]=p(lm2[27].x+0.03,0.975);  lm2[32]=p(lm2[28].x-0.03,0.975);
+  return lm2;
+}
+
 /* ---------- 종목 등록부 ----------
    각 종목은 "어떤 3점 각도를 재는가"와 임계값, 라벨만 정의한다. */
 const REP_PRI=v=>Math.max(0,Math.min(100,(180-v)/110*100));   // 각도가 작아질수록 채워진다
@@ -848,6 +898,20 @@ const EX = {
     sec:'상체', tiltL:'어깨',
     cue:{deep:'기울이면',stand:'목이 거의 곧습니다.',sec:'상체가',secTail:'상체가 같이 기울면 목은 늘어나지 않습니다.',tilt:'좌우 어깨 높이차가'},
     arc:{L:[L.LEar,L.LS,L.LH],R:[L.REar,L.RS,L.RH]}, viz:{pri:'arc',sec:'vertical'}
+  },
+  jack:{
+    kind:'rep', holdMs:400, demoEnd:8, priPct:v=>Math.max(0,Math.min(100,(180-v)/150*100)),
+    unit:'회차', depthLbl:'끝까지 올린 횟수',
+    name:'점핑잭', cnt:'JUMPING JACK', joint:'팔', hint:'카메라를 정면으로 보고',
+    TH:{STAND:140, DOWN:60, DEPTH:30, TORSO:15, TILT:0.08},
+    metrics:metricsJack, synth:synthJack, secMax:40,
+    g1:['머리 위까지 남은 각','손목–어깨–고관절 사잇각의 나머지. 팔을 끝까지 올리면 0°에 가까워지고, 30° 이하면 인정'],
+    g2:['상체 기울기','어깨–고관절 선이 수직에서 벗어난 각. 15° 초과 시 경고'],
+    g3:['좌우 비대칭','양쪽 어깨 높이차. 어깨너비 대비 8% 초과 시 경고'],
+    chal:['REACH CHALLENGE','팔을 <b>30° 아래(거의 머리 위)로 0.4초</b> 유지하면 그 회차는 성공입니다. 빠르게만 하면 팔이 끝까지 안 올라갑니다.'],
+    sec:'상체', tiltL:'비대칭',
+    cue:{deep:'올리면',stand:'팔을 내린 자세입니다.',sec:'상체가',secTail:'지치면 몸이 한쪽으로 기웁니다.',tilt:'좌우 어깨 높이차가'},
+    arc:{L:[L.LW,L.LS,L.LH],R:[L.RW,L.RS,L.RH]}, viz:{pri:'upGap',sec:'vertical'}
   }
 };
 let CUR=EX.squat, TH=CUR.TH, metrics=CUR.metrics, synth=CUR.synth;
@@ -995,8 +1059,20 @@ function draw(lm,m,warn){
     tag(ctx,hipM.x+Math.cos(mT)*(rT+6),hipM.y+Math.sin(mT)*(rT+6),Math.round(val)+'°',col,W);
   };
 
+  // 몸통 연장선에서 팔까지 벌어진 각 — '머리 위까지 남은 각'을 그대로 그린다
+  const drawUpGap=(t3,val,col,r)=>{
+    const w=P(t3[0]), c=P(t3[1]), h=P(t3[2]);
+    const ux=c.x-h.x, uy=c.y-h.y, un=Math.hypot(ux,uy)||1;
+    const up={x:c.x+ux/un*r*1.5, y:c.y+uy/un*r*1.5};
+    dash(); ctx.beginPath(); ctx.moveTo(c.x,c.y); ctx.lineTo(up.x,up.y);
+    ctx.moveTo(c.x,c.y); ctx.lineTo(w.x,w.y); ctx.stroke(); ctx.setLineDash([]);
+    ctx.lineWidth=Math.max(2.4,W/260); ctx.strokeStyle=col;
+    const mid2=arc(ctx,c,r,Math.atan2(uy,ux),Math.atan2(w.y-c.y,w.x-c.x));
+    tag(ctx,c.x+Math.cos(mid2)*(r+8),c.y+Math.sin(mid2)*(r+8),Math.round(val)+'°',col,W);
+  };
   const V=CUR.viz;
-  if(V.pri==='arc') drawArc(tri,m.knee,priCol,Math.max(24,W/9)); else drawBody(m.knee,priCol);
+  if(V.pri==='upGap') drawUpGap(tri,m.knee,priCol,Math.max(26,W/8));
+  else if(V.pri==='arc') drawArc(tri,m.knee,priCol,Math.max(24,W/9)); else drawBody(m.knee,priCol);
   if(V.sec==='vertical')      drawVert(m.torso,secCol);
   else if(V.sec==='bodyOffset') drawBody(m.torso,secCol);
   else                          drawArc(tri,m.torso,secCol,Math.max(20,W/12));
