@@ -10,8 +10,8 @@
 <meta property="og:description" content="홈트 자세가 무너진 순간만 자동으로 잡아 되돌려 보여주는 온디바이스 AI. 브라우저 안에서 계산해 영상이 기기 밖으로 나가지 않습니다." />
 <meta property="og:locale" content="ko_KR" />
 <meta name="twitter:card" content="summary" />
-<meta name="theme-color" content="#081130" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23081130'/%3E%3Cpath d='M9 8v16M9 8h8a5 5 0 0 1 0 10H9m6 0 8 6' stroke='%2354D6EE' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<meta name="theme-color" content="#0B0E14" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230B0E14'/%3E%3Cpath d='M9 8v16M9 8h8a5 5 0 0 1 0 10H9m6 0 8 6' stroke='%2379B8FF' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,15 +19,15 @@
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 <style>
   :root{
-    --blueprint:#081130;
-    --blueprint-2:#0E1C42;
-    --grid:rgba(140,170,225,.055);
-    --chalk:#EAF0FB;
-    --muted:#94A6C9;
-    --cyan:#54D6EE;
-    --alarm:#FF6B3D;
-    --ok:#7CE0B0;
-    --line:rgba(140,170,225,.22);
+    --blueprint:#0B0E14;
+    --blueprint-2:#12161F;
+    --grid:rgba(214,226,245,.055);
+    --chalk:#EDF1F6;
+    --muted:#8A93A3;
+    --cyan:#79B8FF;
+    --alarm:#E8A25E;
+    --ok:#5CCB9B;
+    --line:rgba(214,226,245,.14);
     /* CDN(jsDelivr·Google Fonts)이 막혀도 한글이 시스템 글꼴로 제대로 떨어지게 한다.
        한 번 겪은 문제라 폴백을 길게 적어 둔다. */
     --sans:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,
@@ -41,9 +41,9 @@
     --r-lg:10px; --r-md:6px; --r-sm:3px;
     --pad:20px;
     /* 선을 줄이고 면으로 나눈다 */
-    --tint:rgba(140,170,225,.055);
-    --tint-2:rgba(140,170,225,.09);
-    --line-soft:rgba(140,170,225,.13);
+    --tint:rgba(214,226,245,.035);
+    --tint-2:rgba(214,226,245,.06);
+    --line-soft:rgba(214,226,245,.09);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -58,10 +58,9 @@
     /* 한글은 단어 중간에서 끊기면 읽기가 급격히 나빠진다. 어절 단위로 접는다. */
     word-break:keep-all;
     overflow-wrap:break-word;
-    background-image:
-      linear-gradient(var(--grid) 1px,transparent 1px),
-      linear-gradient(90deg,var(--grid) 1px,transparent 1px);
-    background-size:40px 40px;
+    /* 선 격자는 배경이 앞으로 튀어나온다. 같은 청사진 개념을 점으로 옮겼다. */
+    background-image:radial-gradient(var(--grid) 1px,transparent 1px);
+    background-size:26px 26px;
     min-height:100vh;
   }
   .wrap{max-width:1160px;margin:0 auto;padding:0 22px}
@@ -70,33 +69,33 @@
   .n,.val,.v,.cscore{font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
 
   /* ---------- header ---------- */
-  header{border-bottom:1px solid var(--line);backdrop-filter:blur(6px);position:sticky;top:0;z-index:40;background:rgba(8,17,48,.82)}
+  header{border-bottom:1px solid var(--line);backdrop-filter:blur(6px);position:sticky;top:0;z-index:40;background:rgba(11,14,20,.86)}
   .hd{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:16px}
   .logo{display:flex;align-items:baseline;gap:10px}
   .logo b{font-size:22px;font-weight:800;letter-spacing:-.018em}
   .logo span{font-size:var(--t-xs);color:var(--muted);letter-spacing:.18em}
-  .badge{font-size:var(--t-xs);color:var(--cyan);border:1px solid rgba(84,214,238,.28);padding:6px 12px;border-radius:999px;letter-spacing:.04em;white-space:nowrap}
+  .badge{font-size:var(--t-xs);color:var(--cyan);border:1px solid rgba(121,184,255,.28);padding:6px 12px;border-radius:999px;letter-spacing:.04em;white-space:nowrap}
 
   /* ---------- hero ---------- */
   .hero{padding:64px 0 40px;max-width:840px}
   .eyebrow{font-size:var(--t-xs);letter-spacing:.2em;color:var(--cyan);margin-bottom:22px;opacity:.85}
   h1{font-size:clamp(30px,5.2vw,52px);line-height:1.24;letter-spacing:-.028em;font-weight:800;text-wrap:balance}
   h1 .dim{color:var(--muted);font-weight:500}
-  .sub{margin-top:22px;font-size:clamp(15px,2.1vw,17.5px);line-height:var(--lh-loose);color:#C3D0E8;max-width:660px;text-wrap:pretty}
+  .sub{margin-top:22px;font-size:clamp(15px,2.1vw,17.5px);line-height:var(--lh-loose);color:#C4CDDA;max-width:660px;text-wrap:pretty}
   .sub b{color:var(--chalk);font-weight:700}
   .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
   button{font-family:inherit;cursor:pointer;border:none}
   .btn{
-    background:var(--cyan);color:#04122A;font-weight:800;font-size:15px;
-    padding:15px 26px;border-radius:var(--r-md);letter-spacing:-.01em;transition:transform .12s ease,box-shadow .12s ease;
-    box-shadow:0 0 0 0 rgba(84,214,238,.5);
+    background:var(--cyan);color:#06121F;font-weight:800;font-size:15px;
+    padding:15px 26px;border-radius:var(--r-md);letter-spacing:-.01em;
+    transition:transform .12s ease,filter .12s ease;
   }
-  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 26px -8px rgba(84,214,238,.7)}
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
   .btn.ghost{background:transparent;color:var(--chalk);border:1px solid var(--line);font-weight:600}
-  .btn.ghost:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:none}
+  .btn.ghost:hover{border-color:rgba(121,184,255,.5);color:var(--cyan);filter:none}
   .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
   .privacy{margin-top:24px;font-size:var(--t-sm);color:var(--muted);display:flex;align-items:center;gap:9px}
-  .privacy .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none;box-shadow:0 0 8px var(--ok)}
+  .privacy .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none}
 
   /* ---------- exercise selector ---------- */
   .exsel{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 2px}
@@ -105,8 +104,8 @@
     padding:9px 18px;border-radius:999px;font-size:13.5px;font-weight:700;
     font-family:inherit;letter-spacing:-.01em;transition:all .14s;flex:none;white-space:nowrap
   }
-  .exsel .ex:hover{color:var(--chalk);border-color:rgba(84,214,238,.5)}
-  .exsel .ex.on{background:rgba(84,214,238,.14);color:var(--cyan);border-color:var(--cyan)}
+  .exsel .ex:hover{color:var(--chalk);border-color:rgba(121,184,255,.5)}
+  .exsel .ex.on{background:rgba(121,184,255,.14);color:var(--cyan);border-color:var(--cyan)}
   .exsel .exnote{font-size:11.5px;color:var(--muted);line-height:1.6;flex:1 1 240px;min-width:200px}
   .exsel .exdiv{width:1px;height:20px;background:var(--line);margin:0 2px;flex:none}
   @media(max-width:520px){.exsel .exdiv{display:none}}
@@ -118,14 +117,14 @@
   @media(max-width:900px){.stage{grid-template-columns:1fr}}
   .screen{
     position:relative;border:1px solid var(--line-soft);border-radius:var(--r-lg);overflow:hidden;
-    background:#050B1E;aspect-ratio:4/3;
+    background:#080B11;aspect-ratio:4/3;
   }
   .screen video,.screen canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .screen video{transform:scaleX(-1);opacity:0}
   #overlay{z-index:2}
   /* 웹캠 화면이 밝으면(창가·하늘·흰 벽) 계측선이 묻힌다. 얇은 스크림을 깔아 대비를 확보한다. */
   .scrim{position:absolute;inset:0;z-index:1;pointer-events:none;display:none;
-    background:radial-gradient(125% 95% at 50% 45%,rgba(8,17,48,.08),rgba(8,17,48,.58))}
+    background:radial-gradient(125% 95% at 50% 45%,rgba(11,14,20,.08),rgba(11,14,20,.58))}
   .scrim.on{display:block}
   .placeholder{
     position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -142,17 +141,17 @@
   .guide{
     position:absolute;left:0;right:0;bottom:0;z-index:7;display:none;
     padding:10px 12px;font-size:12.5px;line-height:1.55;
-    background:linear-gradient(transparent,rgba(5,11,30,.92) 40%);color:var(--chalk)
+    background:linear-gradient(transparent,rgba(8,11,17,.92) 40%);color:var(--chalk)
   }
   .guide.on{display:block}
   .guide .lead2{display:flex;align-items:center;gap:8px;font-weight:700}
-  .guide .dotq{width:7px;height:7px;border-radius:50%;flex:none;background:var(--ok);box-shadow:0 0 8px var(--ok)}
-  .guide.warn .dotq{background:var(--alarm);box-shadow:0 0 8px var(--alarm)}
+  .guide .dotq{width:7px;height:7px;border-radius:50%;flex:none;background:var(--ok)}
+  .guide.warn .dotq{background:var(--alarm)}
   .guide.warn .lead2{color:var(--alarm)}
   .guide .hint{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.6}
 
   /* ---------- panel ---------- */
-  .panel{border:1px solid var(--line-soft);border-radius:var(--r-lg);background:rgba(14,28,66,.42)}
+  .panel{border:1px solid var(--line-soft);border-radius:var(--r-lg);background:rgba(18,22,31,.42)}
   .panel h3{font-size:var(--t-xs);letter-spacing:.18em;color:var(--muted);padding:18px var(--pad) 12px;font-weight:600}
   .rep{padding:0 var(--pad) 18px;border-bottom:1px solid var(--line-soft)}
   .rep .n{font-size:60px;font-weight:700;line-height:.92;letter-spacing:-.045em}
@@ -176,28 +175,28 @@
   .chal .chd{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
   .chal .cttl{font-size:var(--t-xs);letter-spacing:.18em;color:var(--muted);font-weight:600}
   .chal .cscore{font-size:15px;font-weight:800}
-  .track{position:relative;height:26px;margin-top:12px;border:1px solid var(--line-soft);border-radius:var(--r-sm);background:rgba(5,11,30,.5);overflow:hidden;transition:border-color .15s}
-  .track .zone{position:absolute;top:0;bottom:0;right:0;background:rgba(124,224,176,.09);border-left:1px dashed rgba(124,224,176,.5)}
-  .track .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(84,214,238,.42);transition:width .1s linear}
+  .track{position:relative;height:26px;margin-top:12px;border:1px solid var(--line-soft);border-radius:var(--r-sm);background:rgba(8,11,17,.5);overflow:hidden;transition:border-color .15s}
+  .track .zone{position:absolute;top:0;bottom:0;right:0;background:rgba(92,203,155,.09);border-left:1px dashed rgba(92,203,155,.5)}
+  .track .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(121,184,255,.42);transition:width .1s linear}
   .track .goal{position:absolute;top:50%;transform:translate(7px,-50%);font-size:10.5px;color:var(--ok);letter-spacing:.06em}
-  .hold{height:4px;margin-top:6px;background:rgba(140,170,225,.16);border-radius:2px;overflow:hidden}
+  .hold{height:4px;margin-top:6px;background:rgba(200,214,235,.16);border-radius:2px;overflow:hidden}
   .hold i{display:block;height:100%;width:0;background:var(--ok);transition:width .1s linear}
   .cmsg{font-size:var(--t-xs);color:var(--muted);margin-top:10px;line-height:1.62;min-height:3.2em}
   .cmsg b{color:var(--chalk)}
-  .chal.hit .track{border-color:rgba(124,224,176,.85);box-shadow:0 0 0 1px rgba(124,224,176,.3)}
-  .chal.hit .fill{background:rgba(124,224,176,.45)}
-  .chal.miss .track{border-color:rgba(255,107,61,.8);animation:shake .34s}
-  .chal.miss .fill{background:rgba(255,107,61,.42)}
+  .chal.hit .track{border-color:rgba(92,203,155,.6)}
+  .chal.hit .fill{background:rgba(92,203,155,.45)}
+  .chal.miss .track{border-color:rgba(232,162,94,.8);animation:shake .34s}
+  .chal.miss .fill{background:rgba(232,162,94,.42)}
   .chal.miss .cmsg b{color:var(--alarm)}
   @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
   @media(prefers-reduced-motion:reduce){.chal.miss .track{animation:none}.track .fill,.hold i{transition:none}}
 
   .cue{
     margin:4px var(--pad) 0;padding:11px 13px;border-left:2px solid var(--cyan);
-    background:rgba(84,214,238,.055);border-radius:0 var(--r-sm) var(--r-sm) 0;
-    font-size:var(--t-sm);line-height:1.62;color:#C3D0E8;min-height:3.1em
+    background:rgba(121,184,255,.055);border-radius:0 var(--r-sm) var(--r-sm) 0;
+    font-size:var(--t-sm);line-height:1.62;color:#C4CDDA;min-height:3.1em
   }
-  .cue.warn{border-left-color:var(--alarm);background:rgba(255,107,61,.07);color:#FFC4AE}
+  .cue.warn{border-left-color:var(--alarm);background:rgba(232,162,94,.07);color:#F3CBA8}
   .cue b{color:var(--chalk)}
   .cue.warn b{color:var(--alarm)}
 
@@ -212,15 +211,15 @@
   .combo.on{opacity:1}
   .combo b{font-size:22px;font-weight:700;color:var(--ok);letter-spacing:-.025em;line-height:1}
   .combo.hot b{color:var(--cyan)}
-  .combo.fire b{color:#FFD166;text-shadow:0 0 14px rgba(255,209,102,.55)}
+  .combo.fire b{color:#F2C879;text-shadow:0 0 14px rgba(255,209,102,.55)}
   .combo .best{margin-left:auto;font-size:11.5px}
   .gamerow{display:flex;gap:8px;padding:14px var(--pad) 0;flex-wrap:wrap;border-top:1px solid var(--line-soft);margin-top:14px}
   .chip{
     background:transparent;color:var(--muted);border:1px solid var(--line);
     padding:8px 13px;border-radius:999px;font-size:12px;font-weight:700;font-family:inherit;transition:all .14s
   }
-  .chip:hover{color:var(--chalk);border-color:rgba(84,214,238,.5)}
-  .chip.on{background:rgba(84,214,238,.14);color:var(--cyan);border-color:var(--cyan)}
+  .chip:hover{color:var(--chalk);border-color:rgba(121,184,255,.5)}
+  .chip.on{background:rgba(121,184,255,.14);color:var(--cyan);border-color:var(--cyan)}
   .beat{
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;
     width:74px;height:74px;border-radius:50%;border:2px solid var(--cyan);
@@ -247,15 +246,15 @@
   .cellx .r{font-size:var(--t-xs);color:var(--muted);letter-spacing:.06em}
   .cellx .v{font-size:21px;font-weight:700;margin-top:8px;letter-spacing:-.035em;line-height:1}
   .cellx .s{font-size:11px;margin-top:6px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .cellx.bad{border-color:rgba(255,107,61,.3);background:rgba(255,107,61,.09)}
+  .cellx.bad{border-color:rgba(232,162,94,.3);background:rgba(232,162,94,.09)}
   .cellx.bad .v,.cellx.bad .s{color:var(--alarm)}
   .cellx.good .v{color:var(--ok)}
   .cellx{transition:background .14s}
   .cellx:not(.void):hover{background:var(--tint-2)}
-  .cellx .ch{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 6px var(--ok)}
+  .cellx .ch{position:absolute;top:7px;right:7px;width:5px;height:5px;border-radius:50%;background:var(--ok)}
 
   /* ---------- set report ---------- */
-  .rcard{border:1px solid var(--line-soft);border-radius:var(--r-lg);background:rgba(14,28,66,.42);padding:24px 26px;margin-top:30px;display:none}
+  .rcard{border:1px solid var(--line-soft);border-radius:var(--r-lg);background:rgba(18,22,31,.42);padding:24px 26px;margin-top:30px;display:none}
   .rcard.on{display:block}
   .rct{font-size:11px;letter-spacing:.2em;color:var(--muted);font-weight:600}
   .rcs{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
@@ -264,7 +263,7 @@
   .rcs .v{font-size:32px;font-weight:700;letter-spacing:-.03em;margin-top:8px;line-height:1}
   .rcs .v small{font-size:14px;color:var(--muted);font-weight:700;letter-spacing:0;margin-left:5px}
   .rcs .c2 .v{color:var(--cyan)} .rcs .c3 .v{color:var(--alarm)} .rcs .c4 .v{color:var(--ok)}
-  .rcline{margin-top:22px;padding-top:18px;border-top:1px solid var(--line-soft);font-size:var(--t-md);line-height:var(--lh);color:#C3D0E8}
+  .rcline{margin-top:22px;padding-top:18px;border-top:1px solid var(--line-soft);font-size:var(--t-md);line-height:var(--lh);color:#C4CDDA}
   .rcline b{color:var(--chalk)}
   .rcprev{margin-top:12px;font-size:13px;line-height:1.7;color:var(--muted);display:none}
   .rcprev.on{display:block}
@@ -274,10 +273,10 @@
   .rcact .note{font-size:11.5px;color:var(--muted);line-height:1.6}
 
   /* ---------- lightbox ---------- */
-  .lb{position:fixed;inset:0;z-index:100;background:rgba(4,9,24,.94);display:none;align-items:center;justify-content:center;padding:24px}
+  .lb{position:fixed;inset:0;z-index:100;background:rgba(6,8,12,.94);display:none;align-items:center;justify-content:center;padding:24px}
   .lb.on{display:flex}
   .lb figure{max-width:900px;width:100%}
-  .lb img{width:100%;border:1px solid var(--line);border-radius:6px;display:block;background:#050B1E}
+  .lb img{width:100%;border:1px solid var(--line);border-radius:6px;display:block;background:#080B11}
   .lb figcaption{margin-top:12px;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .lb figcaption b{color:var(--alarm);font-weight:700}
   .lb .x{position:absolute;top:18px;right:20px;background:none;color:var(--muted);font-size:26px;line-height:1;padding:8px 12px}
@@ -286,7 +285,7 @@
   /* ---------- a11y ---------- */
   :focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:3px}
   .shot{cursor:zoom-in}
-  .shot:hover{border-color:rgba(255,107,61,.45);transform:translateY(-1px)}
+  .shot:hover{border-color:rgba(232,162,94,.45);transform:translateY(-1px)}
   .shot{transition:border-color .14s,transform .14s}
 
   /* ---------- evidence ---------- */
@@ -295,9 +294,9 @@
     display:flex;align-items:center;gap:10px}
   .stitle::before{content:'';width:18px;height:1px;background:var(--cyan);opacity:.55;flex:none}
   h2{font-size:clamp(24px,3.6vw,34px);letter-spacing:-.022em;font-weight:800;line-height:1.38;text-wrap:balance}
-  .lead{margin-top:18px;color:#B9C7E2;font-size:var(--t-lg);line-height:var(--lh-loose);max-width:680px;text-wrap:pretty}
+  .lead{margin-top:18px;color:#B3BCCA;font-size:var(--t-lg);line-height:var(--lh-loose);max-width:680px;text-wrap:pretty}
   .shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:26px}
-  .shot{border:1px solid var(--line-soft);border-radius:var(--r-md);overflow:hidden;background:#050B1E;transition:border-color .14s}
+  .shot{border:1px solid var(--line-soft);border-radius:var(--r-md);overflow:hidden;background:#080B11;transition:border-color .14s}
   .shot img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover}
   .shot .cap{padding:10px 11px;font-size:11.5px;color:var(--alarm);line-height:1.6}
   .shot .cap span{display:block}
@@ -311,7 +310,7 @@
   .row .idx{font-size:12px;color:var(--cyan);padding-top:3px}
   .row .ttl{font-size:var(--t-lg);font-weight:700;letter-spacing:-.012em;line-height:var(--lh-tight)}
   .row .txt{margin-top:9px;font-size:var(--t-md);color:var(--muted);line-height:var(--lh)}
-  .row .meas{font-size:var(--t-xs);color:#9FB3D8;border-left:1px solid var(--line-soft);padding-left:18px;line-height:1.9}
+  .row .meas{font-size:var(--t-xs);color:#9AA4B4;border-left:1px solid var(--line-soft);padding-left:18px;line-height:1.9}
   .row .meas b{color:var(--cyan);font-weight:700}
 
   .oss{margin-top:30px;border-top:1px solid var(--line-soft)}
@@ -329,7 +328,7 @@
 
   .toast{
     position:fixed;left:50%;transform:translateX(-50%);bottom:26px;z-index:90;
-    background:var(--alarm);color:#2A0A00;font-weight:800;font-size:13.5px;
+    background:var(--alarm);color:#2A1608;font-weight:800;font-size:13.5px;
     padding:12px 20px;border-radius:4px;opacity:0;pointer-events:none;transition:opacity .2s
   }
   .toast.on{opacity:1}
@@ -371,7 +370,7 @@
     <span class="exdiv" aria-hidden="true"></span>
     <button class="ex timed" data-ex="plank" aria-pressed="false">플랭크</button>
     <button class="ex timed" data-ex="neck" aria-pressed="false">목 스트레칭</button>
-    <span class="exnote">왼쪽 다섯은 <b style="color:#B9C7E2">횟수</b>를, 오른쪽 둘은 <b style="color:#B9C7E2">버틴 시간</b>을 셉니다.
+    <span class="exnote">왼쪽 다섯은 <b style="color:#B3BCCA">횟수</b>를, 오른쪽 둘은 <b style="color:#B3BCCA">버틴 시간</b>을 셉니다.
       종목이 바뀌어도 바뀌는 건 재는 3점 각도와 임계값뿐입니다.</span>
   </div>
   <div class="stage">
@@ -463,7 +462,7 @@
         <div class="c4"><div class="k">챌린지 성공</div><div class="v mono" id="rcChal">0</div></div>
       </div>
       <div class="rcline" id="rcLine"></div>
-      <div class="rcprev" id="rcExtra" style="display:none;color:#C3D0E8"></div>
+      <div class="rcprev" id="rcExtra" style="display:none;color:#C4CDDA"></div>
       <div class="rcprev" id="rcPrev"></div>
       <div class="rcact">
         <button class="btn" id="saveBtn">결과 이미지 저장</button>
@@ -554,8 +553,8 @@
       </div>
       <div class="o">
         <div class="nm">방법 참고 — LearnOpenCV</div>
-        <div class="ds">“AI Fitness Trainer using MediaPipe” (Kunal Dawn, 2022). <b style="color:#B9C7E2">수직 기준선을 놓고 각도를 재는 방식</b>,
-          <b style="color:#B9C7E2">촬영 방향이 어긋나면 경고하는 개념</b>, <b style="color:#B9C7E2">15초 비활동 처리</b>를 참고했습니다.
+        <div class="ds">“AI Fitness Trainer using MediaPipe” (Kunal Dawn, 2022). <b style="color:#B3BCCA">수직 기준선을 놓고 각도를 재는 방식</b>,
+          <b style="color:#B3BCCA">촬영 방향이 어긋나면 경고하는 개념</b>, <b style="color:#B3BCCA">15초 비활동 처리</b>를 참고했습니다.
           코드는 가져오지 않고 이 프로젝트에 맞게 직접 구현했습니다(원문은 Python·OpenCV 데스크톱 앱입니다).</div>
         <div class="lc mono">참고 문헌</div>
       </div>
@@ -1061,9 +1060,9 @@ function arc(ctx,c,r,a1,a2){
 function tag(ctx,x,y,txt,color,W){
   ctx.font=`700 ${Math.max(13,W/30)}px 'JetBrains Mono',monospace`;
   const w=ctx.measureText(txt).width, h=Math.max(20,W/24);
-  ctx.fillStyle='rgba(6,13,36,.93)';
+  ctx.fillStyle='rgba(8,11,17,.93)';
   ctx.fillRect(x,y-h/2,w+12,h);
-  ctx.strokeStyle='rgba(140,170,225,.35)'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y-h/2+.5,w+12,h);
+  ctx.strokeStyle='rgba(200,214,235,.35)'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y-h/2+.5,w+12,h);
   ctx.fillStyle=color; ctx.textBaseline='middle';
   ctx.fillText(txt,x+6,y+1);
 }
@@ -1073,13 +1072,13 @@ function draw(lm,m,warn){
   if(!lm) return;
   const P=i=>({x:(1-lm[i].x)*W, y:lm[i].y*H}); // 미러
   const VIS=i=>{ const v=lm[i]&&lm[i].visibility; return v==null?1:v; };
-  const main=warn?'#FF6B3D':'#54D6EE';
+  const main=warn?'#E8A25E':'#79B8FF';
   const mid=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
 
   // 1) 뼈대
   ctx.lineWidth=Math.max(2,W/320);
   ctx.strokeStyle=main;
-  ctx.shadowBlur=10; ctx.shadowColor=main;
+  ctx.shadowBlur=5; ctx.shadowColor=main;
   ctx.beginPath();
   EDGES.forEach(([a,b])=>{ if(lm[a]&&lm[b]){const p=P(a),q=P(b);ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);} });
   ctx.stroke();
@@ -1096,7 +1095,7 @@ function draw(lm,m,warn){
     if(!lm[i]) return;
     const p=P(i), v=VIS(i);
     ctx.globalAlpha=0.25+0.75*Math.min(1,v);
-    ctx.fillStyle=warn?'#FF6B3D':'#EAF0FB';
+    ctx.fillStyle=warn?'#E8A25E':'#EDF1F6';
     ctx.beginPath();ctx.arc(p.x,p.y,R,0,7);ctx.fill();
     ctx.globalAlpha=0.30+0.45*Math.min(1,v);
     ctx.strokeStyle=main; ctx.lineWidth=Math.max(1,W/560);
@@ -1109,12 +1108,12 @@ function draw(lm,m,warn){
   const useL = ang(lm[A.L[0]],lm[A.L[1]],lm[A.L[2]]) <= ang(lm[A.R[0]],lm[A.R[1]],lm[A.R[2]]);
   const tri = useL?A.L:A.R;
   const hipM=mid(P(L.LH),P(L.RH)), shM=mid(P(L.LS),P(L.RS)), ankM=mid(P(L.LA),P(L.RA));
-  const priCol=m.knee<=TH.DEPTH?'#7CE0B0':main;
-  const secCol=m.torso>TH.TORSO?'#FF6B3D':'#EAF0FB';
+  const priCol=m.knee<=TH.DEPTH?'#5CCB9B':main;
+  const secCol=m.torso>TH.TORSO?'#E8A25E':'#EDF1F6';
 
-  ctx.shadowColor='rgba(4,9,24,.95)'; ctx.shadowBlur=Math.max(4,W/120);
+  ctx.shadowColor='rgba(6,8,12,.95)'; ctx.shadowBlur=Math.max(4,W/120);
   const dash=()=>{ ctx.setLineDash([Math.max(3,W/180),Math.max(4,W/150)]);
-                   ctx.lineWidth=Math.max(1.4,W/420); ctx.strokeStyle='rgba(234,240,251,.72)'; };
+                   ctx.lineWidth=Math.max(1.4,W/420); ctx.strokeStyle='rgba(237,241,246,.72)'; };
 
   // 세 점이 이루는 사잇각을 호로 그린다
   const drawArc=(t3,val,col,r)=>{
@@ -1206,7 +1205,7 @@ function toast(msg){
 function keepFrame(){
   snap.width=cv.width; snap.height=cv.height;
   const s=snap.getContext('2d');
-  s.fillStyle='#050B1E'; s.fillRect(0,0,snap.width,snap.height);
+  s.fillStyle='#080B11'; s.fillRect(0,0,snap.width,snap.height);
   if(mode==='cam'&&cam.videoWidth){
     s.save(); s.translate(snap.width,0); s.scale(-1,1); s.globalAlpha=.5;
     s.drawImage(cam,0,0,snap.width,snap.height); s.restore(); s.globalAlpha=1;
@@ -1448,54 +1447,54 @@ async function saveReport(){
     const W=1200, H=pics.length?812:560, c=document.createElement('canvas');
     c.width=W; c.height=H;
     const g=c.getContext('2d');
-    g.fillStyle='#081130'; g.fillRect(0,0,W,H);
-    g.strokeStyle='rgba(140,170,225,.10)'; g.lineWidth=1;
+    g.fillStyle='#0B0E14'; g.fillRect(0,0,W,H);
+    g.strokeStyle='rgba(200,214,235,.10)'; g.lineWidth=1;
     for(let x=0;x<W;x+=34){ g.beginPath(); g.moveTo(x+.5,0); g.lineTo(x+.5,H); g.stroke(); }
     for(let y=0;y<H;y+=34){ g.beginPath(); g.moveTo(0,y+.5); g.lineTo(W,y+.5); g.stroke(); }
     const PAD=56;
     g.textBaseline='alphabetic';
-    g.fillStyle='#EAF0FB'; g.font='800 30px '+SANS;
+    g.fillStyle='#EDF1F6'; g.font='800 30px '+SANS;
     g.fillText('되감기', PAD, 74);
-    g.fillStyle='#54D6EE'; g.font='700 15px '+MONOF;
+    g.fillStyle='#79B8FF'; g.font='700 15px '+MONOF;
     g.fillText('REWIND · SET REPORT · '+CUR.name, PAD+104, 72);
     const d=new Date(), p2=n=>String(n).padStart(2,'0');
     const stamp=d.getFullYear()+'.'+p2(d.getMonth()+1)+'.'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes());
-    g.fillStyle='#94A6C9'; g.font='400 14px '+MONOF;
+    g.fillStyle='#8A93A3'; g.font='400 14px '+MONOF;
     g.fillText(stamp, W-PAD-g.measureText(stamp).width, 72);
-    g.strokeStyle='rgba(140,170,225,.22)'; g.beginPath(); g.moveTo(PAD,100); g.lineTo(W-PAD,100); g.stroke();
+    g.strokeStyle='rgba(200,214,235,.22)'; g.beginPath(); g.moveTo(PAD,100); g.lineTo(W-PAD,100); g.stroke();
 
-    const stats=[['총 회차',String(S.total),'','#EAF0FB'],
-                 ['깊이 도달',String(S.deep),' / '+S.total,'#54D6EE'],
-                 ['첫 무너짐',S.first?String(S.first.n):'—',S.first?'회차':'','#FF6B3D'],
-                 ['챌린지 성공',S.hasChal?String(S.chal):'—',S.hasChal?' / '+S.total:'','#7CE0B0']];
+    const stats=[['총 회차',String(S.total),'','#EDF1F6'],
+                 ['깊이 도달',String(S.deep),' / '+S.total,'#79B8FF'],
+                 ['첫 무너짐',S.first?String(S.first.n):'—',S.first?'회차':'','#E8A25E'],
+                 ['챌린지 성공',S.hasChal?String(S.chal):'—',S.hasChal?' / '+S.total:'','#5CCB9B']];
     const cw=(W-PAD*2)/4;
     stats.forEach((st,i)=>{
       const x=PAD+cw*i;
-      g.fillStyle='#94A6C9'; g.font='400 14px '+SANS; g.fillText(st[0], x, 146);
+      g.fillStyle='#8A93A3'; g.font='400 14px '+SANS; g.fillText(st[0], x, 146);
       g.fillStyle=st[3];     g.font='800 46px '+MONOF; g.fillText(st[1], x, 196);
       const w=g.measureText(st[1]).width;
-      g.fillStyle='#94A6C9'; g.font='700 17px '+MONOF; g.fillText(st[2], x+w+6, 196);
+      g.fillStyle='#8A93A3'; g.font='700 17px '+MONOF; g.fillText(st[2], x+w+6, 196);
     });
 
     // 회차별 최저 무릎각
-    g.fillStyle='#94A6C9'; g.font='700 13px '+MONOF; g.fillText('SET TIMELINE · 회차별 최저 '+CUR.joint+' 각도', PAD, 250);
+    g.fillStyle='#8A93A3'; g.font='700 13px '+MONOF; g.fillText('SET TIMELINE · 회차별 최저 '+CUR.joint+' 각도', PAD, 250);
     const n=Math.min(timeline.length,8), bw=(W-PAD*2-10*(n-1))/n;
     for(let i=0;i<n;i++){
       const r=timeline[i], x=PAD+(bw+10)*i, y=266, h=92, bad=!!r.tag;
-      g.fillStyle=bad?'rgba(255,107,61,.10)':'rgba(14,28,66,.6)';
-      g.strokeStyle=bad?'rgba(255,107,61,.55)':'rgba(140,170,225,.22)';
+      g.fillStyle=bad?'rgba(232,162,94,.10)':'rgba(18,22,31,.6)';
+      g.strokeStyle=bad?'rgba(232,162,94,.55)':'rgba(200,214,235,.22)';
       g.beginPath(); g.rect(x+.5,y+.5,bw,h); g.fill(); g.stroke();
       g.textAlign='center';
-      g.fillStyle='#94A6C9'; g.font='400 12px '+SANS; g.fillText(r.n+'회', x+bw/2, y+24);
-      g.fillStyle=bad?'#FF6B3D':(r.deep?'#7CE0B0':'#EAF0FB'); g.font='800 26px '+MONOF;
+      g.fillStyle='#8A93A3'; g.font='400 12px '+SANS; g.fillText(r.n+'회', x+bw/2, y+24);
+      g.fillStyle=bad?'#E8A25E':(r.deep?'#5CCB9B':'#EDF1F6'); g.font='800 26px '+MONOF;
       g.fillText(r.low+'°', x+bw/2, y+58);
-      g.fillStyle=bad?'#FF6B3D':'#94A6C9'; g.font='400 11.5px '+SANS;
+      g.fillStyle=bad?'#E8A25E':'#8A93A3'; g.font='400 11.5px '+SANS;
       g.fillText(bad?r.tag:(r.deep?'깊이 인정':'깊이 부족'), x+bw/2, y+79);
       g.textAlign='left';
     }
 
     // 한 줄 요약
-    g.fillStyle='#C3D0E8'; g.font='400 16px '+SANS;
+    g.fillStyle='#C4CDDA'; g.font='400 16px '+SANS;
     const line=S.first
       ? S.first.n+'회차에서 처음 기준을 넘겼습니다 ('+S.first.all+'). 깊이 '+S.deep+'회 도달'+(S.hasChal?' · 챌린지 '+S.chal+'회 성공':'')+'.'
       : '기준을 넘긴 회차가 없습니다. 깊이 '+S.deep+'회 도달.';
@@ -1505,25 +1504,25 @@ async function saveReport(){
     if(S.desc)  ex.push('평균 하강 '+S.desc.toFixed(2)+'초');
     if(S.rom){ ex.unshift('가동범위 '+S.rom.best+'°~'+S.rom.worst+'° (평균 '+S.rom.avg+'°)');
                if(S.rom.drop>0.5) ex.splice(1,0,'처음 '+S.rom.n+'회 대비 '+S.rom.drop.toFixed(1)+'° 얕아짐'); }
-    if(ex.length){ g.fillStyle='#94A6C9'; g.font='400 14px '+SANS; g.fillText(ex.join('  ·  '), PAD, 430); }
+    if(ex.length){ g.fillStyle='#8A93A3'; g.font='400 14px '+SANS; g.fillText(ex.join('  ·  '), PAD, 430); }
 
     if(pics.length){
-      g.fillStyle='#94A6C9'; g.font='700 13px '+MONOF; g.fillText('EVIDENCE · 무너진 순간', PAD, 452);
+      g.fillStyle='#8A93A3'; g.font='700 13px '+MONOF; g.fillText('EVIDENCE · 무너진 순간', PAD, 452);
       const tw=(W-PAD*2-14*3)/4, th=tw*0.75;
       imgs.forEach((im,i)=>{
         const x=PAD+(tw+14)*i, y=468;
-        g.fillStyle='#050B1E'; g.fillRect(x,y,tw,th);
+        g.fillStyle='#080B11'; g.fillRect(x,y,tw,th);
         if(im) g.drawImage(im,x,y,tw,th);
-        g.strokeStyle='rgba(255,107,61,.45)'; g.strokeRect(x+.5,y+.5,tw,th);
-        g.fillStyle='#FF6B3D'; g.font='700 13px '+SANS; g.fillText(pics[i].tags, x, y+th+24);
-        g.fillStyle='#94A6C9'; g.font='400 12.5px '+SANS;
+        g.strokeStyle='rgba(232,162,94,.45)'; g.strokeRect(x+.5,y+.5,tw,th);
+        g.fillStyle='#E8A25E'; g.font='700 13px '+SANS; g.fillText(pics[i].tags, x, y+th+24);
+        g.fillStyle='#8A93A3'; g.font='400 12.5px '+SANS;
         g.fillText(pics[i].rep+'회차 · 최저 '+CUR.joint+'각 '+pics[i].depth, x, y+th+44);
       });
     }
-    g.strokeStyle='rgba(140,170,225,.22)'; g.beginPath(); g.moveTo(PAD,H-72); g.lineTo(W-PAD,H-72); g.stroke();
-    g.fillStyle='#94A6C9'; g.font='400 13px '+SANS;
+    g.strokeStyle='rgba(200,214,235,.22)'; g.beginPath(); g.moveTo(PAD,H-72); g.lineTo(W-PAD,H-72); g.stroke();
+    g.fillStyle='#8A93A3'; g.font='400 13px '+SANS;
     g.fillText('브라우저 안에서만 계산했습니다. 영상 프레임은 기기를 떠나지 않았습니다.', PAD, H-44);
-    g.fillStyle='#54D6EE'; g.font='400 12px '+MONOF;
+    g.fillStyle='#79B8FF'; g.font='400 12px '+MONOF;
     const t2='MediaPipe Pose Landmarker · ON-DEVICE';
     g.fillText(t2, W-PAD-g.measureText(t2).width, H-44);
 
