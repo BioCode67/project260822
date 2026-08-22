@@ -77,11 +77,18 @@
 
   /* ---------- header ---------- */
   header{border-bottom:1px solid var(--line);backdrop-filter:blur(6px);position:sticky;top:0;z-index:40;background:rgba(11,14,20,.86)}
-  .hd{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:16px}
+  /* padding 축약형을 쓰면 .wrap의 좌우 22px가 통째로 덮여 좁은 화면에서 로고가 화면 밖으로 잘린다. */
+  .hd{display:flex;align-items:center;justify-content:space-between;padding-top:14px;padding-bottom:14px;gap:16px}
   .logo{display:flex;align-items:baseline;gap:10px}
   .logo b{font-size:22px;font-weight:800;letter-spacing:-.018em}
   .logo span{font-size:var(--t-xs);color:var(--muted);letter-spacing:.18em}
   .badge{font-size:var(--t-xs);color:var(--cyan);border:1px solid rgba(121,184,255,.28);padding:6px 12px;border-radius:999px;letter-spacing:.04em;white-space:nowrap}
+  /* 좁은 화면에서 배지(nowrap)가 안 줄어 로고를 헤더 밖으로 밀어냈다. REWIND를 접어 자리를 만든다. */
+  @media(max-width:560px){
+    .logo span{display:none}
+    .badge{font-size:11px;padding:5px 10px;letter-spacing:.02em}
+    .hd{gap:10px}
+  }
 
   /* ---------- hero ---------- */
   .hero{
@@ -100,6 +107,7 @@
   h1 .dim{color:var(--muted);font-weight:500}
   .sub{margin-top:22px;font-size:clamp(15px,2.1vw,17.5px);line-height:var(--lh-loose);color:#C4CDDA;max-width:660px;text-wrap:pretty}
   .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+  @media(max-width:560px){.cta{gap:10px}.cta .btn{width:100%;text-align:center}}
   button{font-family:inherit;cursor:pointer;border:none}
   .btn{
     background:linear-gradient(180deg,#8CC4FF,#69A9F2);color:#061523;font-weight:800;font-size:15px;
@@ -126,7 +134,8 @@
     position:absolute;top:12px;font-size:10.5px;letter-spacing:.16em;color:var(--muted);
     pointer-events:none;opacity:.85
   }
-  .artL{left:14px}
+  .artL{left:14px;letter-spacing:0;font-size:11.5px}
+  .artL b{color:var(--chalk);font-weight:600}
   .artR{right:14px;color:var(--cyan);display:flex;align-items:center;gap:6px}
   .artR i{width:5px;height:5px;border-radius:50%;background:var(--cyan);display:block}
   .artHud{
@@ -177,9 +186,28 @@
   .scrim.on{display:block}
   .placeholder{
     position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:14px;text-align:center;padding:30px;z-index:5
+    gap:20px;text-align:center;padding:30px;z-index:5
   }
-  .placeholder p{color:var(--muted);font-size:14px;line-height:1.7;max-width:340px}
+  .placeholder p{color:var(--muted);font-size:var(--t-sm);line-height:1.7;max-width:520px}
+  /* 대기 화면이 그냥 검은 상자면 무엇을 하는 곳인지 안 읽힌다. 뷰파인더 괄호 + 시작 3단계를 둔다. */
+  .vf{position:absolute;z-index:4;pointer-events:none;width:26px;height:26px;border:1px solid var(--line);opacity:.75}
+  .vf.a{top:36px;left:16px;border-right:0;border-bottom:0}   /* 코너 라벨 줄(약 29px)을 피해 내려 붙인다 */
+  .vf.b{top:36px;right:16px;border-left:0;border-bottom:0}
+  .vf.c{bottom:16px;left:16px;border-right:0;border-top:0}
+  .vf.d{bottom:16px;right:16px;border-left:0;border-top:0}
+  .phTop{font-size:var(--t-xs);letter-spacing:.22em;color:var(--muted);opacity:.85}
+  .steps{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:760px}
+  .steps .st{
+    display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:var(--r-md);
+    border:1px solid var(--line-soft);background:var(--tint);text-align:left
+  }
+  .steps .st b{
+    font-family:var(--mono);font-size:var(--t-xs);color:var(--cyan);
+    width:19px;height:19px;flex:0 0 19px;border-radius:50%;border:1px solid rgba(121,184,255,.42);
+    display:flex;align-items:center;justify-content:center
+  }
+  .steps .st span{font-size:var(--t-sm);color:#B3BCCA;line-height:1.35}
+  @media(max-width:560px){.steps{flex-direction:column;max-width:290px}.steps .st{width:100%}}
   .spin{width:26px;height:26px;border:2px solid var(--line);border-top-color:var(--cyan);border-radius:50%;animation:sp .8s linear infinite}
   @keyframes sp{to{transform:rotate(360deg)}}
   @media(prefers-reduced-motion:reduce){.spin{animation-duration:2s}.btn{transition:none}}
@@ -346,7 +374,11 @@
   .stitle::before{content:'';width:18px;height:1px;background:var(--cyan);opacity:.55;flex:none}
   h2{font-size:clamp(24px,3.6vw,34px);letter-spacing:-.022em;font-weight:800;line-height:1.38;text-wrap:balance}
   .lead{margin-top:18px;color:#B3BCCA;font-size:var(--t-lg);line-height:var(--lh-loose);max-width:680px;text-wrap:pretty}
-  .shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:26px}
+  /* 캡처는 회차당 1장·최대 8장이다. 4열로 고정하면 4장이면 한 줄, 8장이면 두 줄로 딱 떨어진다.
+     auto-fill이면 5열이 잡혀 오른쪽에 빈칸이 남았다. */
+  .shots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:26px}
+  @media(max-width:900px){.shots{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:460px){.shots{grid-template-columns:1fr}}
   .shot{border:1px solid var(--line-soft);border-radius:var(--r-md);overflow:hidden;background:#080B11;transition:border-color .14s}
   .shot img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover}
   .shot .cap{padding:10px 11px;font-size:11.5px;color:var(--alarm);line-height:1.6}
@@ -414,8 +446,8 @@
     <figure class="heroart">
       <div class="art">
         <canvas id="pv" width="640" height="520" aria-hidden="true"></canvas>
-        <span class="artL mono">POSE LANDMARKER · 33 POINTS</span>
-        <span class="artR mono"><i></i>LIVE</span>
+        <span class="artL">관절 <b>33점</b>을 실시간으로 추정하는 중</span>
+        <span class="artR mono"><i></i>측정 중</span>
         <div class="artHud mono" id="pvHud"></div>
       </div>
       <figcaption id="pvCap">화면의 각도는 장식이 아니라 <b>이 페이지가 실제로 계산한 값</b>입니다. 종목을 바꾸면 함께 바뀝니다.</figcaption>
@@ -446,8 +478,15 @@
       <div class="beat" id="beat"></div>
       <div class="beatlbl mono" id="beatLbl"></div>
       <div class="guide" id="guide" aria-live="polite"></div>
+      <span class="vf a" aria-hidden="true"></span><span class="vf b" aria-hidden="true"></span>
+      <span class="vf c" aria-hidden="true"></span><span class="vf d" aria-hidden="true"></span>
       <div class="placeholder" id="ph">
-        <div class="mono" style="font-size:11.5px;letter-spacing:.2em;color:var(--muted);opacity:.8">POSE LANDMARKER · 33 POINTS</div>
+        <div class="phTop mono">POSE LANDMARKER · 33 POINTS</div>
+        <div class="steps">
+          <div class="st"><b>1</b><span>위에서 종목을 고릅니다</span></div>
+          <div class="st"><b>2</b><span>카메라를 켜거나 시연을 재생합니다</span></div>
+          <div class="st"><b>3</b><span>무너진 순간이 아래에 증거로 쌓입니다</span></div>
+        </div>
         <p id="phHint"></p>
       </div>
     </div>
@@ -558,9 +597,9 @@
           <div class="txt">전부 좌표 간 삼각함수라 결과가 흔들리지 않고, 임계값을 넘는 순간이 명확합니다.
             <b style="color:var(--chalk)">종목이 바뀌어도 바뀌는 건 재는 3점과 임계값뿐입니다.</b>
             스쿼트는 무릎, 푸시업은 팔꿈치, 점핑잭은 팔이 몸통 연장선에서 벌어진 각, 목 스트레칭은 귀–어깨–고관절 사잇각을 잽니다.
-            횟수 상태머신·캡처 규칙·리포트는 여섯 종목이 같은 코드를 씁니다.</div>
+            횟수 상태머신·캡처 규칙·리포트는 일곱 종목이 같은 코드를 씁니다.</div>
         </div>
-        <div class="meas">스쿼트 <b>무릎 ≤ 90°</b><br>푸시업 <b>팔꿈치 ≤ 90°</b><br>런지 <b>앞무릎 ≤ 95°</b><br>점핑잭 <b>남은 각 ≤ 30°</b><br>플랭크 <b>이탈 ≤ 12°</b> 유지<br>목 스트레칭 <b>≤ 158°</b> 유지</div>
+        <div class="meas">스쿼트 <b>무릎 ≤ 90°</b><br>푸시업 <b>팔꿈치 ≤ 90°</b><br>런지 <b>앞무릎 ≤ 95°</b><br>벤치프레스 <b>팔꿈치 ≤ 85°</b><br>점핑잭 <b>남은 각 ≤ 30°</b><br>플랭크 <b>이탈 ≤ 12°</b> 유지<br>목 스트레칭 <b>≤ 158°</b> 유지</div>
       </div>
       <div class="row">
         <div class="idx mono">03</div>
@@ -625,7 +664,7 @@
         <div class="h">직접 구현한 부분</div>
         <p>종목 등록부(스쿼트·푸시업·런지·점핑잭·플랭크·목 스트레칭)와 각 종목의 3점 각도 정의·임계값, 횟수/버티기 상태머신, 회차별 기록,
           가장 심하게 무너진 프레임만 회차당 한 장 고르는 캡처 규칙, 화면 위 각도 시각화,
-          카메라 없이 도는 여섯 종목의 합성 좌표 모델, 깊이 게이지 챌린지, 콤보, 템포 메트로놈, 세트 타임라인과 리포트.</p>
+          카메라 없이 도는 일곱 종목의 합성 좌표 모델, 깊이 게이지 챌린지, 콤보, 템포 메트로놈, 세트 타임라인과 리포트.</p>
       </div>
     </div>
   </section>
@@ -656,10 +695,15 @@ const $ = id => document.getElementById(id);
 const cam=$('cam');
 let cv=$('overlay'), ctx=cv.getContext('2d');
 const ph=$('ph'), cornerL=$('cornerL'), cornerR=$('cornerR');
+/* 로딩·에러 문구가 ph.innerHTML을 덮어쓴다. 원본을 보관해 두고 대기 상태로 돌아올 때 되살린다.
+   (안 그러면 되돌아온 뒤 $('phHint')가 null이라 applyEx()가 죽는다.) */
+const PH_HTML=ph.innerHTML;
+const phReset=()=>{ ph.innerHTML=PH_HTML; };
 
 const L = {LS:11,RS:12,LH:23,RH:24,LK:25,RK:26,LA:27,RA:28,LE:13,RE:14,LW:15,RW:16,LEar:7,REar:8};
 
 let landmarker=null, running=false, mode=null, raf=null, lastT=-1, delegate='—';
+let vizPri='', vizSec='';   // 각도 옆에 붙일 이름 (첫 화면 도형 전용)
 let state='up', reps=0, deepReps=0, minKnee=180, shots=[];
 let bestSev=0, bestM=null;
 let fpsT=performance.now(), fpsN=0, lowN=0, lowSaid=false;
@@ -1180,35 +1224,35 @@ function draw(lm,m,warn){
                    ctx.lineWidth=Math.max(1.4,W/420); ctx.strokeStyle='rgba(237,241,246,.72)'; };
 
   // 세 점이 이루는 사잇각을 호로 그린다
-  const drawArc=(t3,val,col,r)=>{
+  const drawArc=(t3,val,col,r,nm)=>{
     const a1=P(t3[0]), c=P(t3[1]), a2=P(t3[2]);
     dash(); ctx.beginPath(); ctx.moveTo(c.x,c.y); ctx.lineTo(a1.x,a1.y);
     ctx.moveTo(c.x,c.y); ctx.lineTo(a2.x,a2.y); ctx.stroke(); ctx.setLineDash([]);
     ctx.lineWidth=Math.max(2.4,W/260); ctx.strokeStyle=col;
     const mid2=arc(ctx,c,r,Math.atan2(a1.y-c.y,a1.x-c.x),Math.atan2(a2.y-c.y,a2.x-c.x));
-    tag(ctx,c.x+Math.cos(mid2)*(r+8),c.y+Math.sin(mid2)*(r+8),Math.round(val)+'°',col,W);
+    tag(ctx,c.x+Math.cos(mid2)*(r+8),c.y+Math.sin(mid2)*(r+8),(nm?nm+' ':'')+Math.round(val)+'°',col,W);
   };
   // 어깨–발목 기준선을 긋고, 고관절이 그 선에서 얼마나 벗어났는지 선분으로 보인다
-  const drawBody=(val,col)=>{
+  const drawBody=(val,col,nm)=>{
     dash(); ctx.beginPath(); ctx.moveTo(shM.x,shM.y); ctx.lineTo(ankM.x,ankM.y); ctx.stroke(); ctx.setLineDash([]);
     const vx=ankM.x-shM.x, vy=ankM.y-shM.y, L2=vx*vx+vy*vy||1;
     const k=((hipM.x-shM.x)*vx+(hipM.y-shM.y)*vy)/L2;
     const px=shM.x+vx*k, py=shM.y+vy*k;
     ctx.lineWidth=Math.max(2.4,W/260); ctx.strokeStyle=col;
     ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(hipM.x,hipM.y); ctx.stroke();
-    tag(ctx,hipM.x+10,hipM.y+Math.max(14,W/40),Math.round(val)+'°',col,W);
+    tag(ctx,hipM.x+10,hipM.y+Math.max(14,W/40),(nm?nm+' ':'')+Math.round(val)+'°',col,W);
   };
   // 고관절에 수직 기준선을 세우고 상체가 벗어난 각을 호로 그린다
-  const drawVert=(val,col)=>{
+  const drawVert=(val,col,nm)=>{
     dash(); ctx.beginPath(); ctx.moveTo(hipM.x,hipM.y); ctx.lineTo(hipM.x,hipM.y-Math.max(46,W/4)); ctx.stroke(); ctx.setLineDash([]);
     const rT=Math.max(22,W/11);
     ctx.lineWidth=Math.max(2.4,W/260); ctx.strokeStyle=col;
     const mT=arc(ctx,hipM,rT,-Math.PI/2,Math.atan2(shM.y-hipM.y,shM.x-hipM.x));
-    tag(ctx,hipM.x+Math.cos(mT)*(rT+6),hipM.y+Math.sin(mT)*(rT+6),Math.round(val)+'°',col,W);
+    tag(ctx,hipM.x+Math.cos(mT)*(rT+6),hipM.y+Math.sin(mT)*(rT+6),(nm?nm+' ':'')+Math.round(val)+'°',col,W);
   };
 
   // 몸통 연장선에서 팔까지 벌어진 각 — '머리 위까지 남은 각'을 그대로 그린다
-  const drawUpGap=(t3,val,col,r)=>{
+  const drawUpGap=(t3,val,col,r,nm)=>{
     const w=P(t3[0]), c=P(t3[1]), h=P(t3[2]);
     const ux=c.x-h.x, uy=c.y-h.y, un=Math.hypot(ux,uy)||1;
     const up={x:c.x+ux/un*r*1.5, y:c.y+uy/un*r*1.5};
@@ -1216,14 +1260,14 @@ function draw(lm,m,warn){
     ctx.moveTo(c.x,c.y); ctx.lineTo(w.x,w.y); ctx.stroke(); ctx.setLineDash([]);
     ctx.lineWidth=Math.max(2.4,W/260); ctx.strokeStyle=col;
     const mid2=arc(ctx,c,r,Math.atan2(uy,ux),Math.atan2(w.y-c.y,w.x-c.x));
-    tag(ctx,c.x+Math.cos(mid2)*(r+8),c.y+Math.sin(mid2)*(r+8),Math.round(val)+'°',col,W);
+    tag(ctx,c.x+Math.cos(mid2)*(r+8),c.y+Math.sin(mid2)*(r+8),(nm?nm+' ':'')+Math.round(val)+'°',col,W);
   };
   const V=CUR.viz;
-  if(V.pri==='upGap') drawUpGap(tri,m.knee,priCol,Math.max(26,W/8));
-  else if(V.pri==='arc') drawArc(tri,m.knee,priCol,Math.max(24,W/9)); else drawBody(m.knee,priCol);
-  if(V.sec==='vertical')      drawVert(m.torso,secCol);
-  else if(V.sec==='bodyOffset') drawBody(m.torso,secCol);
-  else                          drawArc(tri,m.torso,secCol,Math.max(20,W/12));
+  if(V.pri==='upGap') drawUpGap(tri,m.knee,priCol,Math.max(26,W/8),vizPri);
+  else if(V.pri==='arc') drawArc(tri,m.knee,priCol,Math.max(24,W/9),vizPri); else drawBody(m.knee,priCol,vizPri);
+  if(V.sec==='vertical')      drawVert(m.torso,secCol,vizSec);
+  else if(V.sec==='bodyOffset') drawBody(m.torso,secCol,vizSec);
+  else                          drawArc(tri,m.torso,secCol,Math.max(20,W/12),vizSec);
   ctx.shadowBlur=0;
 }
 /* ---------- ui ---------- */
@@ -1876,7 +1920,7 @@ function applyEx(){
   document.querySelectorAll('.exsel .ex').forEach(b=>{
     const on=b.dataset.ex===CUR.key; b.classList.toggle('on',on); b.setAttribute('aria-pressed',on);
   });
-  $('phHint').innerHTML='전신이 나오도록 카메라에서 2m 정도 떨어져 <b style="color:var(--chalk)">'+CUR.hint+
+  const phh=$('phHint'); if(phh) phh.innerHTML='전신이 나오도록 카메라에서 2m 정도 떨어져 <b style="color:var(--chalk)">'+CUR.hint+
     '</b> 주세요. 무릎·팔꿈치 각도는 옆모습에서 가장 정확하고, 좌우 비대칭은 몸을 <b style="color:var(--chalk)">20~30° 정도 카메라 쪽으로 튼 자세</b>에서 잽니다.';
 }
 function switchEx(key){
@@ -1886,7 +1930,7 @@ function switchEx(key){
   mode=null; cam.style.opacity='0'; $('scrim').classList.remove('on'); setGuide(null);
   ctx.clearRect(0,0,cv.width,cv.height);
   cornerL.textContent='STANDBY'; cornerR.textContent=''; cornerR.style.color='';
-  ph.style.display='flex'; $('startBtn').disabled=false;
+  phReset(); ph.style.display='flex'; $('startBtn').disabled=false;
   applyEx(); resetSet(); renderPreview();
 }
 Object.keys(EX).forEach(k=>EX[k].key=k);
@@ -1946,6 +1990,7 @@ function renderPreview(t){
     ctx.setTransform(1,0,0,1,0,0);
     ctx.clearRect(0,0,W,H);
     ctx.setTransform(z,0,0,z,tx,ty);
+    vizPri=CUR.joint; vizSec=CUR.sec;
     draw(lm,m,false);                       // draw()가 캔버스를 먼저 지우므로 배경은 그 뒤에 깐다
     ctx.globalCompositeOperation='destination-over';
     // 선만 있으면 스케치처럼 보인다. 사지에 두께를 깔아 몸의 부피를 만든다(미리보기 전용)
@@ -1967,8 +2012,14 @@ function renderPreview(t){
       ctx.beginPath(); ctx.arc(h.x,h.y,22/z,0,7); ctx.fill();
       ctx.fillStyle='rgba(121,184,255,.14)';
       ctx.beginPath(); ctx.arc(h.x,h.y,34/z,0,7); ctx.fill(); }
+    // 발밑 그림자 — 바닥 위에 서 있는 것으로 읽히게
+    const gy=Math.min(bot*H*z+ty+14, H*0.775), cx=((lo+hi)/2)*W*z+tx;
     ctx.setTransform(1,0,0,1,0,0);
-    artBg(ctx,W,H, Math.min(bot*H*z+ty+14, H*0.775));
+    const eg=ctx.createRadialGradient(cx,gy,0,cx,gy,bw*W*z*0.62);
+    eg.addColorStop(0,'rgba(121,184,255,.22)'); eg.addColorStop(1,'rgba(121,184,255,0)');
+    ctx.fillStyle=eg; ctx.save(); ctx.translate(cx,gy); ctx.scale(1,0.16);
+    ctx.beginPath(); ctx.arc(0,0,bw*W*z*0.62,0,7); ctx.fill(); ctx.restore();
+    artBg(ctx,W,H, gy);
     ctx.globalCompositeOperation='source-over';
     const deep=m.knee<=TH.DEPTH;
     $('pvHud').innerHTML =
@@ -1976,6 +2027,7 @@ function renderPreview(t){
       '<span>'+CUR.g2[0]+'<b>'+Math.round(m.torso)+'°</b></span>'+
       '<span>'+CUR.g3[0]+'<b>'+(m.tilt*100).toFixed(1)+'%</b></span>';
   }catch(e){ console.warn('미리보기 렌더 실패',e); }
+  vizPri=''; vizSec='';
   cv=kc; ctx=kx;
 }
 /* 아주 느리게 한 사이클 — 첫 화면에서 무엇을 재는지가 움직임으로 보인다.
