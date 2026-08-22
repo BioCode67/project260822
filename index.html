@@ -1922,8 +1922,16 @@ function renderPreview(t){
   const kc=cv, kx=ctx;
   cv=pv; ctx=pv.getContext('2d');
   try{
-    if(t==null) t = CUR.kind==='hold' ? 8.6 : Math.PI*0.94;
-    const lm=CUR.synth(t,0), m=CUR.metrics(lm);
+    if(t==null) t = CUR.kind==='hold' ? 8.6 : 2.35;
+    const lmR=CUR.synth(t,0), m=CUR.metrics(lmR);   // 계측값은 원본 좌표로 낸다
+    // 측면 종목은 좌우가 거의 포개져야 하는데, 합성 좌표는 0.06 어긋나 있어 이중선으로 보인다.
+    // 미리보기에서만 오른쪽을 왼쪽에 겹쳐 한 벌의 선으로 만든다.
+    const lm=lmR.map(p=>p?{x:p.x,y:p.y,visibility:p.visibility}:p);
+    if(CUR.viz.sec!=='vertical' || CUR.kind==='hold' || ['squat','lunge','pushup','bench','plank'].indexOf(CUR.key)>=0){
+      [[12,11],[14,13],[16,15],[24,23],[26,25],[28,27],[32,31],[8,7]].forEach(([r,l])=>{
+        if(lm[r]&&lm[l]) lm[r]={x:lm[l].x,y:lm[l].y,visibility:1};
+      });
+    }
     // 종목마다 그림이 놓이는 자리가 달라서, 관절 좌표의 경계 상자를 재서 상자에 맞춘다
     const IDX=[0,7,8,11,12,13,14,15,16,23,24,25,26,27,28,31,32];
     let lo=1,hi=0,top=1,bot=0;
@@ -1945,15 +1953,20 @@ function renderPreview(t){
     const LIMB=[[11,12],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],
                 [11,13],[13,15],[12,14],[14,16]];
     ctx.lineCap='round'; ctx.lineJoin='round';
-    [[42,'rgba(121,184,255,.10)'],[27,'rgba(121,184,255,.13)']].forEach(([px,col])=>{
+    [[40,'rgba(121,184,255,.13)'],[22,'rgba(121,184,255,.30)'],[13,'rgba(121,184,255,.55)']].forEach(([px,col])=>{
       ctx.lineWidth=px/z; ctx.strokeStyle=col;
       ctx.beginPath();
       LIMB.forEach(([a,c])=>{ if(!lm[a]||!lm[c]) return;
         const p=P(a),q=P(c); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); });
       ctx.stroke();
     });
-    if(lm[0]){ const h=P(0); ctx.fillStyle='rgba(121,184,255,.13)';
-      ctx.beginPath(); ctx.arc(h.x,h.y,27/z,0,7); ctx.fill(); }
+    if(lm[0]){ const h=P(0), n={x:(P(11).x+P(12).x)/2,y:(P(11).y+P(12).y)/2};
+      ctx.lineWidth=13/z; ctx.strokeStyle='rgba(121,184,255,.55)';
+      ctx.beginPath(); ctx.moveTo(n.x,n.y); ctx.lineTo(h.x,h.y); ctx.stroke();
+      ctx.fillStyle='rgba(121,184,255,.45)';
+      ctx.beginPath(); ctx.arc(h.x,h.y,22/z,0,7); ctx.fill();
+      ctx.fillStyle='rgba(121,184,255,.14)';
+      ctx.beginPath(); ctx.arc(h.x,h.y,34/z,0,7); ctx.fill(); }
     ctx.setTransform(1,0,0,1,0,0);
     artBg(ctx,W,H, Math.min(bot*H*z+ty+14, H*0.775));
     ctx.globalCompositeOperation='source-over';
