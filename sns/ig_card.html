@@ -1,0 +1,88 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<style>
+:root{
+  --bg:#F4F6FA; --surface:#FFFFFF; --ink:#0F151E; --muted:#5C6675;
+  --accent:#2560C4; --accent-soft:#EAF1FC; --warn:#A85614; --warn-soft:#FBF0E4;
+  --ok:#147350; --ok-soft:#E8F4EE; --line:#E2E8F1;
+  --sans:Pretendard,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1080px;background:var(--bg);font-family:var(--sans);
+  color:var(--ink);word-break:keep-all;-webkit-font-smoothing:antialiased}
+.card{width:1080px;height:1080px;padding:58px 60px 52px;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px}
+.brand{display:flex;align-items:baseline;gap:12px}
+.brand b{font-size:34px;font-weight:800;letter-spacing:-.02em}
+.brand span{font-size:19px;color:var(--muted);font-weight:500;letter-spacing:-.01em;
+  padding-left:13px;border-left:1px solid var(--line)}
+.chip{font-size:17px;font-weight:600;color:var(--accent);background:var(--accent-soft);
+  padding:9px 17px;border-radius:999px;letter-spacing:-.01em}
+h1{font-size:56px;line-height:1.28;letter-spacing:-.028em;font-weight:800}
+h1 .g{color:var(--muted);font-weight:700}
+.sub{margin-top:24px;font-size:24px;line-height:1.6;color:var(--muted);
+  letter-spacing:-.016em;max-width:830px;font-weight:500}
+.sub b{color:var(--ink);font-weight:700}
+.shot{margin-top:30px;position:relative;height:344px;border-radius:18px;overflow:hidden;
+  border:1px solid var(--line);background:#0B0E14}
+.shot img{width:100%;height:100%;object-fit:cover;object-position:46% 40%;display:block}
+.shot .cap{position:absolute;left:0;right:0;bottom:0;padding:34px 24px 16px;
+  background:linear-gradient(transparent,rgba(8,11,17,.92) 52%);
+  display:flex;align-items:baseline;gap:12px}
+.shot .cap b{font-size:20px;font-weight:700;color:#F6C489;letter-spacing:-.014em}
+.shot .cap span{font-size:18px;color:#B9C2CF;font-weight:500;letter-spacing:-.012em}
+.strip{margin-top:22px;background:var(--surface);border:1px solid var(--line);
+  border-radius:18px;padding:22px 26px 22px}
+.slab{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:15px}
+.slab .t{font-size:20px;font-weight:700;letter-spacing:-.014em}
+.slab .n{font-size:18px;color:var(--muted);font-weight:500;letter-spacing:-.01em}
+.cells{display:grid;grid-template-columns:repeat(8,1fr);gap:9px}
+.c{border-radius:11px;padding:11px 4px 11px;text-align:center;background:var(--ok-soft)}
+.c.w{background:var(--warn-soft)}
+.c .r{font-size:15px;color:var(--muted);font-weight:600;letter-spacing:-.01em}
+.c .v{font-size:27px;font-weight:800;margin-top:5px;color:var(--ok);letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums}
+.c.w .v{color:var(--warn)}
+.c .s{font-size:14px;margin-top:6px;color:var(--ok);font-weight:600;letter-spacing:-.01em}
+.c.w .s{color:var(--warn)}
+.foot{margin-top:24px;display:flex;align-items:center;justify-content:space-between}
+.url{font-size:25px;font-weight:700;color:var(--accent);letter-spacing:-.012em}
+.tagline{font-size:19px;color:var(--muted);font-weight:500;letter-spacing:-.012em}
+</style></head><body>
+<div class="card">
+  <div class="top">
+    <div class="brand"><b>되감기</b><span>AI 자세 트레이너</span></div>
+    <div class="chip">제1회 일상뒤집기 AI 어플 아이디어 공모전</div>
+  </div>
+
+  <h1>집에서 운동할 때,<br><span class="g">내 자세 봐주는 사람이 없습니다.</span></h1>
+  <p class="sub">자세가 무너지는 건 힘들어서 거울 볼 여유도 없는 <b>마지막 몇 회</b>입니다.
+    되감기는 관절 각도를 매 프레임 재서 <b>그 순간만 골라 남깁니다.</b></p>
+
+  <div class="shot">
+    <img src="_app.png" alt="">
+    <div class="cap"><b>무너진 순간을 자동으로 포착</b><span>상체 51° · 무릎 103° · 6회차</span></div>
+  </div>
+
+  <div class="strip">
+    <div class="slab">
+      <span class="t">스쿼트 한 세트 · 회차별 최저 무릎 각도</span>
+      <span class="n">5회차부터 무너지기 시작</span>
+    </div>
+    <div class="cells">
+      <div class="c"><div class="r">1회</div><div class="v">70°</div><div class="s">깊이 인정</div></div>
+      <div class="c"><div class="r">2회</div><div class="v">74°</div><div class="s">깊이 인정</div></div>
+      <div class="c"><div class="r">3회</div><div class="v">78°</div><div class="s">깊이 인정</div></div>
+      <div class="c"><div class="r">4회</div><div class="v">82°</div><div class="s">깊이 인정</div></div>
+      <div class="c w"><div class="r">5회</div><div class="v">86°</div><div class="s">비대칭 8.3%</div></div>
+      <div class="c w"><div class="r">6회</div><div class="v">90°</div><div class="s">비대칭 10.4%</div></div>
+      <div class="c w"><div class="r">7회</div><div class="v">94°</div><div class="s">비대칭 12.5%</div></div>
+      <div class="c w"><div class="r">8회</div><div class="v">98°</div><div class="s">비대칭 14.6%</div></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="url">ai-home-trainer.netlify.app</span>
+    <span class="tagline">설치 없이 브라우저에서 · 영상은 기기 밖으로 나가지 않습니다</span>
+  </div>
+</div>
+</body></html>
