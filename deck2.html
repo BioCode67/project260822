@@ -32,8 +32,15 @@ h1 .a{color:var(--accent)}
 .tag.wn{background:var(--warn-soft);color:var(--warn)}
 .shot .cp .tx{font-size:21px;font-weight:600;letter-spacing:-.014em;line-height:1.4}
 .shot .cp .tx s{text-decoration:none;color:var(--muted);font-weight:500}
-/* 3지표 */
+/* 3지표 — 왼쪽에 정의 셋, 오른쪽에 그 셋이 실제로 뜨는 화면 */
 .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.tri3{display:grid;grid-template-columns:1fr 1fr 1fr 0.86fr;gap:20px;align-items:start}
+.gshot{margin:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#0B0E14;
+ display:flex;flex-direction:column;box-shadow:0 2px 14px rgba(15,21,30,.05)}
+.gshot img{width:100%;height:272px;object-fit:cover;object-position:50% 4%;display:block}
+.gshot figcaption{padding:14px 16px;background:var(--surface);font-size:16px;line-height:1.45;
+ color:var(--muted);font-weight:500;letter-spacing:-.012em;border-top:1px solid var(--line)}
+.gshot figcaption b{color:var(--warn);font-weight:800}
 .mt{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:30px 30px 28px}
 .mt .n{font-size:26px;font-weight:800;letter-spacing:-.018em}
 .mt .th{margin-top:14px;font-size:40px;font-weight:800;color:var(--accent);letter-spacing:-.022em}
@@ -113,13 +120,16 @@ h1 .a{color:var(--accent)}
 <div class="page">
   <div class="eyebrow"><span class="l">어떻게 재는가</span><span class="r">03 / 05</span></div>
   <h1>관절 <span class="a">33점</span>을 매 프레임 추정해<br>세 가지를 잽니다.</h1>
-  <div class="grow"><div class="tri">
+  <p class="lead">셋 다 화면에 숫자와 막대로 함께 뜹니다. 기준을 넘기면 그 자리에서 색이 바뀝니다.</p>
+  <div class="grow"><div class="tri3">
     <div class="mt"><div class="n">무릎 각도</div><div class="th">90° 이하</div>
       <div class="d">고관절–무릎–발목이 이루는 각.<br>이 아래로 내려가야 <b style="color:var(--ink)">깊이를 인정</b>합니다.</div></div>
     <div class="mt"><div class="n">상체 기울기</div><div class="th">55° 초과 경고</div>
       <div class="d">어깨–고관절 선이 수직에서 벗어난 각.<br>넘으면 <b style="color:var(--ink)">허리로 무게가 옮겨간</b> 신호입니다.</div></div>
     <div class="mt"><div class="n">좌우 비대칭</div><div class="th">8% 초과 경고</div>
       <div class="d">골반 높이차 ÷ 어깨너비.<br>넘으면 <b style="color:var(--ink)">한쪽으로 쏠린</b> 것으로 봅니다.</div></div>
+    <figure class="gshot"><img src="live_gauges.jpg" alt="">
+      <figcaption>실제 화면 · 좌우 비대칭 <b>8.0%</b>가 기준을 넘겨 주황으로 바뀐 순간</figcaption></figure>
   </div>
   <div class="note">AI가 "자세가 틀렸습니다"라고만 말하지 않습니다. <b>무엇을 어떻게 쟀는지 화면에 숫자로 그대로 띄웁니다.</b>
     틀렸을 때 왜 그런지 설명이 안 되면 믿고 쓰기 어렵기 때문입니다.</div>
