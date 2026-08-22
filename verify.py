@@ -28,6 +28,7 @@ CASES = [
     ("푸시업", "pushup", {"segs": 8, "depth": "4 / 8", "shots": 2}),
     # 버티기 종목: 회차가 아니라 '기준 안에 머문 구간'을 센다. 시연은 실시간 구동이라 약 30초.
     ("런지",   "lunge",  {"segs": 8, "depth": "6 / 8", "shots": 3}),
+    ("벤치프레스", "bench", {"segs": 8, "depth": "6 / 8", "shots": 3}),
     ("점핑잭", "jack",   {"segs": 8, "depth": "4 / 8", "shots": 2}),
     ("플랭크", "plank",  {"segs": 3, "depth": "1 / 3", "shots": 2}),
     ("목 스트레칭", "neck", {"segs": 3, "depth": "2 / 3", "shots": 2}),

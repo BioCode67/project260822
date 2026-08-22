@@ -352,11 +352,12 @@
     <button class="ex on" data-ex="squat" aria-pressed="true">스쿼트</button>
     <button class="ex" data-ex="pushup" aria-pressed="false">푸시업</button>
     <button class="ex" data-ex="lunge" aria-pressed="false">런지</button>
+    <button class="ex" data-ex="bench" aria-pressed="false">벤치프레스</button>
     <button class="ex" data-ex="jack" aria-pressed="false">점핑잭</button>
     <span class="exdiv" aria-hidden="true"></span>
     <button class="ex timed" data-ex="plank" aria-pressed="false">플랭크</button>
     <button class="ex timed" data-ex="neck" aria-pressed="false">목 스트레칭</button>
-    <span class="exnote">왼쪽 넷은 <b style="color:#B9C7E2">횟수</b>를, 오른쪽 둘은 <b style="color:#B9C7E2">버틴 시간</b>을 셉니다.
+    <span class="exnote">왼쪽 다섯은 <b style="color:#B9C7E2">횟수</b>를, 오른쪽 둘은 <b style="color:#B9C7E2">버틴 시간</b>을 셉니다.
       종목이 바뀌어도 바뀌는 건 재는 3점 각도와 임계값뿐입니다.</span>
   </div>
   <div class="stage">
@@ -832,6 +833,57 @@ function synthJack(t,repIdx){
   return lm2;
 }
 
+/* ---------- 종목: 벤치프레스 ----------
+   측면에서 재는 두 가지. 팔꿈치 각도(가동범위)와 전완이 수직에서 벗어난 각.
+   "전완은 항상 수직"은 벤치프레스에서 가장 널리 쓰이는 코칭 지점이고,
+   바가 팔꿈치보다 앞뒤로 나가면 어깨와 손목에 부담이 실린다. */
+function metricsBench(lm){
+  const mid=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
+  const sh=mid(lm[L.LS],lm[L.RS]), hip=mid(lm[L.LH],lm[L.RH]);
+  const eL=ang(lm[L.LS],lm[L.LE],lm[L.LW]), eR=ang(lm[L.RS],lm[L.RE],lm[L.RW]);
+  // 세트의 질은 약한 쪽이 결정한다. 양쪽 중 '덜 내려간' 팔을 기준으로 삼는다.
+  const knee=Math.max(eL,eR);                                   // 팔꿈치 각도 = 가동범위
+  // 바 기울기 — 양쪽 손목을 잇는 선이 수평에서 벗어난 각. 벤치프레스에서 가장 먼저 드러나는 좌우 불균형이다.
+  const torso=Math.abs(Math.atan2(lm[L.LW].y-lm[L.RW].y, lm[L.LW].x-lm[L.RW].x)*180/Math.PI);
+  const shoulderW=Math.hypot(lm[L.LS].x-lm[L.RS].x, lm[L.LS].y-lm[L.RS].y)||0.001;
+  const tilt=Math.abs(lm[L.LE].y-lm[L.RE].y)/shoulderW;          // 좌우 팔꿈치 높이차
+  return {knee,torso,tilt,sh,hip};
+}
+// 발치에서 본 시점. 두 팔이 모두 보여야 가동범위와 바 기울기를 함께 잴 수 있다.
+function synthBench(t,repIdx){
+  const d=0.5-0.5*Math.cos(t);
+  const f=Math.min(1,repIdx/8);
+  const fade=1-0.15*f;                       // 지치면 바가 가슴까지 안 내려온다
+  const U=0.17, F=0.17, HW=0.11, GRIP=0.055; // 어깨 반너비, 그립이 어깨보다 벌어진 만큼
+  const p=(x,y)=>({x,y,visibility:1});
+  const CX=0.50, SHY=0.55;
+  const hb=0.3304-0.135*d*fade;              // 어깨선에서 바까지의 높이
+  const dy=0.045*d*f;                        // 지치면 바가 한쪽으로 기운다
+  const arm=(side)=>{
+    const S={x:CX+side*HW, y:SHY};
+    const Wr={x:CX+side*(HW+GRIP), y:SHY-hb+side*dy/2};
+    const dx=Wr.x-S.x, dyy=Wr.y-S.y;
+    const dd=Math.max(1e-4,Math.min(Math.hypot(dx,dyy),U+F-1e-4));
+    const a=dd/2, h=Math.sqrt(Math.max(0,U*U-a*a));
+    const mx=S.x+dx*a/dd, my=S.y+dyy*a/dd;
+    const e1={x:mx+h*dyy/dd, y:my-h*dx/dd}, e2={x:mx-h*dyy/dd, y:my+h*dx/dd};
+    const E = (side>0 ? (e1.x>=e2.x?e1:e2) : (e1.x<=e2.x?e1:e2));   // 팔꿈치는 바깥으로 벌어진다
+    return [S,E,Wr];
+  };
+  const [SL,EL,WL]=arm(+1), [SR,ER,WR2]=arm(-1);
+  const lm2=new Array(33).fill(null).map(()=>p(0.5,0.5));
+  lm2[11]=p(SL.x,SL.y);           lm2[12]=p(SR.x,SR.y);
+  lm2[13]=p(EL.x,EL.y);           lm2[14]=p(ER.x,ER.y);
+  lm2[15]=p(WL.x,WL.y);           lm2[16]=p(WR2.x,WR2.y);
+  lm2[23]=p(CX+0.085,0.80);       lm2[24]=p(CX-0.085,0.80);
+  lm2[25]=p(CX+0.105,0.92);       lm2[26]=p(CX-0.105,0.92);
+  lm2[27]=p(CX+0.115,0.98);       lm2[28]=p(CX-0.115,0.98);
+  lm2[0]=p(CX,SHY-0.085);
+  lm2[7]=p(CX+0.035,SHY-0.085);   lm2[8]=p(CX-0.035,SHY-0.085);
+  lm2[31]=p(CX+0.13,0.995);       lm2[32]=p(CX-0.13,0.995);
+  return lm2;
+}
+
 /* ---------- 종목 등록부 ----------
    각 종목은 "어떤 3점 각도를 재는가"와 임계값, 라벨만 정의한다. */
 const REP_PRI=v=>Math.max(0,Math.min(100,(180-v)/110*100));   // 각도가 작아질수록 채워진다
@@ -918,6 +970,19 @@ const EX = {
     sec:'상체', tiltL:'비대칭',
     cue:{deep:'올리면',stand:'팔을 내린 자세입니다.',sec:'상체가',secTail:'지치면 몸이 한쪽으로 기웁니다.',tilt:'좌우 어깨 높이차가'},
     arc:{L:[L.LW,L.LS,L.LH],R:[L.RW,L.RS,L.RH]}, viz:{pri:'upGap',sec:'vertical'}
+  },
+  bench:{
+    kind:'rep', holdMs:500, demoEnd:8, priPct:REP_PRI, unit:'회차', depthLbl:'가동범위를 채운 횟수',
+    name:'벤치프레스', cnt:'BENCH PRESS', joint:'팔꿈치', hint:'발치 쪽에서 두 팔이 모두 보이게',
+    TH:{STAND:158, DOWN:110, DEPTH:85, TORSO:5, TILT:0.08},
+    metrics:metricsBench, synth:synthBench, secMax:15,
+    g1:['팔꿈치 각도','어깨–팔꿈치–손목. <b>양쪽 중 덜 내려간 쪽</b>이 85° 이하여야 인정'],
+    g2:['바 기울기','양쪽 손목을 잇는 선이 수평에서 벗어난 각. 5° 초과 시 경고'],
+    g3:['좌우 불균형','양쪽 팔꿈치 높이차. 어깨너비 대비 8% 초과 시 경고'],
+    chal:['ROM CHALLENGE','팔꿈치를 <b>85° 아래로 0.5초</b> 유지하면 그 회차는 성공입니다. 반동으로 튕기지 않고 <b>내려온 자리에서 멈추는지</b>를 봅니다.'],
+    sec:'바', tiltL:'팔꿈치 높이차',
+    cue:{deep:'내리면',stand:'팔을 편 자세입니다.',sec:'바가 수평에서',secTail:'한쪽 팔이 먼저 밀리고 있습니다.',tilt:'좌우 팔꿈치 높이차가'},
+    arc:{L:[L.LS,L.LE,L.LW],R:[L.RS,L.RE,L.RW]}, viz:{pri:'arc',sec:'vertical'}
   }
 };
 let CUR=EX.squat, TH=CUR.TH, metrics=CUR.metrics, synth=CUR.synth;
@@ -1280,6 +1345,19 @@ $('lb').addEventListener('click',e=>{ if(e.target===$('lb')) closeLb(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLb(); });
 /* ---------- 세트 리포트 ----------
    흩어져 있던 값을 한 장으로 모은다. "세트가 끝나면 증거를 보여준다"는 약속의 마지막 조각. */
+// 회차별 최저각으로 가동범위와 피로도를 계산한다. 새로 재는 값이 아니라, 이미 기록된 값의 통계다.
+function romStats(){
+  const v=timeline.filter(r=>r.secs==null).map(r=>r.low);
+  if(v.length<4) return null;
+  const n=Math.min(3,Math.floor(v.length/2));
+  const head=v.slice(0,n).reduce((a,b)=>a+b,0)/n;
+  const tail=v.slice(-n).reduce((a,b)=>a+b,0)/n;
+  return {
+    best:Math.min(...v), worst:Math.max(...v),
+    avg:+(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1),
+    drop:+(tail-head).toFixed(1), n
+  };
+}
 function summary(){
   return {
     total: timeline.length,
@@ -1288,7 +1366,8 @@ function summary(){
     chal:  timeline.filter(r=>r.chal).length,
     hasChal: timeline.some(r=>r.chal!==null),
     combo: bestCombo,
-    desc: descents.length ? +(descents.reduce((a,b)=>a+b,0)/descents.length).toFixed(2) : null
+    desc: descents.length ? +(descents.reduce((a,b)=>a+b,0)/descents.length).toFixed(2) : null,
+    rom:  romStats()
   };
 }
 /* 지난 세트 기록은 이 브라우저에만 남는다. 서버가 없으니 남길 곳이 여기뿐이고,
@@ -1328,6 +1407,10 @@ function renderReport(){
   $('rcChal').innerHTML=S.hasChal?(S.chal+'<small> / '+S.total+'</small>'):'<small>꺼짐</small>';
   const extra=[];
   if(S.combo) extra.push('최고 <b>'+S.combo+' 연속</b> 성공');
+  if(S.rom){
+    extra.push('가동범위 <b>'+S.rom.best+'°~'+S.rom.worst+'°</b> (평균 '+S.rom.avg+'°)');
+    if(S.rom.drop>0.5) extra.push('처음 '+S.rom.n+'회 대비 <b>'+S.rom.drop.toFixed(1)+'° 얕아짐</b>');
+  }
   if(S.desc)  extra.push('평균 하강 <b>'+S.desc.toFixed(2)+'초</b>'+(tempoOn?' · 목표 '+(TEMPO_MS/1000).toFixed(1)+'초보다 '+(S.desc<TEMPO_MS/1000?'빠릅니다':'느립니다'):''));
   $('rcExtra').innerHTML=extra.join(' · ');
   $('rcExtra').style.display=extra.length?'block':'none';
@@ -1406,6 +1489,8 @@ async function saveReport(){
     const ex=[];
     if(S.combo) ex.push('최고 '+S.combo+' 연속 성공');
     if(S.desc)  ex.push('평균 하강 '+S.desc.toFixed(2)+'초');
+    if(S.rom){ ex.unshift('가동범위 '+S.rom.best+'°~'+S.rom.worst+'° (평균 '+S.rom.avg+'°)');
+               if(S.rom.drop>0.5) ex.splice(1,0,'처음 '+S.rom.n+'회 대비 '+S.rom.drop.toFixed(1)+'° 얕아짐'); }
     if(ex.length){ g.fillStyle='#94A6C9'; g.font='400 14px '+SANS; g.fillText(ex.join('  ·  '), PAD, 430); }
 
     if(pics.length){
@@ -1698,7 +1783,7 @@ function loopDemo(){
    계측 함수·임계값·라벨만 갈아 끼운다. 상태머신과 캡처 규칙은 공유한다. */
 function applyEx(){
   const g=(id,i)=>{ const e=$(id); e.querySelector('.name').textContent=CUR[i][0];
-                    e.querySelector('.desc').textContent=CUR[i][1]; };
+                    e.querySelector('.desc').innerHTML=CUR[i][1]; };
   g('gKnee','g1'); g('gTorso','g2'); g('gTilt','g3');
   $('cntTitle').textContent=CUR.cnt;
   $('depthLbl').textContent=CUR.depthLbl;
