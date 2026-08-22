@@ -89,6 +89,17 @@
   .privacy{margin-top:20px;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:8px}
   .privacy .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none;box-shadow:0 0 8px var(--ok)}
 
+  /* ---------- exercise selector ---------- */
+  .exsel{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 2px}
+  .exsel .ex{
+    background:transparent;color:var(--muted);border:1px solid var(--line);
+    padding:9px 18px;border-radius:999px;font-size:13.5px;font-weight:700;
+    font-family:inherit;letter-spacing:-.01em;transition:all .14s
+  }
+  .exsel .ex:hover{color:var(--chalk);border-color:rgba(84,214,238,.5)}
+  .exsel .ex.on{background:rgba(84,214,238,.14);color:var(--cyan);border-color:var(--cyan)}
+  .exsel .exnote{font-size:11.5px;color:var(--muted);line-height:1.6;flex:1;min-width:220px}
+
   /* ---------- stage ---------- */
   .stage{display:grid;grid-template-columns:1fr 320px;gap:20px;margin:24px 0 40px;align-items:start}
   @media(max-width:900px){.stage{grid-template-columns:1fr}}
@@ -303,6 +314,11 @@
 </div>
 
 <div class="wrap">
+  <div class="exsel" role="group" aria-label="종목 선택">
+    <button class="ex on" data-ex="squat" aria-pressed="true">스쿼트</button>
+    <button class="ex" data-ex="pushup" aria-pressed="false">푸시업</button>
+    <span class="exnote">종목이 바뀌어도 바뀌는 건 <b style="color:#B9C7E2">재는 3점 각도와 임계값</b>뿐입니다. 횟수 상태머신·캡처 규칙·리포트는 그대로 재사용됩니다.</span>
+  </div>
   <div class="stage">
     <div class="screen" id="screen">
       <video id="cam" playsinline muted></video>
@@ -313,12 +329,12 @@
       <div class="guide" id="guide" aria-live="polite"></div>
       <div class="placeholder" id="ph">
         <div class="mono" style="font-size:12px;letter-spacing:.2em;color:var(--muted)">POSE LANDMARKER · 33 POINTS</div>
-        <p>전신이 나오도록 카메라에서 2m 정도 떨어져 서 주세요. 무릎·상체 각도는 <b style="color:var(--chalk)">옆모습</b>에서 가장 정확하고, 좌우 비대칭은 몸을 <b style="color:var(--chalk)">20~30° 정도 카메라 쪽으로 튼 자세</b>에서 잽니다. 화면 아래 안내가 지금 무엇이 계측되는지 알려 줍니다.</p>
+        <p id="phHint"></p>
       </div>
     </div>
 
     <div class="panel">
-      <h3 class="mono">SQUAT COUNT</h3>
+      <h3 class="mono" id="cntTitle">REP COUNT</h3>
       <div class="rep">
         <div class="n mono" id="repN" aria-live="polite">0</div>
         <div class="l">깊이까지 도달한 횟수 <span class="mono" id="depthRate" style="color:var(--cyan)">—</span></div>
@@ -343,7 +359,7 @@
       <div class="cue" id="cue" aria-live="polite">측정을 시작하면 지금 숫자가 무엇을 뜻하는지 여기에 한 줄로 적습니다.</div>
       <div class="chal" id="chal">
         <div class="chd">
-          <span class="cttl mono">DEPTH CHALLENGE</span>
+          <span class="cttl mono" id="chalTitle">DEPTH CHALLENGE</span>
           <span class="cscore mono" id="chalScore">—</span>
         </div>
         <div class="track" id="chalTrack">
@@ -414,9 +430,10 @@
         <div class="idx mono">02</div>
         <div>
           <div class="ttl">세 각도를 매 프레임 계산</div>
-          <div class="txt">무릎 굽힘, 상체 전방 기울기, 좌우 골반 높이차. 전부 좌표 간 삼각함수라 결과가 흔들리지 않고, 임계값을 넘는 순간이 명확합니다.</div>
+          <div class="txt">스쿼트는 무릎 굽힘·상체 전방 기울기·좌우 골반 높이차를 잽니다. 전부 좌표 간 삼각함수라 결과가 흔들리지 않고, 임계값을 넘는 순간이 명확합니다.
+            <b style="color:var(--chalk)">푸시업으로 바꾸면 재는 3점만 바뀝니다</b> — 팔꿈치 굽힘, 어깨–고관절–발목의 일직선 이탈, 좌우 어깨 높이차. 횟수 상태머신과 캡처 규칙은 그대로 재사용됩니다.</div>
         </div>
-        <div class="meas">무릎 <b>≤ 90°</b> 깊이 인정<br>상체 <b>&gt; 55°</b> 경고<br>비대칭 <b>&gt; 8%</b> 경고</div>
+        <div class="meas">스쿼트 <b>무릎 ≤ 90°</b> · 상체 &gt; 55°<br>푸시업 <b>팔꿈치 ≤ 90°</b> · 몸통 &gt; 15°<br>비대칭 <b>&gt; 8%</b> 공통</div>
       </div>
       <div class="row">
         <div class="idx mono">03</div>
@@ -478,7 +495,7 @@
       </div>
       <div class="own">
         <div class="h">직접 구현한 부분</div>
-        <p>세 각도의 정의와 계산, 임계값 설정, 횟수 상태머신(158°/100°), 회차별 최저각 기록,
+        <p>종목 등록부(스쿼트·푸시업)와 각 종목의 3점 각도 정의·임계값, 횟수 상태머신, 회차별 최저각 기록,
           가장 심하게 무너진 프레임만 회차당 한 장 고르는 캡처 규칙, 화면 위 각도 시각화,
           카메라 없이 도는 시연 모드의 합성 좌표 모델, 깊이 게이지 챌린지, 세트 타임라인.</p>
       </div>
@@ -511,8 +528,7 @@ const $ = id => document.getElementById(id);
 const cam=$('cam'), cv=$('overlay'), ctx=cv.getContext('2d');
 const ph=$('ph'), cornerL=$('cornerL'), cornerR=$('cornerR');
 
-const TH = { STAND:158, DOWN:100, DEPTH:90, TORSO:55, TILT:0.08 };
-const L = {LS:11,RS:12,LH:23,RH:24,LK:25,RK:26,LA:27,RA:28};
+const L = {LS:11,RS:12,LH:23,RH:24,LK:25,RK:26,LA:27,RA:28,LE:13,RE:14,LW:15,RW:16};
 
 let landmarker=null, running=false, mode=null, raf=null, lastT=-1, delegate='—';
 let state='up', reps=0, deepReps=0, minKnee=180, shots=[];
@@ -533,7 +549,7 @@ const vertDev=(sh,hip)=>{ // 수직선에서 벗어난 각
   return Math.abs(Math.atan2(dx,-dy)*180/Math.PI);
 };
 
-function metrics(lm){
+function metricsSquat(lm){
   const mid=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
   const sh=mid(lm[L.LS],lm[L.RS]), hip=mid(lm[L.LH],lm[L.RH]);
   const kneeL=ang(lm[L.LH],lm[L.LK],lm[L.LA]);
@@ -544,6 +560,87 @@ function metrics(lm){
   const tilt=Math.abs(lm[L.LH].y-lm[L.RH].y)/shoulderW;
   return {knee,torso,tilt,sh,hip};
 }
+
+/* ---------- 종목: 푸시업 ----------
+   "종목마다 재는 각도만 바꾸면 된다"는 주장을 실제 코드로 만든 부분.
+   반환 key(knee/torso/tilt)는 스쿼트와 같게 유지한다 — 상태머신·패널·캡처·타임라인이
+   그대로 재사용된다. 바뀌는 것은 '무엇을 재는가'와 임계값, 그리고 라벨뿐이다. */
+function metricsPush(lm){
+  const mid=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
+  const sh=mid(lm[L.LS],lm[L.RS]), hip=mid(lm[L.LH],lm[L.RH]), ank=mid(lm[L.LA],lm[L.RA]);
+  const elbowL=ang(lm[L.LS],lm[L.LE],lm[L.LW]);
+  const elbowR=ang(lm[L.RS],lm[L.RE],lm[L.RW]);
+  const knee=Math.min(elbowL,elbowR);            // 주각도 = 팔꿈치
+  const torso=Math.abs(180-ang(sh,hip,ank));     // 보조 = 몸통이 일직선에서 벗어난 각
+  const shoulderW=Math.hypot(lm[L.LS].x-lm[L.RS].x, lm[L.LS].y-lm[L.RS].y)||0.001;
+  const tilt=Math.abs(lm[L.LS].y-lm[L.RS].y)/shoulderW;
+  return {knee,torso,tilt,sh,hip};
+}
+// 측면 링크 모델: 발끝을 축으로 몸이 회전하고, 손은 바닥에 고정된 채 팔이 접힌다.
+function synthPush(t,repIdx){
+  const d=0.5-0.5*Math.cos(t);
+  const f=Math.min(1,repIdx/8);
+  const fade=1-0.34*f;                       // 피로할수록 덜 내려간다
+  const BODY=0.58, U=0.19, F=0.19, W=0.05;
+  const p=(x,y)=>({x,y,visibility:1});
+  // 손과 발이 같은 바닥선에 놓이고, 발끝을 축으로 몸이 회전한다
+  const AK={x:0.84,y:0.74}, WR={x:AK.x-BODY,y:AK.y};
+  const phi=RAD(37.9-13*d*fade);   // 최상단 팔꿈치 ≈164°, 최저점 ≈82°(1회차)~101°(8회차)
+  const dir={x:-Math.cos(phi),y:-Math.sin(phi)};
+  const SH={x:AK.x+BODY*dir.x,      y:AK.y+BODY*dir.y};
+  const HPb={x:AK.x+0.45*BODY*dir.x,y:AK.y+0.45*BODY*dir.y};
+  const sag=0.055*d*f;                       // 지치면 허리가 내려앉는다
+  const HP={x:HPb.x, y:HPb.y+sag};
+  const KN={x:AK.x+0.22*BODY*dir.x, y:AK.y+0.22*BODY*dir.y};
+  // 어깨→손목 2링크 역기구학. 팔꿈치는 몸 뒤(+x)로 접힌다.
+  const dx=WR.x-SH.x, dy=WR.y-SH.y;
+  const dd=Math.max(1e-4,Math.min(Math.hypot(dx,dy),U+F-1e-4));
+  const a=dd/2, h=Math.sqrt(Math.max(0,U*U-a*a));
+  const mx=SH.x+dx*a/dd, my=SH.y+dy*a/dd;
+  const e1={x:mx+h*dy/dd, y:my-h*dx/dd}, e2={x:mx-h*dy/dd, y:my+h*dx/dd};
+  const EL = e1.x>=e2.x ? e1 : e2;
+  const asym=0.003*d*f;
+  const lm2=new Array(33).fill(null).map(()=>p(0.5,0.5));
+  lm2[11]=p(SH.x+W/2,SH.y+asym); lm2[12]=p(SH.x-W/2,SH.y-asym);
+  lm2[13]=p(EL.x+W/2,EL.y);      lm2[14]=p(EL.x-W/2,EL.y);
+  lm2[15]=p(WR.x+W/2,WR.y);      lm2[16]=p(WR.x-W/2,WR.y);
+  lm2[23]=p(HP.x+W/2,HP.y);      lm2[24]=p(HP.x-W/2,HP.y);
+  lm2[25]=p(KN.x+W/2,KN.y);      lm2[26]=p(KN.x-W/2,KN.y);
+  lm2[27]=p(AK.x+W/2,AK.y);      lm2[28]=p(AK.x-W/2,AK.y);
+  lm2[0]=p(SH.x-0.085*Math.cos(phi), SH.y-0.085*Math.sin(phi)-0.022);
+  lm2[31]=p(AK.x+0.06,AK.y+0.035); lm2[32]=p(AK.x+0.06-W,AK.y+0.035);
+  return lm2;
+}
+
+/* ---------- 종목 등록부 ----------
+   각 종목은 "어떤 3점 각도를 재는가"와 임계값, 라벨만 정의한다. */
+const EX = {
+  squat:{
+    name:'스쿼트', hint:'옆으로 서서',
+    TH:{STAND:158,DOWN:100,DEPTH:90,TORSO:55,TILT:0.08},
+    metrics:metricsSquat, synth:synthSquat, secMax:90,
+    g1:['무릎 각도','고관절–무릎–발목. 90° 이하로 내려가야 깊이 인정'],
+    g2:['상체 기울기','어깨–고관절 선이 수직에서 벗어난 각. 55° 초과 시 경고'],
+    g3:['좌우 비대칭','양쪽 골반 높이차. 어깨너비 대비 8% 초과 시 경고'],
+    chal:['DEPTH CHALLENGE','무릎을 <b>90° 아래로 0.5초</b> 버티면 그 회차는 성공입니다. 깊이 도달이 스쳐 지나간 순간을 본다면, 챌린지는 <b>버틴 시간</b>을 봅니다.'],
+    sec:'상체', tiltL:'비대칭',
+    cue:{deep:'앉으면',stand:'서 있는 자세입니다.',sec:'상체가',secTail:'가슴을 세우면 허리 부담이 줄어듭니다.',tilt:'좌우 골반 높이차가'},
+    arc:{L:[L.LH,L.LK,L.LA],R:[L.RH,L.RK,L.RA]}, ref:'vertical'
+  },
+  pushup:{
+    name:'푸시업', hint:'옆에서 전신이 보이게',
+    TH:{STAND:158,DOWN:110,DEPTH:90,TORSO:15,TILT:0.08},
+    metrics:metricsPush, synth:synthPush, secMax:45,
+    g1:['팔꿈치 각도','어깨–팔꿈치–손목. 90° 이하로 내려가야 깊이 인정'],
+    g2:['몸통 직선도','어깨–고관절–발목이 일직선에서 벗어난 각. 15° 초과 시 경고'],
+    g3:['좌우 비대칭','양쪽 어깨 높이차. 어깨너비 대비 8% 초과 시 경고'],
+    chal:['DEPTH CHALLENGE','팔꿈치를 <b>90° 아래로 0.5초</b> 버티면 그 회차는 성공입니다. 스쳐 지나간 최저각이 아니라 <b>버틴 시간</b>을 봅니다.'],
+    sec:'몸통', tiltL:'비대칭',
+    cue:{deep:'내려가면',stand:'팔을 편 자세입니다.',sec:'몸통이 일직선에서',secTail:'허리가 처지거나 엉덩이가 솟았습니다.',tilt:'좌우 어깨 높이차가'},
+    arc:{L:[L.LS,L.LE,L.LW],R:[L.RS,L.RE,L.RW]}, ref:'body'
+  }
+};
+let CUR=EX.squat, TH=CUR.TH, metrics=CUR.metrics, synth=CUR.synth;
 
 /* ---------- 인식 품질 · 촬영 뷰 판정 (카메라 모드 전용) ----------
    계측값은 건드리지 않는다. "지금 이 프레임을 믿어도 되는가"만 따로 판단해
@@ -648,18 +745,24 @@ function draw(lm,m,warn){
   });
   ctx.globalAlpha=1;
 
-  // 3) 계측 지점을 화면 위에서 직접 보여준다 — 무릎 사잇각, 상체의 수직 기준선
-  const kIdx = (ang(lm[L.LH],lm[L.LK],lm[L.LA]) <= ang(lm[L.RH],lm[L.RK],lm[L.RA])) ? L.LK : L.RK;
-  const hIdx = kIdx===L.LK ? L.LH : L.RH, aIdx = kIdx===L.LK ? L.LA : L.RA;
-  const kp=P(kIdx), hp=P(hIdx), ap=P(aIdx);
-  const hipM=mid(P(L.LH),P(L.RH)), shM=mid(P(L.LS),P(L.RS));
+  // 3) 계측 지점을 화면 위에서 직접 보여준다 — 종목마다 재는 3점이 달라진다
+  const A=CUR.arc;
+  const useL = ang(lm[A.L[0]],lm[A.L[1]],lm[A.L[2]]) <= ang(lm[A.R[0]],lm[A.R[1]],lm[A.R[2]]);
+  const tri = useL?A.L:A.R;
+  const hp=P(tri[0]), kp=P(tri[1]), ap=P(tri[2]);
+  const hipM=mid(P(L.LH),P(L.RH)), shM=mid(P(L.LS),P(L.RS)), ankM=mid(P(L.LA),P(L.RA));
   const kneeCol=m.knee<=TH.DEPTH?'#7CE0B0':main;
   const rK=Math.max(24,W/9);
 
   ctx.shadowColor='rgba(4,9,24,.95)'; ctx.shadowBlur=Math.max(4,W/120);
   ctx.setLineDash([Math.max(3,W/180),Math.max(4,W/150)]);
   ctx.lineWidth=Math.max(1.4,W/420); ctx.strokeStyle='rgba(234,240,251,.72)';
-  ctx.beginPath(); ctx.moveTo(hipM.x,hipM.y); ctx.lineTo(hipM.x,hipM.y-Math.max(46,W/4)); ctx.stroke();  // 수직 기준선
+  if(CUR.ref==='vertical'){
+    ctx.beginPath(); ctx.moveTo(hipM.x,hipM.y); ctx.lineTo(hipM.x,hipM.y-Math.max(46,W/4)); ctx.stroke();
+  }else{
+    // 몸이 일직선이어야 하는 종목: 어깨–발목을 잇는 기준선을 긋고, 고관절이 얼마나 벗어났는지 보인다
+    ctx.beginPath(); ctx.moveTo(shM.x,shM.y); ctx.lineTo(ankM.x,ankM.y); ctx.stroke();
+  }
   ctx.beginPath(); ctx.moveTo(kp.x,kp.y); ctx.lineTo(hp.x,hp.y); ctx.moveTo(kp.x,kp.y); ctx.lineTo(ap.x,ap.y); ctx.stroke();
   ctx.setLineDash([]);
 
@@ -667,12 +770,20 @@ function draw(lm,m,warn){
   const mA=arc(ctx,kp,rK,Math.atan2(hp.y-kp.y,hp.x-kp.x),Math.atan2(ap.y-kp.y,ap.x-kp.x));
   tag(ctx,kp.x+Math.cos(mA)*(rK+8),kp.y+Math.sin(mA)*(rK+8),Math.round(m.knee)+'°',kneeCol,W);
 
-  const rT=Math.max(22,W/11);
-  ctx.lineWidth=Math.max(2.4,W/260);
-  ctx.strokeStyle=m.torso>TH.TORSO?'#FF6B3D':'#EAF0FB';
-  const mT=arc(ctx,hipM,rT,-Math.PI/2,Math.atan2(shM.y-hipM.y,shM.x-hipM.x));
-  tag(ctx,hipM.x+Math.cos(mT)*(rT+6),hipM.y+Math.sin(mT)*(rT+6),Math.round(m.torso)+'°',
-      m.torso>TH.TORSO?'#FF6B3D':'#EAF0FB',W);
+  const secCol = m.torso>TH.TORSO?'#FF6B3D':'#EAF0FB';
+  ctx.strokeStyle=secCol; ctx.lineWidth=Math.max(2.4,W/260);
+  if(CUR.ref==='vertical'){
+    const rT=Math.max(22,W/11);
+    const mT=arc(ctx,hipM,rT,-Math.PI/2,Math.atan2(shM.y-hipM.y,shM.x-hipM.x));
+    tag(ctx,hipM.x+Math.cos(mT)*(rT+6),hipM.y+Math.sin(mT)*(rT+6),Math.round(m.torso)+'°',secCol,W);
+  }else{
+    // 기준선 위로 고관절을 수직 투영해, 벗어난 거리를 선분으로 그린다
+    const vx=ankM.x-shM.x, vy=ankM.y-shM.y, L2=vx*vx+vy*vy||1;
+    const t=((hipM.x-shM.x)*vx+(hipM.y-shM.y)*vy)/L2;
+    const px=shM.x+vx*t, py=shM.y+vy*t;
+    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(hipM.x,hipM.y); ctx.stroke();
+    tag(ctx,hipM.x+10,hipM.y+Math.max(14,W/40),Math.round(m.torso)+'°',secCol,W);
+  }
   ctx.shadowBlur=0;
 }
 /* ---------- ui ---------- */
@@ -685,13 +796,13 @@ function gauge(el,barEl,valEl,val,unit,warn,good){
 /* 숫자를 대신 판정하지 않는다. 방금 뜬 숫자가 무슨 뜻인지 한 줄로 옮겨 적을 뿐이다.
    판단 근거는 항상 옆의 게이지에 그대로 남아 있다. */
 function cue(m,flags){
-  const el=$('cue');
+  const el=$('cue'), C=CUR.cue;
   let warn=true, msg;
-  if(flags.torso)      msg='상체가 <b>'+Math.round(m.torso)+'°</b> 기울었습니다(기준 55°). 가슴을 세우면 허리 부담이 줄어듭니다.';
-  else if(flags.tilt)  msg='좌우 골반 높이차가 <b>'+(m.tilt*100).toFixed(1)+'%</b>입니다(기준 8%). 한쪽으로 체중이 쏠렸습니다.';
-  else if(state==='down'&&m.knee>TH.DEPTH){ warn=false; msg='지금 <b>'+Math.round(m.knee)+'°</b>. <b>'+Math.round(m.knee-TH.DEPTH)+'°</b>만 더 앉으면 깊이가 인정됩니다.'; }
+  if(flags.torso)      msg=C.sec+' <b>'+Math.round(m.torso)+'°</b> 벗어났습니다(기준 '+TH.TORSO+'°). '+C.secTail;
+  else if(flags.tilt)  msg=C.tilt+' <b>'+(m.tilt*100).toFixed(1)+'%</b>입니다(기준 '+(TH.TILT*100)+'%). 한쪽으로 힘이 쏠렸습니다.';
+  else if(state==='down'&&m.knee>TH.DEPTH){ warn=false; msg='지금 <b>'+Math.round(m.knee)+'°</b>. <b>'+Math.round(m.knee-TH.DEPTH)+'°</b>만 더 '+C.deep+' 깊이가 인정됩니다.'; }
   else if(state==='down'){ warn=false; msg='<b>'+Math.round(m.knee)+'°</b> — 깊이 기준을 넘었습니다. 이대로 0.5초 버티면 챌린지 성공입니다.'; }
-  else { warn=false; msg='서 있는 자세입니다. 무릎이 <b>100°</b> 아래로 내려가면 한 회차가 시작됩니다.'; }
+  else { warn=false; msg=C.stand+' 각도가 <b>'+TH.DOWN+'°</b> 아래로 내려가면 한 회차가 시작됩니다.'; }
   el.classList.toggle('warn',warn);
   el.innerHTML=msg;
 }
@@ -699,7 +810,7 @@ function updatePanel(m,flags){
   gauge($('gKnee'),$('bKnee'),$('vKnee'),Math.round(m.knee)+'°',
     Math.max(0,Math.min(100,(180-m.knee)/110*100)),false,m.knee<=TH.DEPTH);
   gauge($('gTorso'),$('bTorso'),$('vTorso'),Math.round(m.torso)+'°',
-    Math.min(100,m.torso/90*100),flags.torso,false);
+    Math.min(100,m.torso/CUR.secMax*100),flags.torso,false);
   gauge($('gTilt'),$('bTilt'),$('vTilt'),(m.tilt*100).toFixed(1)+'%',
     Math.min(100,m.tilt/0.2*100),flags.tilt,false);
 }
@@ -722,8 +833,8 @@ function keepFrame(){
 function commitShot(depth){
   if(!bestM||shots.length>=8) return;
   const tags=[];
-  if(bestM.torso>TH.TORSO) tags.push('상체 '+Math.round(bestM.torso)+'°');
-  if(bestM.tilt>TH.TILT) tags.push('비대칭 '+(bestM.tilt*100).toFixed(1)+'%');
+  if(bestM.torso>TH.TORSO) tags.push(CUR.sec+' '+Math.round(bestM.torso)+'°');
+  if(bestM.tilt>TH.TILT) tags.push(CUR.tiltL+' '+(bestM.tilt*100).toFixed(1)+'%');
   shots.unshift({url:snap.toDataURL('image/jpeg',.72),tags:tags.join(' · '),
     rep:reps, depth:Math.round(depth)+'°'});
   renderShots();
@@ -738,8 +849,8 @@ function recordRep(low){
   let tag=null, all=null;
   if(bestM){
     const t=[];
-    if(bestM.torso>TH.TORSO) t.push({s:'상체 '+Math.round(bestM.torso)+'°', r:bestM.torso/TH.TORSO});
-    if(bestM.tilt >TH.TILT ) t.push({s:'비대칭 '+(bestM.tilt*100).toFixed(1)+'%', r:bestM.tilt/TH.TILT});
+    if(bestM.torso>TH.TORSO) t.push({s:CUR.sec+' '+Math.round(bestM.torso)+'°', r:bestM.torso/TH.TORSO});
+    if(bestM.tilt >TH.TILT ) t.push({s:CUR.tiltL+' '+(bestM.tilt*100).toFixed(1)+'%', r:bestM.tilt/TH.TILT});
     if(t.length){ t.sort((a,b)=>b.r-a.r); tag=t[0].s; all=t.map(x=>x.s).join(' · '); }
   }
   lastRepT=performance.now();
@@ -949,7 +1060,7 @@ $('saveBtn').onclick=saveReport;
    캔버스에도 그리지 않는다 — 경고 캡처가 게임 그래픽으로 오염되면 '증거'가 증거가 아니게 된다. */
 const CH={HOLD:500};                       // 90° 아래에서 버텨야 하는 시간(ms)
 let chOn=true, chHold=0, chBest=0, chLast=0, chDone=false, chOK=0, chFxT=null;
-const CH_HELP='무릎을 <b>90° 아래로 0.5초</b> 버티면 그 회차는 성공입니다. 깊이 도달이 스쳐 지나간 순간을 본다면, 챌린지는 <b>버틴 시간</b>을 봅니다.';
+let CH_HELP='';
 
 function chFx(cls){
   const el=$('chal');
@@ -1120,7 +1231,7 @@ function loopCam(){
 /* ---------- loop: demo (카메라 없이) ---------- */
 // 관절 좌표를 파라메트릭으로 합성해 실제 계산 파이프라인을 그대로 통과시킴
 const RAD=v=>v*Math.PI/180;
-function synth(t,repIdx){
+function synthSquat(t,repIdx){
   const d=0.5-0.5*Math.cos(t);            // 0 = 기립, 1 = 최저점
   const f=Math.min(1,repIdx/8);           // 회차가 쌓일수록 누적되는 피로
   const SHIN=0.25, THIGH=0.25, TORSO=0.32, W=0.06;
@@ -1173,6 +1284,34 @@ function loopDemo(){
   }
   raf=requestAnimationFrame(loopDemo);
 }
+
+/* ---------- 종목 전환 ----------
+   계측 함수·임계값·라벨만 갈아 끼운다. 상태머신과 캡처 규칙은 공유한다. */
+function applyEx(){
+  const g=(id,i)=>{ const e=$(id); e.querySelector('.name').textContent=CUR[i][0];
+                    e.querySelector('.desc').textContent=CUR[i][1]; };
+  g('gKnee','g1'); g('gTorso','g2'); g('gTilt','g3');
+  $('chalTitle').textContent=CUR.chal[0];
+  CH_HELP=CUR.chal[1];
+  document.querySelectorAll('.exsel .ex').forEach(b=>{
+    const on=b.dataset.ex===CUR.key; b.classList.toggle('on',on); b.setAttribute('aria-pressed',on);
+  });
+  $('phHint').innerHTML='전신이 나오도록 카메라에서 2m 정도 떨어져 <b style="color:var(--chalk)">'+CUR.hint+
+    '</b> 주세요. 무릎·팔꿈치 각도는 옆모습에서 가장 정확하고, 좌우 비대칭은 몸을 <b style="color:var(--chalk)">20~30° 정도 카메라 쪽으로 튼 자세</b>에서 잽니다.';
+}
+function switchEx(key){
+  if(!EX[key]||CUR.key===key) return;
+  running=false; if(raf) cancelAnimationFrame(raf);
+  CUR=EX[key]; TH=CUR.TH; metrics=CUR.metrics; synth=CUR.synth;
+  mode=null; cam.style.opacity='0'; $('scrim').classList.remove('on'); setGuide(null);
+  ctx.clearRect(0,0,cv.width,cv.height);
+  cornerL.textContent='STANDBY'; cornerR.textContent='0 FPS'; cornerR.style.color='';
+  ph.style.display='flex'; $('startBtn').disabled=false;
+  applyEx(); resetSet();
+}
+Object.keys(EX).forEach(k=>EX[k].key=k);
+document.querySelectorAll('.exsel .ex').forEach(b=>b.onclick=()=>switchEx(b.dataset.ex));
+applyEx();
 
 renderTimeline();   // 첫 화면부터 8칸을 비워 보여 준다 — 무엇이 쌓일 자리인지 알 수 있게
 

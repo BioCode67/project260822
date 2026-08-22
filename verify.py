@@ -22,7 +22,11 @@ def chromium_path():
     return None
 
 TARGET = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else "index.html")
-EXPECT = {"reps": "8", "depth": "6 / 8", "shots": 4}
+# 종목별 시연 시나리오 기대값 (모두 결정적이다)
+CASES = [
+    ("스쿼트", "squat",  {"reps": "8", "depth": "6 / 8", "shots": 4}),
+    ("푸시업", "pushup", {"reps": "8", "depth": "4 / 8", "shots": 2}),
+]
 
 with sync_playwright() as p:
     exe = chromium_path()
@@ -33,31 +37,36 @@ with sync_playwright() as p:
     pg.on("console", lambda m: net.append(m.text) if m.type == "error" else None)
     pg.goto("file://" + TARGET)
     pg.wait_for_timeout(1500)
-    pg.click("#demoBtn")
-    # 세트 종료(8회)까지 대기. 문서상 약 20초.
-    try:
-        pg.wait_for_function("() => document.getElementById('repN').textContent === '8'", timeout=45000)
-    except Exception:
-        pass
-    pg.wait_for_timeout(800)
 
-    reps  = pg.inner_text("#repN")
-    depth = pg.inner_text("#depthRate")
-    shots = pg.eval_on_selector_all(".shot", "e=>e.length")
+    ok = True
+    for label, key, expect in CASES:
+        pg.click('.exsel .ex[data-ex="%s"]' % key)
+        pg.wait_for_timeout(250)
+        pg.click("#demoBtn")
+        # 세트 종료(8회)까지 대기. 문서상 약 20초.
+        try:
+            pg.wait_for_function("() => document.getElementById('repN').textContent === '8'", timeout=45000)
+        except Exception:
+            pass
+        pg.wait_for_timeout(800)
 
-    got = {"reps": reps, "depth": depth, "shots": shots}
-    print("reps  ", reps,  " (기대 8)")
-    print("depth ", depth, " (기대 6 / 8)")
-    print("shots ", shots, " (기대 4)")
+        got = {"reps":  pg.inner_text("#repN"),
+               "depth": pg.inner_text("#depthRate"),
+               "shots": pg.eval_on_selector_all(".shot", "e=>e.length")}
+        print("[%s]" % label)
+        print("  reps  ", got["reps"],  " (기대 %s)" % expect["reps"])
+        print("  depth ", got["depth"], " (기대 %s)" % expect["depth"])
+        print("  shots ", got["shots"], " (기대 %s)" % expect["shots"])
+        print("  chal  ", pg.inner_text("#chalScore"), " (참고값, 합/불 판정 대상 아님)")
+        for k, v in expect.items():
+            if got[k] != v:
+                print("  ✗ %s: 기대 %r → 실제 %r" % (k, v, got[k]))
+                ok = False
+
     print("errors", errs or "none")
     if net:
         print("       (참고) 차단된 외부 리소스 %d건 — 폰트 CDN. 계측/시연 동작과 무관." % len(net))
-    print("chal  ", pg.inner_text("#chalScore"), " (게임 모드 A-1 · 참고값, 합/불 판정 대상 아님)")
-
-    ok = got == EXPECT and not errs
-    for k, v in EXPECT.items():
-        if got[k] != v:
-            print("  ✗ %s: 기대 %r → 실제 %r" % (k, v, got[k]))
+    ok = ok and not errs
     print("\nRESULT:", "PASS" if ok else "FAIL")
     b.close()
     sys.exit(0 if ok else 1)
