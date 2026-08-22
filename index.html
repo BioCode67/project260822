@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>되감기 — 거울은 지금만 보여줍니다</title>
 <meta name="description" content="홈트 자세가 무너진 순간만 자동으로 잡아 되돌려 보여주는 온디바이스 AI. 영상은 기기 밖으로 나가지 않습니다." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="되감기 — 거울은 '지금'만 보여줍니다" />
+<meta property="og:description" content="홈트 자세가 무너진 순간만 자동으로 잡아 되돌려 보여주는 온디바이스 AI. 브라우저 안에서 계산해 영상이 기기 밖으로 나가지 않습니다." />
+<meta property="og:locale" content="ko_KR" />
+<meta name="twitter:card" content="summary" />
+<meta name="theme-color" content="#081130" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
@@ -88,6 +94,18 @@
   .corner.tl{top:0;left:0}
   .corner.tr{top:0;right:0;color:var(--cyan)}
 
+  .guide{
+    position:absolute;left:0;right:0;bottom:0;z-index:7;display:none;
+    padding:10px 12px;font-size:12.5px;line-height:1.55;
+    background:linear-gradient(transparent,rgba(5,11,30,.92) 40%);color:var(--chalk)
+  }
+  .guide.on{display:block}
+  .guide .lead2{display:flex;align-items:center;gap:8px;font-weight:700}
+  .guide .dotq{width:7px;height:7px;border-radius:50%;flex:none;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+  .guide.warn .dotq{background:var(--alarm);box-shadow:0 0 8px var(--alarm)}
+  .guide.warn .lead2{color:var(--alarm)}
+  .guide .hint{color:var(--muted);font-size:11.5px;margin-top:3px}
+
   /* ---------- panel ---------- */
   .panel{border:1px solid var(--line);border-radius:6px;background:rgba(14,28,66,.55)}
   .panel h3{font-size:11px;letter-spacing:.2em;color:var(--muted);padding:14px 16px 10px;font-weight:600}
@@ -129,8 +147,50 @@
   @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
   @media(prefers-reduced-motion:reduce){.chal.miss .track{animation:none}.track .fill,.hold i{transition:none}}
 
+  .cue{
+    margin:2px 16px 0;padding:9px 11px;border-left:2px solid var(--cyan);
+    background:rgba(84,214,238,.06);border-radius:0 3px 3px 0;
+    font-size:12px;line-height:1.55;color:#C3D0E8;min-height:2.9em
+  }
+  .cue.warn{border-left-color:var(--alarm);background:rgba(255,107,61,.07);color:#FFC4AE}
+  .cue b{color:var(--chalk)}
+  .cue.warn b{color:var(--alarm)}
+
   .ctrlrow{display:flex;gap:8px;padding:14px 16px;border-top:1px solid var(--line)}
-  .ctrlrow button{flex:1;font-size:13px;padding:11px 8px;border-radius:4px}
+  .ctrlrow button{flex:1;font-size:13px;padding:13px 8px;border-radius:4px;min-height:44px}
+
+  /* ---------- set timeline ---------- */
+  .tline{margin:0 0 42px}
+  .tlhd{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+  .tlhd .t{font-size:11px;letter-spacing:.2em;color:var(--muted);font-weight:600}
+  .tlhd .s{font-size:12px;color:var(--muted);line-height:1.6}
+  .tlhd .s b{color:var(--chalk)}
+  .cells{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px}
+  @media(max-width:720px){.cells{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  .cellx{position:relative;border:1px solid var(--line);border-radius:5px;padding:11px 6px 10px;text-align:center;background:rgba(14,28,66,.5)}
+  .cellx.void{opacity:.32}
+  .cellx .r{font-size:10.5px;color:var(--muted);letter-spacing:.08em}
+  .cellx .v{font-size:21px;font-weight:800;margin-top:7px;letter-spacing:-.04em;line-height:1}
+  .cellx .s{font-size:10.5px;margin-top:6px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cellx.bad{border-color:rgba(255,107,61,.5);background:rgba(255,107,61,.08)}
+  .cellx.bad .v,.cellx.bad .s{color:var(--alarm)}
+  .cellx.good .v{color:var(--ok)}
+  .cellx .ch{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 6px var(--ok)}
+
+  /* ---------- lightbox ---------- */
+  .lb{position:fixed;inset:0;z-index:100;background:rgba(4,9,24,.94);display:none;align-items:center;justify-content:center;padding:24px}
+  .lb.on{display:flex}
+  .lb figure{max-width:900px;width:100%}
+  .lb img{width:100%;border:1px solid var(--line);border-radius:6px;display:block;background:#050B1E}
+  .lb figcaption{margin-top:12px;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .lb figcaption b{color:var(--alarm);font-weight:700}
+  .lb .x{position:absolute;top:18px;right:20px;background:none;color:var(--muted);font-size:26px;line-height:1;padding:8px 12px}
+  .lb .x:hover{color:var(--chalk)}
+
+  /* ---------- a11y ---------- */
+  :focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:3px}
+  .shot{cursor:zoom-in}
+  .shot:hover{border-color:rgba(255,107,61,.55)}
 
   /* ---------- evidence ---------- */
   section.block{padding:56px 0;border-top:1px solid var(--line)}
@@ -140,8 +200,9 @@
   .shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:26px}
   .shot{border:1px solid var(--line);border-radius:5px;overflow:hidden;background:#050B1E}
   .shot img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover}
-  .shot .cap{padding:9px 11px;font-size:11.5px;color:var(--alarm);display:flex;justify-content:space-between;gap:6px}
-  .shot .cap span:last-child{color:var(--muted)}
+  .shot .cap{padding:9px 11px;font-size:11.5px;color:var(--alarm);line-height:1.5}
+  .shot .cap span{display:block}
+  .shot .cap span:last-child{color:var(--muted);margin-top:3px}
   .empty{border:1px dashed var(--line);border-radius:5px;padding:34px 20px;text-align:center;color:var(--muted);font-size:13.5px;margin-top:24px;line-height:1.7}
 
   /* ---------- how ---------- */
@@ -153,6 +214,16 @@
   .row .txt{margin-top:7px;font-size:13.5px;color:var(--muted);line-height:1.7}
   .row .meas{font-size:11.5px;color:#9FB3D8;border-left:1px solid var(--line);padding-left:16px;line-height:1.75}
   .row .meas b{color:var(--cyan);font-weight:700}
+
+  .oss{margin-top:26px;border-top:1px solid var(--line)}
+  .oss .o{display:grid;grid-template-columns:210px 1fr 130px;gap:16px;padding:15px 0;border-bottom:1px solid var(--line);align-items:baseline}
+  @media(max-width:760px){.oss .o{grid-template-columns:1fr;gap:5px;padding:14px 0}}
+  .oss .nm{font-size:14px;font-weight:700;letter-spacing:-.01em}
+  .oss .ds{font-size:13px;color:var(--muted);line-height:1.65}
+  .oss .lc{font-size:11.5px;color:var(--cyan);letter-spacing:.04em}
+  .oss .own{border-left:2px solid var(--cyan);padding-left:16px;margin-top:22px}
+  .oss .own .h{font-size:13px;font-weight:700;margin-bottom:7px}
+  .oss .own p{font-size:13px;color:var(--muted);line-height:1.75}
 
   footer{border-top:1px solid var(--line);padding:34px 0 60px;color:var(--muted);font-size:12.5px;line-height:1.9}
   footer b{color:var(--chalk)}
@@ -198,16 +269,17 @@
       <canvas id="overlay"></canvas>
       <div class="corner tl mono" id="cornerL">STANDBY</div>
       <div class="corner tr mono" id="cornerR">0 FPS</div>
+      <div class="guide" id="guide" aria-live="polite"></div>
       <div class="placeholder" id="ph">
         <div class="mono" style="font-size:12px;letter-spacing:.2em;color:var(--muted)">POSE LANDMARKER · 33 POINTS</div>
-        <p>전신이 나오도록 카메라에서 2m 정도 떨어져 옆으로 서 주세요. 모델은 처음 한 번만 내려받습니다(약 5MB).</p>
+        <p>전신이 나오도록 카메라에서 2m 정도 떨어져 서 주세요. 무릎·상체 각도는 <b style="color:var(--chalk)">옆모습</b>에서 가장 정확하고, 좌우 비대칭은 몸을 <b style="color:var(--chalk)">20~30° 정도 카메라 쪽으로 튼 자세</b>에서 잽니다. 화면 아래 안내가 지금 무엇이 계측되는지 알려 줍니다.</p>
       </div>
     </div>
 
     <div class="panel">
       <h3 class="mono">SQUAT COUNT</h3>
       <div class="rep">
-        <div class="n mono" id="repN">0</div>
+        <div class="n mono" id="repN" aria-live="polite">0</div>
         <div class="l">깊이까지 도달한 횟수 <span class="mono" id="depthRate" style="color:var(--cyan)">—</span></div>
       </div>
       <div class="gauges">
@@ -227,6 +299,7 @@
           <div class="desc">양쪽 골반 높이차. 어깨너비 대비 8% 초과 시 경고</div>
         </div>
       </div>
+      <div class="cue" id="cue" aria-live="polite">측정을 시작하면 지금 숫자가 무엇을 뜻하는지 여기에 한 줄로 적습니다.</div>
       <div class="chal" id="chal">
         <div class="chd">
           <span class="cttl mono">DEPTH CHALLENGE</span>
@@ -245,6 +318,13 @@
         <button class="btn ghost" id="chalBtn">챌린지 끄기</button>
       </div>
     </div>
+  </div>
+  <div class="tline">
+    <div class="tlhd">
+      <span class="t mono">SET TIMELINE</span>
+      <span class="s" id="tlNote">회차별 <b>최저 무릎 각도</b>가 여기에 쌓입니다. 무너짐이 몇 번째부터 시작되는지 한눈에 보입니다.</span>
+    </div>
+    <div class="cells" id="cells"></div>
   </div>
 </div>
 
@@ -309,6 +389,45 @@
       되감기는 그 사이를 메웁니다 — <b style="color:var(--chalk)">봐 주는 눈은 생기되, 영상은 어디로도 가지 않는</b> 방식으로.
     </p>
   </section>
+
+  <section class="block">
+    <div class="stitle mono">OPEN SOURCE</div>
+    <h2>무엇을 가져다 썼고,<br>무엇을 직접 만들었는지 적어 둡니다.</h2>
+    <p class="lead">
+      추론 엔진과 모델은 공개된 오픈소스를 그대로 씁니다. 바퀴를 다시 만들 이유가 없고, 검증된 구현이 더 정확합니다.
+      대신 <b>무엇을 어떻게 재고 언제 경고할지</b>를 정하는 부분은 전부 직접 구현했습니다.
+    </p>
+    <div class="oss">
+      <div class="o">
+        <div class="nm">MediaPipe Tasks Vision <span class="mono" style="color:var(--muted);font-weight:400">0.10.14</span></div>
+        <div class="ds">전신 관절 33점 추정. WebAssembly로 브라우저에서 직접 실행합니다. 라이브러리를 수정 없이 사용합니다.</div>
+        <div class="lc mono">Apache-2.0</div>
+      </div>
+      <div class="o">
+        <div class="nm">pose_landmarker_lite <span class="mono" style="color:var(--muted);font-weight:400">float16</span></div>
+        <div class="ds">Google이 배포하는 경량 포즈 모델(약 5MB). 첫 접속 때 한 번만 내려받아 브라우저에 캐시됩니다.</div>
+        <div class="lc mono">Apache-2.0</div>
+      </div>
+      <div class="o">
+        <div class="nm">Pretendard · JetBrains Mono</div>
+        <div class="ds">본문 글꼴과 수치 표기용 고정폭 글꼴.</div>
+        <div class="lc mono">SIL OFL 1.1</div>
+      </div>
+      <div class="o">
+        <div class="nm">방법 참고 — LearnOpenCV</div>
+        <div class="ds">“AI Fitness Trainer using MediaPipe” (Kunal Dawn, 2022). <b style="color:#B9C7E2">수직 기준선을 놓고 각도를 재는 방식</b>,
+          <b style="color:#B9C7E2">촬영 방향이 어긋나면 경고하는 개념</b>, <b style="color:#B9C7E2">15초 비활동 처리</b>를 참고했습니다.
+          코드는 가져오지 않고 이 프로젝트에 맞게 직접 구현했습니다(원문은 Python·OpenCV 데스크톱 앱입니다).</div>
+        <div class="lc mono">참고 문헌</div>
+      </div>
+      <div class="own">
+        <div class="h">직접 구현한 부분</div>
+        <p>세 각도의 정의와 계산, 임계값 설정, 횟수 상태머신(158°/100°), 회차별 최저각 기록,
+          가장 심하게 무너진 프레임만 회차당 한 장 고르는 캡처 규칙, 화면 위 각도 시각화,
+          카메라 없이 도는 시연 모드의 합성 좌표 모델, 깊이 게이지 챌린지, 세트 타임라인.</p>
+      </div>
+    </div>
+  </section>
 </div>
 
 <footer>
@@ -321,10 +440,16 @@
 
 <div class="toast mono" id="toast"></div>
 
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="캡처 확대 보기">
+  <button class="x" id="lbX" aria-label="닫기">×</button>
+  <figure><img id="lbImg" alt=""><figcaption><span id="lbTag"></span><span id="lbMeta" class="mono"></span></figcaption></figure>
+</div>
+
 <script type="module">
 // MediaPipe는 카메라를 켤 때만 내려받는다. CDN이 막혀도 시연 모드는 그대로 동작해야 하므로
 // 정적 import를 쓰지 않는다.
 const MP_SRC="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+const MODEL_SRC="https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
 
 const $ = id => document.getElementById(id);
 const cam=$('cam'), cv=$('overlay'), ctx=cv.getContext('2d');
@@ -333,7 +458,7 @@ const ph=$('ph'), cornerL=$('cornerL'), cornerR=$('cornerR');
 const TH = { STAND:158, DOWN:100, DEPTH:90, TORSO:55, TILT:0.08 };
 const L = {LS:11,RS:12,LH:23,RH:24,LK:25,RK:26,LA:27,RA:28};
 
-let landmarker=null, running=false, mode=null, raf=null, lastT=-1;
+let landmarker=null, running=false, mode=null, raf=null, lastT=-1, delegate='—';
 let state='up', reps=0, deepReps=0, minKnee=180, shots=[];
 let bestSev=0, bestM=null;
 let fpsT=performance.now(), fpsN=0;
@@ -364,48 +489,152 @@ function metrics(lm){
   return {knee,torso,tilt,sh,hip};
 }
 
+/* ---------- 인식 품질 · 촬영 뷰 판정 (카메라 모드 전용) ----------
+   계측값은 건드리지 않는다. "지금 이 프레임을 믿어도 되는가"만 따로 판단해
+   믿을 수 없으면 세지 않고, 왜 그런지 화면에 적는다. */
+const KEY=[11,12,23,24,25,26,27,28];
+const VIS_MIN=0.5;              // 이 밑이면 관절이 화면 밖이거나 가려진 것으로 본다
+function quality(lm){
+  let vmin=1, top=1, bot=0, lo=1, hi=0;
+  for(const i of KEY){
+    const p=lm[i]; if(!p) return {vmin:0,ok:false,why:'joints'};
+    const v=(p.visibility==null)?1:p.visibility;
+    if(v<vmin) vmin=v;
+    if(p.y<top) top=p.y; if(p.y>bot) bot=p.y;
+    if(p.x<lo) lo=p.x;   if(p.x>hi) hi=p.x;
+  }
+  const sh=Math.hypot(lm[11].x-lm[12].x, lm[11].y-lm[12].y);
+  const tl=Math.hypot((lm[11].x+lm[12].x)/2-(lm[23].x+lm[24].x)/2,
+                      (lm[11].y+lm[12].y)/2-(lm[23].y+lm[24].y)/2)||0.001;
+  const facing=sh/tl;           // 1에 가까울수록 정면, 0에 가까울수록 순수 측면
+  const cut = top<-0.02 || bot>1.02 || lo<-0.02 || hi>1.02;
+  const far = (bot-top) < 0.35; // 전신이 화면의 35% 미만이면 너무 멀다
+  let why=null;
+  if(vmin<VIS_MIN) why='vis';
+  else if(cut)     why='cut';
+  else if(far)     why='far';
+  return {vmin,facing,ok:!why,why};
+}
+const VIEW=f=> f<0.25?['측면','무릎·상체 계측에 가장 좋은 각도입니다. 좌우 비대칭은 이 각도에서 잴 수 없어 참고값입니다.']
+             : f<0.55?['비스듬','세 값을 모두 잴 수 있는 각도입니다.']
+             :         ['정면','좌우 비대칭은 정확하지만, 무릎 각도는 옆모습보다 부정확합니다.'];
+function setGuide(q){
+  const g=$('guide');
+  if(!q){ g.classList.remove('on'); return; }
+  g.classList.add('on');
+  if(!q.ok){
+    g.classList.add('warn');
+    const msg = q.why==='vis' ? ['관절 인식이 불안정합니다','전신이 다 보이도록 서 주세요. 계측을 잠시 멈췄습니다.']
+              : q.why==='cut' ? ['몸이 화면 밖으로 나갔습니다','한 걸음 물러나거나 카메라를 낮춰 주세요. 계측을 잠시 멈췄습니다.']
+              :                 ['너무 멀리 있습니다','조금 앞으로 오시면 각도가 더 정확해집니다. 계측을 잠시 멈췄습니다.'];
+    g.innerHTML='<div class="lead2"><span class="dotq"></span>'+msg[0]+'</div><div class="hint">'+msg[1]+'</div>';
+    return;
+  }
+  g.classList.remove('warn');
+  const v=VIEW(q.facing);
+  g.innerHTML='<div class="lead2"><span class="dotq"></span>'+v[0]+' · 계측 중</div><div class="hint">'+v[1]+'</div>';
+}
+
 /* ---------- drawing ---------- */
 const EDGES=[[11,12],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],[11,13],[13,15],[12,14],[14,16],[27,31],[28,32]];
+const DOTS=[0,11,12,13,14,15,16,23,24,25,26,27,28,31,32];
+// 두 벡터 사이를 짧은 쪽으로 도는 호. 각도를 '그려서' 보여주기 위한 것.
+function arc(ctx,c,r,a1,a2){
+  let d=a2-a1;
+  while(d>Math.PI) d-=2*Math.PI;
+  while(d<-Math.PI) d+=2*Math.PI;
+  ctx.beginPath(); ctx.arc(c.x,c.y,r,a1,a1+d,d<0); ctx.stroke();
+  return a1+d/2;
+}
+function tag(ctx,x,y,txt,color,W){
+  ctx.font=`700 ${Math.max(13,W/30)}px 'JetBrains Mono',monospace`;
+  const w=ctx.measureText(txt).width, h=Math.max(20,W/24);
+  ctx.fillStyle='rgba(8,17,48,.86)';
+  ctx.fillRect(x,y-h/2,w+12,h);
+  ctx.fillStyle=color; ctx.textBaseline='middle';
+  ctx.fillText(txt,x+6,y+1);
+}
 function draw(lm,m,warn){
   const W=cv.width,H=cv.height;
   ctx.clearRect(0,0,W,H);
   if(!lm) return;
   const P=i=>({x:(1-lm[i].x)*W, y:lm[i].y*H}); // 미러
+  const VIS=i=>{ const v=lm[i]&&lm[i].visibility; return v==null?1:v; };
+  const main=warn?'#FF6B3D':'#54D6EE';
+  const mid=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
+
+  // 1) 뼈대
   ctx.lineWidth=Math.max(2,W/320);
-  ctx.strokeStyle=warn?'#FF6B3D':'#54D6EE';
-  ctx.shadowBlur=10; ctx.shadowColor=ctx.strokeStyle;
+  ctx.strokeStyle=main;
+  ctx.shadowBlur=10; ctx.shadowColor=main;
   ctx.beginPath();
   EDGES.forEach(([a,b])=>{ if(lm[a]&&lm[b]){const p=P(a),q=P(b);ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);} });
   ctx.stroke();
   ctx.shadowBlur=0;
-  // 머리
   if(lm[0]){
-    const h=P(0), nk={x:(P(11).x+P(12).x)/2,y:(P(11).y+P(12).y)/2};
+    const h=P(0), nk=mid(P(11),P(12));
     ctx.beginPath();ctx.moveTo(nk.x,nk.y);ctx.lineTo(h.x,h.y);ctx.stroke();
     ctx.beginPath();ctx.arc(h.x,h.y,Math.max(7,W/38),0,7);ctx.stroke();
   }
-  ctx.fillStyle=warn?'#FF6B3D':'#EAF0FB';
-  [11,12,23,24,25,26,27,28].forEach(i=>{ if(!lm[i])return; const p=P(i);
-    ctx.beginPath();ctx.arc(p.x,p.y,Math.max(3,W/200),0,7);ctx.fill(); });
-  // 무릎 각도 라벨
-  const kIdx = (ang(lm[L.LH],lm[L.LK],lm[L.LA]) <= ang(lm[L.RH],lm[L.RK],lm[L.RA])) ? L.LK : L.RK;
-  const kp=P(kIdx);
-  const label=Math.round(m.knee)+'°';
-  ctx.font=`700 ${Math.max(14,W/26)}px 'JetBrains Mono',monospace`;
-  const tw=ctx.measureText(label).width;
-  ctx.fillStyle='rgba(8,17,48,.85)';
-  ctx.fillRect(kp.x+12,kp.y-Math.max(11,W/44),tw+14,Math.max(22,W/22));
-  ctx.fillStyle=m.knee<=TH.DEPTH?'#7CE0B0':'#54D6EE';
-  ctx.textBaseline='middle';
-  ctx.fillText(label,kp.x+19,kp.y+2);
-}
 
+  // 2) 관절점 — 인식 신뢰도가 낮은 관절은 옅게 찍어 "지금 이 점을 믿는지"까지 보이게 한다
+  const R=Math.max(3.5,W/170);
+  DOTS.forEach(i=>{
+    if(!lm[i]) return;
+    const p=P(i), v=VIS(i);
+    ctx.globalAlpha=0.25+0.75*Math.min(1,v);
+    ctx.fillStyle=warn?'#FF6B3D':'#EAF0FB';
+    ctx.beginPath();ctx.arc(p.x,p.y,R,0,7);ctx.fill();
+    ctx.globalAlpha=0.30+0.45*Math.min(1,v);
+    ctx.strokeStyle=main; ctx.lineWidth=Math.max(1,W/560);
+    ctx.beginPath();ctx.arc(p.x,p.y,R*2.1,0,7);ctx.stroke();
+  });
+  ctx.globalAlpha=1;
+
+  // 3) 계측 지점을 화면 위에서 직접 보여준다 — 무릎 사잇각, 상체의 수직 기준선
+  const kIdx = (ang(lm[L.LH],lm[L.LK],lm[L.LA]) <= ang(lm[L.RH],lm[L.RK],lm[L.RA])) ? L.LK : L.RK;
+  const hIdx = kIdx===L.LK ? L.LH : L.RH, aIdx = kIdx===L.LK ? L.LA : L.RA;
+  const kp=P(kIdx), hp=P(hIdx), ap=P(aIdx);
+  const hipM=mid(P(L.LH),P(L.RH)), shM=mid(P(L.LS),P(L.RS));
+  const kneeCol=m.knee<=TH.DEPTH?'#7CE0B0':main;
+  const rK=Math.max(24,W/9);
+
+  ctx.setLineDash([Math.max(3,W/180),Math.max(4,W/150)]);
+  ctx.lineWidth=Math.max(1.2,W/480); ctx.strokeStyle='rgba(234,240,251,.42)';
+  ctx.beginPath(); ctx.moveTo(hipM.x,hipM.y); ctx.lineTo(hipM.x,hipM.y-Math.max(46,W/4)); ctx.stroke();  // 수직 기준선
+  ctx.beginPath(); ctx.moveTo(kp.x,kp.y); ctx.lineTo(hp.x,hp.y); ctx.moveTo(kp.x,kp.y); ctx.lineTo(ap.x,ap.y); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.lineWidth=Math.max(2,W/300); ctx.strokeStyle=kneeCol;
+  const mA=arc(ctx,kp,rK,Math.atan2(hp.y-kp.y,hp.x-kp.x),Math.atan2(ap.y-kp.y,ap.x-kp.x));
+  tag(ctx,kp.x+Math.cos(mA)*(rK+8),kp.y+Math.sin(mA)*(rK+8),Math.round(m.knee)+'°',kneeCol,W);
+
+  const rT=Math.max(22,W/11);
+  ctx.lineWidth=Math.max(2.4,W/260);
+  ctx.strokeStyle=m.torso>TH.TORSO?'#FF6B3D':'#EAF0FB';
+  const mT=arc(ctx,hipM,rT,-Math.PI/2,Math.atan2(shM.y-hipM.y,shM.x-hipM.x));
+  tag(ctx,hipM.x+Math.cos(mT)*(rT+6),hipM.y+Math.sin(mT)*(rT+6),Math.round(m.torso)+'°',
+      m.torso>TH.TORSO?'#FF6B3D':'#EAF0FB',W);
+}
 /* ---------- ui ---------- */
 function gauge(el,barEl,valEl,val,unit,warn,good){
   valEl.textContent = val;
   el.classList.toggle('warn',!!warn);
   el.classList.toggle('good',!!good&&!warn);
   barEl.style.width = unit+'%';
+}
+/* 숫자를 대신 판정하지 않는다. 방금 뜬 숫자가 무슨 뜻인지 한 줄로 옮겨 적을 뿐이다.
+   판단 근거는 항상 옆의 게이지에 그대로 남아 있다. */
+function cue(m,flags){
+  const el=$('cue');
+  let warn=true, msg;
+  if(flags.torso)      msg='상체가 <b>'+Math.round(m.torso)+'°</b> 기울었습니다(기준 55°). 가슴을 세우면 허리 부담이 줄어듭니다.';
+  else if(flags.tilt)  msg='좌우 골반 높이차가 <b>'+(m.tilt*100).toFixed(1)+'%</b>입니다(기준 8%). 한쪽으로 체중이 쏠렸습니다.';
+  else if(state==='down'&&m.knee>TH.DEPTH){ warn=false; msg='지금 <b>'+Math.round(m.knee)+'°</b>. <b>'+Math.round(m.knee-TH.DEPTH)+'°</b>만 더 앉으면 깊이가 인정됩니다.'; }
+  else if(state==='down'){ warn=false; msg='<b>'+Math.round(m.knee)+'°</b> — 깊이 기준을 넘었습니다. 이대로 0.5초 버티면 챌린지 성공입니다.'; }
+  else { warn=false; msg='서 있는 자세입니다. 무릎이 <b>100°</b> 아래로 내려가면 한 회차가 시작됩니다.'; }
+  el.classList.toggle('warn',warn);
+  el.innerHTML=msg;
 }
 function updatePanel(m,flags){
   gauge($('gKnee'),$('bKnee'),$('vKnee'),Math.round(m.knee)+'°',
@@ -441,11 +670,67 @@ function commitShot(depth){
   renderShots();
   toast('⚠ '+reps+'회차 · '+tags.join(' · '));
 }
+/* ---------- 세트 타임라인 ----------
+   tick()이 회차 끝에 이미 확정해 둔 값(최저 무릎각·경고 프레임·챌린지 결과)을
+   그대로 받아 적기만 한다. 계측에는 영향이 없다. */
+let timeline=[], lastRepT=0;
+function recordRep(low){
+  // 경고 사유는 commitShot과 같은 규칙으로 만든다 — 임계값을 실제로 넘긴 지표만 적는다.
+  let tag=null, all=null;
+  if(bestM){
+    const t=[];
+    if(bestM.torso>TH.TORSO) t.push({s:'상체 '+Math.round(bestM.torso)+'°', r:bestM.torso/TH.TORSO});
+    if(bestM.tilt >TH.TILT ) t.push({s:'비대칭 '+(bestM.tilt*100).toFixed(1)+'%', r:bestM.tilt/TH.TILT});
+    if(t.length){ t.sort((a,b)=>b.r-a.r); tag=t[0].s; all=t.map(x=>x.s).join(' · '); }
+  }
+  lastRepT=performance.now();
+  timeline.push({n:reps, low:Math.round(low), deep:low<=TH.DEPTH, tag, all, chal:chOn?chDone:null});
+  renderTimeline();
+}
+function renderTimeline(){
+  const n=Math.max(8,timeline.length), out=[];
+  for(let i=0;i<n;i++){
+    const r=timeline[i];
+    if(!r){ out.push('<div class="cellx void"><div class="r mono">'+(i+1)+'회</div><div class="v mono">—</div><div class="s">—</div></div>'); continue; }
+    const bad=!!r.tag;
+    const sub=bad?r.tag:(r.deep?'깊이 인정':'깊이 부족');
+    out.push('<div class="cellx '+(bad?'bad':(r.deep?'good':''))+'" title="'+r.n+'회차 · 최저 무릎각 '+r.low+'°'+(r.all?' · '+r.all:'')+'">'+
+      (r.chal?'<span class="ch" title="챌린지 성공"></span>':'')+
+      '<div class="r mono">'+r.n+'회</div><div class="v mono">'+r.low+'°</div><div class="s">'+sub+'</div></div>');
+  }
+  $('cells').innerHTML=out.join('');
+  const done=timeline.length;
+  if(done){
+    const first=timeline.find(r=>!!r.tag);
+    $('tlNote').innerHTML = first
+      ? '<b>'+first.n+'회차</b>부터 기준을 넘기 시작했습니다 ('+first.all+'). 회차별 최저 무릎 각도를 함께 보세요.'
+      : '아직 기준을 넘긴 회차가 없습니다. 회차별 <b>최저 무릎 각도</b>가 쌓이고 있습니다.';
+  }
+}
+
 function renderShots(){
   $('shotsEmpty').style.display = shots.length?'none':'block';
-  $('shots').innerHTML = shots.map(s=>`<div class="shot"><img src="${s.url}" alt="${s.rep}회차 자세 캡처">
+  $('shots').innerHTML = shots.map((s,i)=>`<div class="shot" tabindex="0" role="button" data-i="${i}"
+      aria-label="${s.rep}회차 캡처 크게 보기"><img src="${s.url}" alt="${s.rep}회차 자세 캡처">
     <div class="cap mono"><span>${s.tags}</span><span>${s.rep}회 · 깊이 ${s.depth}</span></div></div>`).join('');
 }
+/* 캡처를 눌러 크게 보기 — 증거는 작게 보면 읽히지 않는다 */
+function openLb(i){
+  const s=shots[i]; if(!s) return;
+  $('lbImg').src=s.url; $('lbImg').alt=s.rep+'회차 자세 캡처';
+  $('lbTag').innerHTML='<b>'+s.tags+'</b>';
+  $('lbMeta').textContent=s.rep+'회차 · 최저 무릎각 '+s.depth;
+  $('lb').classList.add('on'); $('lbX').focus();
+}
+function closeLb(){ $('lb').classList.remove('on'); $('lbImg').removeAttribute('src'); }
+$('shots').addEventListener('click',e=>{ const c=e.target.closest('.shot'); if(c) openLb(+c.dataset.i); });
+$('shots').addEventListener('keydown',e=>{
+  if(e.key!=='Enter'&&e.key!==' ') return;
+  const c=e.target.closest('.shot'); if(c){ e.preventDefault(); openLb(+c.dataset.i); }
+});
+$('lbX').onclick=closeLb;
+$('lb').addEventListener('click',e=>{ if(e.target===$('lb')) closeLb(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLb(); });
 /* ---------- 게임 모드 A-1 · 깊이 게이지 챌린지 ----------
    계측을 게임으로 바꾸지 않는다. tick()이 이미 계산해 둔 값을 읽어 표시만 얹는다.
    임계값(TH)·상태머신·캡처 로직은 건드리지 않는다.
@@ -503,6 +788,7 @@ function resetSet(){
   reps=0;deepReps=0;minKnee=180;state='up';bestSev=0;bestM=null;shots=[];
   $('repN').textContent='0'; $('depthRate').textContent='—'; renderShots();
   chReset();
+  timeline=[]; lastRepT=0; renderTimeline();
 }
 $('resetBtn').onclick=resetSet;
 
@@ -522,22 +808,28 @@ function tick(m){
     $('repN').textContent=reps;
     $('depthRate').textContent=deepReps+' / '+reps;
     commitShot(minKnee);
+    recordRep(minKnee);
     chEnd(minKnee);
     minKnee=180; bestSev=0; bestM=null;
   }
+  cue(m,flags);      // 상태 전이가 끝난 뒤에 적어야 회차 종료 시점의 문구가 맞는다
   chFrame(m);
   return flags.torso||flags.tilt;
 }
 
 /* ---------- loop: camera ---------- */
 async function loadModel(){
-  ph.innerHTML='<div class="spin"></div><p>포즈 인식 모델을 내려받는 중입니다. 처음 한 번만 걸립니다.</p>';
+  const step=t=>{ ph.style.display='flex'; ph.innerHTML='<div class="spin"></div><p>'+t+'</p>'; };
+  step('포즈 인식 라이브러리를 불러오는 중…');
   const { FilesetResolver, PoseLandmarker } = await import(MP_SRC);
   const vision=await FilesetResolver.forVisionTasks(MP_SRC+"/wasm");
-  landmarker=await PoseLandmarker.createFromOptions(vision,{
-    baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",delegate:"GPU"},
-    runningMode:"VIDEO",numPoses:1
-  });
+  step('포즈 인식 모델(약 5MB)을 내려받는 중입니다. 처음 한 번만 걸립니다.');
+  const opt=d=>({baseOptions:{modelAssetPath:MODEL_SRC,delegate:d},runningMode:"VIDEO",numPoses:1});
+  // 일부 기기·브라우저는 WebGL 델리게이트를 열지 못한다. 그때는 CPU로 떨어뜨린다.
+  try{ landmarker=await PoseLandmarker.createFromOptions(vision,opt("GPU")); delegate='GPU'; }
+  catch(e){ console.warn('GPU delegate 실패 → CPU 전환',e);
+            landmarker=await PoseLandmarker.createFromOptions(vision,opt("CPU")); delegate='CPU'; }
+  step('준비 완료');
 }
 function sizeCanvas(w,h){ cv.width=w; cv.height=h; }
 
@@ -550,12 +842,22 @@ async function startCam(){
     cam.style.opacity='1';
     if(!landmarker) await loadModel();
     sizeCanvas(cam.videoWidth||960, cam.videoHeight||720);
-    ph.style.display='none'; cornerL.textContent='LIVE · ON-DEVICE';
+    ph.style.display='none'; cornerL.textContent='LIVE · ON-DEVICE · '+delegate;
     running=true; mode='cam'; resetSet(); loopCam();
   }catch(e){
     console.error(e);
+    const n=e&&e.name;
+    let head;
+    if(n==='NotAllowedError'||n==='SecurityError')
+      head='카메라 권한이 거부됐습니다. 주소창의 자물쇠 아이콘 → 카메라를 허용으로 바꾼 뒤 다시 눌러 주세요.';
+    else if(n==='NotFoundError'||n==='OverconstrainedError'||n==='NotReadableError')
+      head='연결된 카메라를 찾지 못했거나 다른 앱이 사용 중입니다.';
+    else if(!window.isSecureContext)
+      head='보안 연결(HTTPS)이 아니어서 카메라를 열 수 없습니다. 배포된 https 주소로 접속해 주세요.';
+    else
+      head='포즈 인식 모델을 내려받지 못했습니다. 네트워크가 막혀 있을 수 있습니다.';
     ph.style.display='flex';
-    ph.innerHTML='<p style="color:var(--alarm)">카메라를 열지 못했습니다. 권한이 거부됐거나 모델을 내려받지 못했습니다.</p><p>아래 <b style="color:var(--chalk)">카메라 없이 시연 보기</b>로 전체 흐름을 그대로 확인할 수 있습니다.</p>';
+    ph.innerHTML='<p style="color:var(--alarm)">'+head+'</p><p>아래 <b style="color:var(--chalk)">카메라 없이 시연 보기</b>로 전체 흐름을 그대로 확인할 수 있습니다.</p>';
     $('startBtn').disabled=false;
   }
 }
@@ -564,13 +866,24 @@ function loopCam(){
   const now=performance.now();
   if(cam.currentTime!==lastT){
     lastT=cam.currentTime;
-    const res=landmarker.detectForVideo(cam,now);
-    if(res.landmarks&&res.landmarks[0]){
+    let res=null;
+    try{ res=landmarker.detectForVideo(cam,now); }
+    catch(e){ console.warn('프레임 추론 실패, 다음 프레임으로 넘어감',e); }
+    if(res&&res.landmarks&&res.landmarks[0]){
       const lm=res.landmarks[0];
+      const q=quality(lm);
       const m=metrics(lm);
-      const warn=tick(m);
-      draw(lm,m,warn);
+      setGuide(q);
+      // 믿을 수 없는 프레임으로는 횟수를 세지 않는다. 화면에는 그대로 그려 준다.
+      if(q.ok){ const warn=tick(m); draw(lm,m,warn); }
+      else    { draw(lm,m,false); }
     }
+  }
+  // 한동안 회차가 없으면 세트가 끝난 것으로 보고 증거를 보러 가라고 알린다
+  if(reps>0 && lastRepT && now-lastRepT>15000 && state==='up'){
+    $('guide').classList.add('on'); $('guide').classList.remove('warn');
+    $('guide').innerHTML='<div class="lead2"><span class="dotq"></span>15초째 움직임이 없습니다</div>'+
+      '<div class="hint">세트를 마쳤다면 아래 <b>무너진 순간</b> 갤러리에서 '+reps+'회차분 기록을 확인해 보세요.</div>';
   }
   fpsN++;
   if(now-fpsT>800){ cornerR.textContent=Math.round(fpsN*1000/(now-fpsT))+' FPS'; fpsT=now; fpsN=0; }
@@ -610,7 +923,7 @@ function synth(t,repIdx){
 let demoT=0;
 function startDemo(){
   if(running&&mode==='cam'){ running=false; cancelAnimationFrame(raf); }
-  cam.style.opacity='0'; ph.style.display='none';
+  cam.style.opacity='0'; ph.style.display='none'; setGuide(null);
   sizeCanvas(720,540);
   cornerL.textContent='SIMULATION · 합성 좌표';
   cornerR.textContent='DEMO';
@@ -626,6 +939,8 @@ function loopDemo(){
   if(reps>=8){ running=false; toast('세트 종료 · 아래에서 무너진 순간을 확인하세요'); return; }
   raf=requestAnimationFrame(loopDemo);
 }
+
+renderTimeline();   // 첫 화면부터 8칸을 비워 보여 준다 — 무엇이 쌓일 자리인지 알 수 있게
 
 const focusStage=()=>$('screen').scrollIntoView({behavior:'smooth',block:'center'});
 $('startBtn').onclick=()=>{focusStage();startCam();};
