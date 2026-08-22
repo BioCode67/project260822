@@ -317,7 +317,9 @@
   <div class="exsel" role="group" aria-label="종목 선택">
     <button class="ex on" data-ex="squat" aria-pressed="true">스쿼트</button>
     <button class="ex" data-ex="pushup" aria-pressed="false">푸시업</button>
+    <button class="ex" data-ex="lunge" aria-pressed="false">런지</button>
     <button class="ex" data-ex="plank" aria-pressed="false">플랭크</button>
+    <button class="ex" data-ex="neck" aria-pressed="false">목 스트레칭</button>
     <span class="exnote">종목이 바뀌어도 바뀌는 건 <b style="color:#B9C7E2">재는 3점 각도와 임계값</b>뿐입니다. 횟수 상태머신·캡처 규칙·리포트는 그대로 재사용됩니다.</span>
   </div>
   <div class="stage">
@@ -529,7 +531,7 @@ const $ = id => document.getElementById(id);
 const cam=$('cam'), cv=$('overlay'), ctx=cv.getContext('2d');
 const ph=$('ph'), cornerL=$('cornerL'), cornerR=$('cornerR');
 
-const L = {LS:11,RS:12,LH:23,RH:24,LK:25,RK:26,LA:27,RA:28,LE:13,RE:14,LW:15,RW:16};
+const L = {LS:11,RS:12,LH:23,RH:24,LK:25,RK:26,LA:27,RA:28,LE:13,RE:14,LW:15,RW:16,LEar:7,REar:8};
 
 let landmarker=null, running=false, mode=null, raf=null, lastT=-1, delegate='—';
 let state='up', reps=0, deepReps=0, minKnee=180, shots=[];
@@ -666,10 +668,81 @@ function synthPlank(t,repIdx){
   return lm2;
 }
 
+/* ---------- 종목: 런지 ----------
+   스쿼트와 재는 곳은 같지만(고관절–무릎–발목) 상체를 훨씬 곧게 세워야 하는 종목이라
+   임계값이 다르다. 같은 각도라도 종목에 따라 '좋은 자세'가 다르다는 걸 보여 준다. */
+function synthLunge(t,repIdx){
+  const d=0.5-0.5*Math.cos(t);
+  const f=Math.min(1,repIdx/8);
+  const fade=1-0.20*f;
+  const SHIN=0.25, THIGH=0.25, TORSO=0.32, W=0.06;
+  const a=RAD(12*d*fade), b=RAD(86*d*fade);        // 정강이는 거의 수직, 대퇴가 깊게 내려간다
+  const phi=RAD(5+d*(12+16*f));                    // 런지는 상체를 세워야 한다
+  const asym=0.004*d*f;
+  const p=(x,y)=>({x,y,visibility:1});
+  const AK={x:0.46,y:0.95};
+  const KN={x:AK.x+SHIN*Math.sin(a),  y:AK.y-SHIN*Math.cos(a)};
+  const HP={x:KN.x-THIGH*Math.sin(b), y:KN.y-THIGH*Math.cos(b)};
+  const SO={x:HP.x+TORSO*Math.sin(phi),y:HP.y-TORSO*Math.cos(phi)};
+  const lm=new Array(33).fill(null).map(()=>p(0.5,0.5));
+  lm[11]=p(SO.x+W/2,SO.y);        lm[12]=p(SO.x-W/2,SO.y);
+  lm[23]=p(HP.x+W/2,HP.y+asym);   lm[24]=p(HP.x-W/2,HP.y-asym);
+  lm[25]=p(KN.x+W/2,KN.y);        lm[26]=p(KN.x-W/2,KN.y);
+  lm[27]=p(AK.x+W/2,AK.y);        lm[28]=p(AK.x-W/2,AK.y);
+  lm[0]=p(SO.x+0.085*Math.sin(phi), SO.y-0.085*Math.cos(phi));
+  lm[7]=p(lm[0].x+0.03,lm[0].y);  lm[8]=p(lm[0].x-0.03,lm[0].y);
+  // 뒤쪽 다리: 뒤로 뻗고 무릎이 바닥 쪽으로 내려간다 (계측에는 쓰지 않고 그림에만)
+  const bk={x:HP.x+0.30, y:HP.y+0.30*d+0.12};
+  lm[13]=p(SO.x+0.05,SO.y+0.10);  lm[15]=p(SO.x+0.07,SO.y+0.20);
+  lm[14]=p(SO.x-0.05,SO.y+0.10);  lm[16]=p(SO.x-0.07,SO.y+0.20);
+  lm[31]=p(AK.x+W/2+0.05,0.985);  lm[32]=p(bk.x+0.06,0.985);
+  return lm;
+}
+
+/* ---------- 종목: 목 옆으로 늘이기 (스트레칭) ----------
+   횟수를 세는 운동이 아니다. "충분히 늘인 상태로 얼마나 버텼는가"를 잰다.
+   귀–어깨–고관절 사잇각으로 재면 다른 종목과 완전히 같은 문법이 된다 —
+   똑바로 서면 180°, 옆으로 기울일수록 작아진다. */
+function metricsNeck(lm){
+  const mid=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
+  const ear=mid(lm[L.LEar],lm[L.REar]), sh=mid(lm[L.LS],lm[L.RS]), hip=mid(lm[L.LH],lm[L.RH]);
+  const knee=ang(ear,sh,hip);                    // 180° = 똑바로, 작아질수록 깊게 늘어남
+  const torso=vertDev(sh,hip);                   // 상체가 같이 기울면 목은 안 늘어난다
+  const shoulderW=Math.hypot(lm[L.LS].x-lm[L.RS].x, lm[L.LS].y-lm[L.RS].y)||0.001;
+  const tilt=Math.abs(lm[L.LS].y-lm[L.RS].y)/shoulderW;   // 어깨가 따라 올라가면 헛수고다
+  return {knee,torso,tilt,sh,hip};
+}
+function synthNeck(t,repIdx){
+  // 깊게 늘였다가 지치면서 서서히 되돌아온다. 되돌아올수록 어깨가 따라 올라간다.
+  const A=[20,28,45,45,45][Math.min(4,repIdx)];  // 되돌아오는 폭. 18°보다 커야 구간이 끝난다
+  const P=35.1;                                  // 한 시도의 주기(t 단위 = 13초)
+  const q=(t%P)/P;
+  const s=q<0.85 ? q/0.85 : (1-q)/0.15;
+  const theta=RAD(34-A*s*s*s);                   // 목이 옆으로 기운 각
+  const phi=RAD(2+10*s*Math.min(1,0.35+repIdx*0.28)); // 상체가 같이 따라 기운다
+  const W=0.20, WH=0.14, NECK=0.22;
+  const p=(x,y)=>({x,y,visibility:1});
+  const SH={x:0.50,y:0.44}, HIP={x:SH.x-0.26*Math.sin(phi), y:SH.y+0.26*Math.cos(phi)};
+  const EAR={x:SH.x+NECK*Math.sin(theta), y:SH.y-NECK*Math.cos(theta)};
+  const rise=0.020*s*Math.min(1,0.35+repIdx*0.45);    // 어깨가 딸려 올라간다
+  const lm=new Array(33).fill(null).map(()=>p(0.5,0.5));
+  lm[11]=p(SH.x+W/2,SH.y-rise);   lm[12]=p(SH.x-W/2,SH.y+rise);
+  lm[23]=p(HIP.x+WH/2,HIP.y);     lm[24]=p(HIP.x-WH/2,HIP.y);
+  lm[25]=p(HIP.x+WH/2,0.80);      lm[26]=p(HIP.x-WH/2,0.80);
+  lm[27]=p(HIP.x+WH/2,0.94);      lm[28]=p(HIP.x-WH/2,0.94);
+  lm[7]=p(EAR.x+0.055,EAR.y);     lm[8]=p(EAR.x-0.055,EAR.y);
+  lm[0]=p(EAR.x,EAR.y+0.025);
+  lm[13]=p(SH.x+W/2+0.03,0.60);   lm[15]=p(SH.x+W/2+0.05,0.74);
+  lm[14]=p(SH.x-W/2-0.03,0.60);   lm[16]=p(SH.x-W/2-0.05,0.74);
+  lm[31]=p(HIP.x+WH/2+0.03,0.97); lm[32]=p(HIP.x-WH/2-0.03,0.97);
+  return lm;
+}
+
 /* ---------- 종목 등록부 ----------
    각 종목은 "어떤 3점 각도를 재는가"와 임계값, 라벨만 정의한다. */
 const REP_PRI=v=>Math.max(0,Math.min(100,(180-v)/110*100));   // 각도가 작아질수록 채워진다
 const DEV_PRI=v=>Math.max(0,Math.min(100,v/40*100));            // 이탈각이 커질수록 채워진다
+const NECK_PRI=v=>Math.max(0,Math.min(100,(180-v)/40*100));     // 180°에서 얼마나 기울었나
 const EX = {
   squat:{
     kind:'rep', holdMs:500, demoEnd:8, priPct:REP_PRI, unit:'회차', depthLbl:'깊이까지 도달한 횟수',
@@ -710,6 +783,33 @@ const EX = {
     sec:'무릎', tiltL:'비대칭',
     cue:{deep:'세우면',stand:'기준을 벗어났습니다.',sec:'무릎이',secTail:'다리를 곧게 펴 주세요.',tilt:'좌우 어깨 높이차가'},
     arc:{L:[L.LH,L.LK,L.LA],R:[L.RH,L.RK,L.RA]}, viz:{pri:'bodyOffset',sec:'arc'}
+  },
+  lunge:{
+    kind:'rep', holdMs:500, demoEnd:8, priPct:REP_PRI, unit:'회차', depthLbl:'깊이까지 도달한 횟수',
+    name:'런지', cnt:'LUNGE COUNT', joint:'무릎', hint:'옆으로 서서',
+    TH:{STAND:158, DOWN:110, DEPTH:95, TORSO:25, TILT:0.08},
+    metrics:metricsSquat, synth:synthLunge, secMax:60,
+    g1:['앞무릎 각도','고관절–무릎–발목. 95° 이하로 내려가야 깊이 인정'],
+    g2:['상체 기울기','어깨–고관절 선이 수직에서 벗어난 각. 런지는 25°만 넘어도 경고'],
+    g3:['좌우 비대칭','양쪽 골반 높이차. 어깨너비 대비 8% 초과 시 경고'],
+    chal:['DEPTH CHALLENGE','앞무릎을 <b>95° 아래로 0.5초</b> 버티면 그 회차는 성공입니다. 런지는 스쿼트보다 중심을 잡기 어려워 유지가 관건입니다.'],
+    sec:'상체', tiltL:'비대칭',
+    cue:{deep:'앉으면',stand:'서 있는 자세입니다.',sec:'상체가',secTail:'런지는 상체를 곧게 세워야 앞다리에 실립니다.',tilt:'좌우 골반 높이차가'},
+    arc:{L:[L.LH,L.LK,L.LA],R:[L.RH,L.RK,L.RA]}, viz:{pri:'arc',sec:'vertical'}
+  },
+  neck:{
+    kind:'hold', holdMs:7000, demoEnd:3, priPct:NECK_PRI, unit:'구간', depthLbl:'목표 7초를 채운 구간',
+    name:'목 스트레칭', cnt:'NECK STRETCH', joint:'목', hint:'카메라를 정면으로 보고',
+    // 158° 이하로 기울이면 '늘이는 중', 164° 위로 돌아오면 구간 종료 (이력 6°)
+    TH:{STAND:164, DOWN:158, DEPTH:158, TORSO:12, TILT:0.08},
+    metrics:metricsNeck, synth:synthNeck, secMax:40,
+    g1:['목 기울기','귀–어깨–고관절 사잇각. 158° 이하(약 22°)로 기울여야 늘어납니다'],
+    g2:['상체 따라 기울기','어깨–고관절 선이 수직에서 벗어난 각. 12° 초과 시 경고'],
+    g3:['어깨 올라감','양쪽 어깨 높이차. 8% 초과면 어깨가 딸려 올라간 것입니다'],
+    chal:['STRETCH HOLD','목을 <b>158° 아래로 7초</b> 유지하면 한 구간 성공입니다. 반동 없이 <b>버틴 시간</b>만 셉니다.'],
+    sec:'상체', tiltL:'어깨',
+    cue:{deep:'기울이면',stand:'목이 거의 곧습니다.',sec:'상체가',secTail:'상체가 같이 기울면 목은 늘어나지 않습니다.',tilt:'좌우 어깨 높이차가'},
+    arc:{L:[L.LEar,L.LS,L.LH],R:[L.REar,L.RS,L.RH]}, viz:{pri:'arc',sec:'vertical'}
   }
 };
 let CUR=EX.squat, TH=CUR.TH, metrics=CUR.metrics, synth=CUR.synth;
