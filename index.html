@@ -191,6 +191,36 @@
   .ctrlrow{display:flex;gap:8px;padding:14px 16px;border-top:1px solid var(--line)}
   .ctrlrow button{flex:1;font-size:13px;padding:13px 8px;border-radius:4px;min-height:44px}
 
+  /* ---------- game: combo / tempo ---------- */
+  .combo{
+    display:flex;align-items:baseline;gap:8px;margin-top:10px;
+    font-size:13px;color:var(--muted);opacity:0;transition:opacity .2s
+  }
+  .combo.on{opacity:1}
+  .combo b{font-size:22px;font-weight:800;color:var(--ok);letter-spacing:-.03em;line-height:1}
+  .combo.hot b{color:var(--cyan)}
+  .combo.fire b{color:#FFD166;text-shadow:0 0 14px rgba(255,209,102,.55)}
+  .combo .best{margin-left:auto;font-size:11.5px}
+  .gamerow{display:flex;gap:8px;padding:0 16px 14px;flex-wrap:wrap}
+  .chip{
+    background:transparent;color:var(--muted);border:1px solid var(--line);
+    padding:8px 13px;border-radius:999px;font-size:12px;font-weight:700;font-family:inherit;transition:all .14s
+  }
+  .chip:hover{color:var(--chalk);border-color:rgba(84,214,238,.5)}
+  .chip.on{background:rgba(84,214,238,.14);color:var(--cyan);border-color:var(--cyan)}
+  .beat{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;
+    width:74px;height:74px;border-radius:50%;border:2px solid var(--cyan);
+    opacity:0;pointer-events:none
+  }
+  .beat.go{animation:pulse .5s ease-out}
+  .beat.up{border-color:var(--ok)}
+  @keyframes pulse{0%{opacity:.85;transform:translate(-50%,-50%) scale(.5)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.1)}}
+  @media(prefers-reduced-motion:reduce){.beat.go{animation:none}}
+  .beatlbl{position:absolute;left:50%;top:calc(50% + 52px);transform:translateX(-50%);z-index:6;
+    font-size:12px;letter-spacing:.14em;color:var(--cyan);opacity:0;transition:opacity .18s}
+  .beatlbl.on{opacity:.9}
+
   /* ---------- set timeline ---------- */
   .tline{margin:0 0 42px}
   .tlhd{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:12px;flex-wrap:wrap}
@@ -329,6 +359,8 @@
       <canvas id="overlay"></canvas>
       <div class="corner tl mono" id="cornerL">STANDBY</div>
       <div class="corner tr mono" id="cornerR">0 FPS</div>
+      <div class="beat" id="beat"></div>
+      <div class="beatlbl mono" id="beatLbl"></div>
       <div class="guide" id="guide" aria-live="polite"></div>
       <div class="placeholder" id="ph">
         <div class="mono" style="font-size:12px;letter-spacing:.2em;color:var(--muted)">POSE LANDMARKER · 33 POINTS</div>
@@ -359,6 +391,7 @@
           <div class="desc">양쪽 골반 높이차. 어깨너비 대비 8% 초과 시 경고</div>
         </div>
       </div>
+      <div class="combo" id="combo"><b id="comboN">0</b><span>연속 성공</span><span class="best" id="comboBest"></span></div>
       <div class="cue" id="cue" aria-live="polite">측정을 시작하면 지금 숫자가 무엇을 뜻하는지 여기에 한 줄로 적습니다.</div>
       <div class="chal" id="chal">
         <div class="chd">
@@ -372,6 +405,10 @@
         </div>
         <div class="hold"><i id="chalHold"></i></div>
         <div class="cmsg" id="chalMsg">무릎을 <b>90° 아래로 0.5초</b> 버티면 그 회차는 성공입니다. 깊이 도달이 스쳐 지나간 순간을 본다면, 챌린지는 <b>버틴 시간</b>을 봅니다.</div>
+      </div>
+      <div class="gamerow">
+        <button class="chip" id="soundBtn" aria-pressed="false">소리 켜기</button>
+        <button class="chip" id="tempoBtn" aria-pressed="false">템포 2.0초</button>
       </div>
       <div class="ctrlrow">
         <button class="btn ghost" id="resetBtn">세트 초기화</button>
@@ -404,6 +441,7 @@
         <div class="c4"><div class="k">챌린지 성공</div><div class="v mono" id="rcChal">0</div></div>
       </div>
       <div class="rcline" id="rcLine"></div>
+      <div class="rcprev" id="rcExtra" style="display:none;color:#C3D0E8"></div>
       <div class="rcprev" id="rcPrev"></div>
       <div class="rcact">
         <button class="btn" id="saveBtn">결과 이미지 저장</button>
@@ -1024,6 +1062,71 @@ function commitShot(depth){
   renderShots();
   toast('⚠ '+reps+'회차 · '+tags.join(' · '));
 }
+/* ---------- 게임 요소: 콤보 · 템포 ----------
+   계측 위에 얹는다. 전부 꺼도 계측은 그대로 돈다.
+   콤보는 "경고 없이 + 챌린지 성공"인 회차만 이어진다 — 무너지면 끊긴다.
+   '몇 번째에 무너졌는지'라는 이 서비스의 핵심 메시지와 같은 방향이다. */
+let combo=0, bestCombo=0;
+let audioOn=false, actx=null;
+let tempoOn=false, tempoTimer=null, tempoDown=true;
+const TEMPO_MS=2000;                       // 목표 하강 시간
+let topT=0, lastMinT=0, descents=[];
+
+function beep(freq,dur,vol){
+  if(!audioOn) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==='suspended') actx.resume();
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type='sine'; o.frequency.value=freq;
+    g.gain.setValueAtTime(vol,actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+dur);
+    o.connect(g); g.connect(actx.destination);
+    o.start(); o.stop(actx.currentTime+dur);
+  }catch(e){}
+}
+function renderCombo(){
+  const el=$('combo');
+  el.classList.toggle('on',combo>0||bestCombo>0);
+  el.classList.toggle('hot',combo>=3);
+  el.classList.toggle('fire',combo>=5);
+  $('comboN').textContent=combo;
+  $('comboBest').textContent=bestCombo?('최고 '+bestCombo+' 연속'):'';
+}
+function comboUpdate(clean){
+  combo = clean ? combo+1 : 0;
+  if(combo>bestCombo) bestCombo=combo;
+  renderCombo();
+  if(clean) beep(combo>=5?1046:784, .12, .16);
+  else if(bestCombo) beep(220,.18,.14);
+}
+// 메트로놈. 내려가는 박과 올라오는 박을 다른 음으로 친다.
+function tempoTick(){
+  tempoDown=!tempoDown;
+  beep(tempoDown?523:392, .09, .13);
+  const b=$('beat'), l=$('beatLbl');
+  b.classList.remove('go'); void b.offsetWidth;
+  b.classList.toggle('up',!tempoDown); b.classList.add('go');
+  l.textContent=tempoDown?'내려가기':'올라오기'; l.classList.add('on');
+}
+function setTempo(on){
+  tempoOn=on;
+  $('tempoBtn').classList.toggle('on',on);
+  $('tempoBtn').setAttribute('aria-pressed',on);
+  clearInterval(tempoTimer); tempoTimer=null;
+  if(on){ if(!audioOn) setSound(true); tempoDown=false; tempoTick(); tempoTimer=setInterval(tempoTick,TEMPO_MS); }
+  else { $('beatLbl').classList.remove('on'); }
+}
+function setSound(on){
+  audioOn=on;
+  $('soundBtn').classList.toggle('on',on);
+  $('soundBtn').setAttribute('aria-pressed',on);
+  $('soundBtn').textContent=on?'소리 끄기':'소리 켜기';
+  if(on) beep(659,.08,.12);
+}
+$('soundBtn').onclick=()=>setSound(!audioOn);
+$('tempoBtn').onclick=()=>setTempo(!tempoOn);
+
 /* ---------- 세트 타임라인 ----------
    tick()이 회차 끝에 이미 확정해 둔 값(최저 무릎각·경고 프레임·챌린지 결과)을
    그대로 받아 적기만 한다. 계측에는 영향이 없다. */
@@ -1038,7 +1141,12 @@ function recordRep(low){
     if(t.length){ t.sort((a,b)=>b.r-a.r); tag=t[0].s; all=t.map(x=>x.s).join(' · '); }
   }
   lastRepT=performance.now();
-  timeline.push({n:reps, low:Math.round(low), deep:CUR.kind==='hold'?chBest>=goal():low<=TH.DEPTH,
+  const clean = (chOn?chDone:true) && !bestM;
+  comboUpdate(clean);
+  // 하강 시간 = 서 있던 마지막 순간부터 최저점까지. 템포 훈련의 기준이 되는 값이다.
+  const desc = CUR.kind==='rep' && topT ? +(Math.max(0,lastMinT-topT)/1000).toFixed(2) : null;
+  if(desc!=null && desc>0.15 && desc<12) descents.push(desc);
+  timeline.push({n:reps, low:Math.round(low), desc, deep:CUR.kind==='hold'?chBest>=goal():low<=TH.DEPTH,
                  secs:CUR.kind==='hold'?+(chBest/1000).toFixed(1):null, tag, all, chal:chOn?chDone:null});
   renderTimeline(); renderReport();
 }
@@ -1051,7 +1159,7 @@ function renderTimeline(){
     const sub = r.secs!=null ? (bad?r.tag:(r.deep?'목표 달성':'목표 미달'))
                              : (bad?r.tag:(r.deep?'깊이 인정':'깊이 부족'));
     const big = r.secs!=null ? r.secs+'초' : r.low+'°';
-    out.push('<div class="cellx '+(bad?'bad':(r.deep?'good':''))+'" title="'+r.n+CUR.unit+' · '+(r.secs!=null?r.secs+'초 · 최저 이탈 '+r.low+'°':'최저 '+CUR.joint+'각 '+r.low+'°')+'°'+(r.all?' · '+r.all:'')+'">'+
+    out.push('<div class="cellx '+(bad?'bad':(r.deep?'good':''))+'" title="'+r.n+CUR.unit+' · '+(r.secs!=null?r.secs+'초 · 최저 이탈 '+r.low+'°':'최저 '+CUR.joint+'각 '+r.low+'°')+'°'+(r.desc?' · 하강 '+r.desc+'초':'')+(r.all?' · '+r.all:'')+'">'+
       (r.chal?'<span class="ch" title="챌린지 성공"></span>':'')+
       '<div class="r"><span class="mono">'+r.n+'</span>'+(r.secs!=null?'구간':'회')+'</div><div class="v mono">'+big+'</div><div class="s">'+sub+'</div></div>');
   }
@@ -1096,7 +1204,9 @@ function summary(){
     deep:  timeline.filter(r=>r.deep).length,
     first: timeline.find(r=>!!r.tag) || null,
     chal:  timeline.filter(r=>r.chal).length,
-    hasChal: timeline.some(r=>r.chal!==null)
+    hasChal: timeline.some(r=>r.chal!==null),
+    combo: bestCombo,
+    desc: descents.length ? +(descents.reduce((a,b)=>a+b,0)/descents.length).toFixed(2) : null
   };
 }
 /* 지난 세트 기록은 이 브라우저에만 남는다. 서버가 없으니 남길 곳이 여기뿐이고,
@@ -1134,6 +1244,11 @@ function renderReport(){
   $('rcDeep').innerHTML=S.deep+'<small> / '+S.total+'</small>';
   $('rcFirst').innerHTML=S.first?(S.first.n+'<small>회차</small>'):'<small>없음</small>';
   $('rcChal').innerHTML=S.hasChal?(S.chal+'<small> / '+S.total+'</small>'):'<small>꺼짐</small>';
+  const extra=[];
+  if(S.combo) extra.push('최고 <b>'+S.combo+' 연속</b> 성공');
+  if(S.desc)  extra.push('평균 하강 <b>'+S.desc.toFixed(2)+'초</b>'+(tempoOn?' · 목표 '+(TEMPO_MS/1000).toFixed(1)+'초보다 '+(S.desc<TEMPO_MS/1000?'빠릅니다':'느립니다'):''));
+  $('rcExtra').innerHTML=extra.join(' · ');
+  $('rcExtra').style.display=extra.length?'block':'none';
   $('rcLine').innerHTML = S.first
     ? '이번 세트는 <b>'+S.first.n+'회차</b>에서 처음 기준을 넘겼습니다 ('+S.first.all+'). '+
       '깊이는 <b>'+S.deep+'회</b> 도달했고'+(S.hasChal?', 90° 아래 0.5초 유지는 <b>'+S.chal+'회</b> 성공했습니다.':'습니다.')
@@ -1206,6 +1321,10 @@ async function saveReport(){
       ? S.first.n+'회차에서 처음 기준을 넘겼습니다 ('+S.first.all+'). 깊이 '+S.deep+'회 도달'+(S.hasChal?' · 챌린지 '+S.chal+'회 성공':'')+'.'
       : '기준을 넘긴 회차가 없습니다. 깊이 '+S.deep+'회 도달.';
     g.fillText(line, PAD, 404);
+    const ex=[];
+    if(S.combo) ex.push('최고 '+S.combo+' 연속 성공');
+    if(S.desc)  ex.push('평균 하강 '+S.desc.toFixed(2)+'초');
+    if(ex.length){ g.fillStyle='#94A6C9'; g.font='400 14px '+SANS; g.fillText(ex.join('  ·  '), PAD, 430); }
 
     if(pics.length){
       g.fillStyle='#94A6C9'; g.font='700 13px '+MONOF; g.fillText('EVIDENCE · 무너진 순간', PAD, 452);
@@ -1307,6 +1426,7 @@ function resetSet(){
   $('repN').textContent='0'; $('depthRate').textContent='—'; renderShots();
   chReset();
   timeline=[]; lastRepT=0; setSaved=false;
+  combo=0; bestCombo=0; descents=[]; topT=0; renderCombo();
   $('rcPrev').classList.remove('on');
   renderTimeline(); renderReport();
 }
@@ -1317,11 +1437,13 @@ function tick(m){
   const flags={torso:m.torso>TH.TORSO, tilt:m.tilt>TH.TILT};
   updatePanel(m,flags);
   if(state==='down'){
-    minKnee=Math.min(minKnee,m.knee);
+    if(m.knee<minKnee){ minKnee=m.knee; lastMinT=performance.now(); }   // 최저점에 닿은 시각
     const sev=Math.max(m.torso/TH.TORSO, m.tilt/TH.TILT);
     if(sev>1 && sev>bestSev){ bestSev=sev; bestM={...m}; keepFrame(); }
   }
-  if(state==='up' && m.knee<=TH.DOWN){ state='down'; minKnee=m.knee; bestSev=0; bestM=null; chStart(); }
+  if(state==='up' && m.knee>=TH.STAND) topT=performance.now();   // 아직 서 있는 시각을 계속 갱신
+  if(state==='up' && m.knee<=TH.DOWN){ state='down'; minKnee=m.knee; bestSev=0; bestM=null;
+    lastMinT=performance.now(); chStart(); }
   else if(state==='down' && m.knee>=TH.STAND){
     state='up'; reps++;
     if(CUR.kind==='hold' ? chBest>=goal() : minKnee<=TH.DEPTH) deepReps++;
