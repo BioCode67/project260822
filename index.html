@@ -61,8 +61,15 @@
     /* 선 격자는 배경이 앞으로 튀어나온다. 같은 청사진 개념을 점으로 옮겼다. */
     background-image:radial-gradient(var(--grid) 1px,transparent 1px);
     background-size:26px 26px;
+    position:relative;
     min-height:100vh;
   }
+  /* 화면 상단에 아주 옅은 빛 — 완전한 평면 검정은 싸 보인다 */
+  body::before{
+    content:'';position:fixed;inset:0 0 auto 0;height:70vh;pointer-events:none;z-index:0;
+    background:radial-gradient(72% 100% at 50% -18%,rgba(121,184,255,.085),transparent 68%)
+  }
+  header,.wrap,footer{position:relative;z-index:1}
   .wrap{max-width:1160px;margin:0 auto;padding:0 22px}
   /* 숫자는 자릿수가 바뀌어도 폭이 흔들리면 안 된다 — 계측값이 덜덜 떨려 보인다 */
   .mono{font-family:var(--mono);font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
@@ -77,9 +84,30 @@
   .badge{font-size:var(--t-xs);color:var(--cyan);border:1px solid rgba(121,184,255,.28);padding:6px 12px;border-radius:999px;letter-spacing:.04em;white-space:nowrap}
 
   /* ---------- hero ---------- */
-  .hero{padding:64px 0 40px;max-width:840px}
+  .hero{
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,430px);
+    gap:48px;align-items:center;padding:56px 0 44px
+  }
+  .herotext{max-width:700px}
+  @media(max-width:1000px){
+    .hero{grid-template-columns:1fr;gap:22px;padding:40px 0 30px}
+    /* 좁은 화면에서도 제품이 첫 화면에 보여야 한다. 도형만 작게 남긴다. */
+    .heroart canvas{max-height:200px;width:auto;margin:0 auto}
+    .heroart figcaption{justify-content:center;font-size:var(--t-xs);gap:10px}
+  }
+  .heroart{margin:0;position:relative}
+  .heroart canvas{
+    width:100%;height:auto;display:block;border-radius:var(--r-lg);
+    background:linear-gradient(160deg,#0E131C,#080B11);
+    border:1px solid var(--line-soft)
+  }
+  .heroart figcaption{
+    margin-top:14px;font-size:var(--t-sm);color:var(--muted);letter-spacing:.02em;
+    display:flex;gap:14px;flex-wrap:wrap
+  }
+  .heroart figcaption b{color:var(--chalk);font-weight:600}
   .eyebrow{font-size:var(--t-xs);letter-spacing:.2em;color:var(--cyan);margin-bottom:22px;opacity:.85}
-  h1{font-size:clamp(30px,5.2vw,52px);line-height:1.24;letter-spacing:-.028em;font-weight:800;text-wrap:balance}
+  h1{font-size:clamp(27px,3.2vw,37px);line-height:1.24;letter-spacing:-.028em;font-weight:800;text-wrap:balance}
   h1 .dim{color:var(--muted);font-weight:500}
   .sub{margin-top:22px;font-size:clamp(15px,2.1vw,17.5px);line-height:var(--lh-loose);color:#C4CDDA;max-width:660px;text-wrap:pretty}
   .sub b{color:var(--chalk);font-weight:700}
@@ -98,7 +126,7 @@
   .privacy .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none}
 
   /* ---------- exercise selector ---------- */
-  .exsel{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 2px}
+  .exsel{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:10px 0 4px}
   .exsel .ex{
     background:transparent;color:var(--muted);border:1px solid var(--line);
     padding:9px 18px;border-radius:999px;font-size:13.5px;font-weight:700;
@@ -151,7 +179,7 @@
   .guide .hint{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.6}
 
   /* ---------- panel ---------- */
-  .panel{border:1px solid var(--line-soft);border-radius:var(--r-lg);background:rgba(18,22,31,.42)}
+  .panel{border:1px solid var(--line-soft);border-radius:var(--r-lg);background:rgba(19,24,33,.72);backdrop-filter:blur(2px)}
   .panel h3{font-size:var(--t-xs);letter-spacing:.18em;color:var(--muted);padding:18px var(--pad) 12px;font-weight:600}
   .rep{padding:0 var(--pad) 18px;border-bottom:1px solid var(--line-soft)}
   .rep .n{font-size:60px;font-weight:700;line-height:.92;letter-spacing:-.045em}
@@ -254,7 +282,7 @@
   .cellx .ch{position:absolute;top:7px;right:7px;width:5px;height:5px;border-radius:50%;background:var(--ok)}
 
   /* ---------- set report ---------- */
-  .rcard{border:1px solid var(--line-soft);border-radius:var(--r-lg);background:rgba(18,22,31,.42);padding:24px 26px;margin-top:30px;display:none}
+  .rcard{border:1px solid var(--line-soft);border-radius:var(--r-lg);background:rgba(19,24,33,.72);padding:24px 26px;margin-top:30px;display:none}
   .rcard.on{display:block}
   .rct{font-size:11px;letter-spacing:.2em;color:var(--muted);font-weight:600}
   .rcs{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
@@ -346,17 +374,23 @@
 
 <div class="wrap">
   <div class="hero">
-    <div class="eyebrow mono">일상뒤집기 · AI 어플 아이디어</div>
-    <h1>거울은 <span class="dim">지금</span>만 보여줍니다.<br>되감기는 <span style="color:var(--cyan)">무너진 순간</span>을 남깁니다.</h1>
-    <p class="sub">
-      집에서 스쿼트를 할 때 우리는 거울을 봅니다. 그런데 자세가 무너지는 건 <b>내가 거울을 볼 여유가 없는 마지막 3회</b>입니다.
-      되감기는 관절 각도를 매 프레임 재서, 무너진 그 순간만 자동으로 잡아 둡니다. 세트가 끝나면 증거를 보여줍니다.
-    </p>
-    <div class="cta">
-      <button class="btn" id="startBtn">카메라 켜고 측정 시작</button>
-      <button class="btn ghost" id="demoBtn">카메라 없이 시연 보기 <span class="mono" style="opacity:.6">20초</span></button>
+    <div class="herotext">
+      <div class="eyebrow mono">일상뒤집기 · AI 어플 아이디어</div>
+      <h1>거울은 <span class="dim">지금</span>만 보여줍니다.<br>되감기는 <span style="color:var(--cyan)">무너진 순간</span>을 남깁니다.</h1>
+      <p class="sub">
+        자세가 무너지는 건 <b>거울을 볼 여유가 없는 마지막 몇 회</b>입니다.
+        되감기는 관절 각도를 매 프레임 재서 그 순간만 자동으로 잡아 둡니다.
+      </p>
+      <div class="cta">
+        <button class="btn" id="startBtn">카메라 켜고 측정 시작</button>
+        <button class="btn ghost" id="demoBtn">카메라 없이 시연 보기 <span class="mono" style="opacity:.6">20초</span></button>
+      </div>
+      <div class="privacy"><span class="dot"></span> 브라우저 안에서만 계산합니다. 서버가 없어 영상이 기기 밖으로 나가지 않습니다.</div>
     </div>
-    <div class="privacy"><span class="dot"></span> 브라우저 안에서만 계산합니다. 서버가 없어 영상이 기기 밖으로 나가지 않습니다.</div>
+    <figure class="heroart">
+      <canvas id="pv" width="640" height="520" aria-hidden="true"></canvas>
+      <figcaption class="mono" id="pvCap">—</figcaption>
+    </figure>
   </div>
 </div>
 
@@ -379,7 +413,7 @@
       <div class="scrim" id="scrim"></div>
       <canvas id="overlay"></canvas>
       <div class="corner tl mono" id="cornerL">STANDBY</div>
-      <div class="corner tr mono" id="cornerR">0 FPS</div>
+      <div class="corner tr mono" id="cornerR"></div>
       <div class="beat" id="beat"></div>
       <div class="beatlbl mono" id="beatLbl"></div>
       <div class="guide" id="guide" aria-live="polite"></div>
@@ -590,7 +624,8 @@ const MP_SRC="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
 const MODEL_SRC="https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
 
 const $ = id => document.getElementById(id);
-const cam=$('cam'), cv=$('overlay'), ctx=cv.getContext('2d');
+const cam=$('cam');
+let cv=$('overlay'), ctx=cv.getContext('2d');
 const ph=$('ph'), cornerL=$('cornerL'), cornerR=$('cornerR');
 
 const L = {LS:11,RS:12,LH:23,RH:24,LK:25,RK:26,LA:27,RA:28,LE:13,RE:14,LW:15,RW:16,LEar:7,REar:8};
@@ -1821,13 +1856,59 @@ function switchEx(key){
   CUR=EX[key]; TH=CUR.TH; metrics=CUR.metrics; synth=CUR.synth;
   mode=null; cam.style.opacity='0'; $('scrim').classList.remove('on'); setGuide(null);
   ctx.clearRect(0,0,cv.width,cv.height);
-  cornerL.textContent='STANDBY'; cornerR.textContent='0 FPS'; cornerR.style.color='';
+  cornerL.textContent='STANDBY'; cornerR.textContent=''; cornerR.style.color='';
   ph.style.display='flex'; $('startBtn').disabled=false;
-  applyEx(); resetSet();
+  applyEx(); resetSet(); renderPreview();
 }
 Object.keys(EX).forEach(k=>EX[k].key=k);
 document.querySelectorAll('.exsel .ex').forEach(b=>b.onclick=()=>switchEx(b.dataset.ex));
 applyEx();
+
+/* ---------- 첫 화면의 계측 도형 ----------
+   장식 그림이 아니다. 실제 synth() → metrics() → draw()를 한 번 통과시켜 그린다.
+   그래서 히어로에 적힌 각도는 이 앱이 실제로 계산한 값이다. */
+function renderPreview(t){
+  const pv=$('pv'); if(!pv) return;
+  const kc=cv, kx=ctx;
+  cv=pv; ctx=pv.getContext('2d');
+  try{
+    if(t==null) t = CUR.kind==='hold' ? 8.6 : Math.PI*0.94;
+    const lm=CUR.synth(t,0), m=CUR.metrics(lm);
+    // 종목마다 그림이 놓이는 자리가 달라서, 관절 좌표의 경계 상자를 재서 상자에 맞춘다
+    const IDX=[0,7,8,11,12,13,14,15,16,23,24,25,26,27,28,31,32];
+    let lo=1,hi=0,top=1,bot=0;
+    IDX.forEach(i=>{ const p=lm[i]; if(!p) return;
+      const x=1-p.x; if(x<lo)lo=x; if(x>hi)hi=x;
+      if(p.y<top)top=p.y; if(p.y>bot)bot=p.y; });
+    const W=pv.width, H=pv.height, PADF=0.10;
+    const bw=Math.max(0.01,(hi-lo)), bh=Math.max(0.01,(bot-top));
+    const z=Math.min(W*(1-PADF*2)/(bw*W), H*(1-PADF*2)/(bh*H));
+    const tx=(W-bw*W*z)/2 - lo*W*z, ty=(H-bh*H*z)/2 - top*H*z;
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,W,H);
+    ctx.setTransform(z,0,0,z,tx,ty);
+    draw(lm,m,false);
+    ctx.setTransform(1,0,0,1,0,0);
+    $('pvCap').innerHTML =
+      CUR.g1[0]+' <b>'+Math.round(m.knee)+'°</b>' +
+      ' · '+CUR.g2[0]+' <b>'+Math.round(m.torso)+'°</b>' +
+      ' · '+CUR.g3[0]+' <b>'+(m.tilt*100).toFixed(1)+'%</b>';
+  }catch(e){ console.warn('미리보기 렌더 실패',e); }
+  cv=kc; ctx=kx;
+}
+/* 아주 느리게 한 사이클 — 첫 화면에서 무엇을 재는지가 움직임으로 보인다.
+   측정을 시작하면 멈추고, prefers-reduced-motion이면 정지 화면으로 둔다. */
+let pvT=Math.PI*0.5, pvStill=false;
+try{ pvStill=matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+function pvLoop(){
+  if(!running && !pvStill){
+    pvT += CUR.kind==='hold' ? 0.030 : 0.012;
+    renderPreview(pvT);
+  }
+  requestAnimationFrame(pvLoop);
+}
+renderPreview();
+if(!pvStill) requestAnimationFrame(pvLoop);
 
 renderTimeline();   // 첫 화면부터 8칸을 비워 보여 준다 — 무엇이 쌓일 자리인지 알 수 있게
 
