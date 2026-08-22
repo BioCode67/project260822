@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>되감기 — 거울은 지금만 보여줍니다</title>
-<meta name="description" content="홈트 자세가 무너진 순간만 자동으로 잡아 되돌려 보여주는 온디바이스 AI. 영상은 기기 밖으로 나가지 않습니다." />
+<title>되감기 — AI 자세 트레이너</title>
+<meta name="description" content="웹캠 앞에서 운동하면 관절 각도를 매 프레임 재서 자세가 무너진 순간만 잡아 남깁니다. 브라우저 안에서 계산해 영상이 기기 밖으로 나가지 않습니다." />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="되감기 — 거울은 '지금'만 보여줍니다" />
-<meta property="og:description" content="홈트 자세가 무너진 순간만 자동으로 잡아 되돌려 보여주는 온디바이스 AI. 브라우저 안에서 계산해 영상이 기기 밖으로 나가지 않습니다." />
+<meta property="og:title" content="되감기 — AI 자세 트레이너" />
+<meta property="og:description" content="웹캠 앞에서 운동하면 관절 각도를 매 프레임 재서 자세가 무너진 순간만 잡아 남깁니다. 브라우저 안에서 계산해 영상이 기기 밖으로 나가지 않습니다." />
 <meta property="og:locale" content="ko_KR" />
 <meta name="twitter:card" content="summary" />
 <meta name="theme-color" content="#0B0E14" />
@@ -81,12 +81,17 @@
   .hd{display:flex;align-items:center;justify-content:space-between;padding-top:14px;padding-bottom:14px;gap:16px}
   .logo{display:flex;align-items:baseline;gap:10px}
   .logo b{font-size:22px;font-weight:800;letter-spacing:-.018em}
-  .logo span{font-size:var(--t-xs);color:var(--muted);letter-spacing:.18em}
-  .badge{font-size:var(--t-xs);color:var(--cyan);border:1px solid rgba(121,184,255,.28);padding:6px 12px;border-radius:999px;letter-spacing:.04em;white-space:nowrap}
+  /* 로고 옆 영문 'REWIND'는 무엇을 하는 서비스인지 알려주지 못했다. 한 줄 설명으로 바꾼다. */
+  .logo .tag{font-size:var(--t-sm);color:var(--muted);letter-spacing:-.01em;font-weight:500;
+    padding-left:10px;margin-left:2px;border-left:1px solid var(--line)}
+  .badge{display:flex;align-items:center;gap:8px;font-size:var(--t-sm);color:var(--cyan);
+    border:1px solid rgba(121,184,255,.28);padding:6px 14px;border-radius:999px;white-space:nowrap}
+  .badge b{font-size:var(--t-xs);font-weight:700;letter-spacing:.1em;opacity:.85}
+  .badge span{color:#B3BCCA;letter-spacing:-.012em;font-weight:500}
   /* 좁은 화면에서 배지(nowrap)가 안 줄어 로고를 헤더 밖으로 밀어냈다. REWIND를 접어 자리를 만든다. */
   @media(max-width:560px){
-    .logo span{display:none}
-    .badge{font-size:11px;padding:5px 10px;letter-spacing:.02em}
+    .logo .tag{display:none}
+    .badge{font-size:12px;padding:5px 11px;gap:6px}
     .hd{gap:10px}
   }
 
@@ -102,7 +107,8 @@
     .art{max-width:420px;margin:0 auto}
     .artHud{padding:22px 12px 11px}
   }
-  .eyebrow{font-size:var(--t-xs);letter-spacing:.2em;color:var(--cyan);margin-bottom:22px;opacity:.85}
+  /* 한글에 라틴용 넓은 자간(.2em)을 주면 낱글자가 흩어진다. 자간을 접고 굵기로 구분한다. */
+  .eyebrow{font-size:var(--t-sm);letter-spacing:-.005em;font-weight:600;color:var(--cyan);margin-bottom:20px;opacity:.9}
   h1{font-size:clamp(27px,3.2vw,37px);line-height:1.24;letter-spacing:-.028em;font-weight:800;text-wrap:balance}
   h1 .dim{color:var(--muted);font-weight:500}
   .sub{margin-top:22px;font-size:clamp(15px,2.1vw,17.5px);line-height:var(--lh-loose);color:#C4CDDA;max-width:660px;text-wrap:pretty}
@@ -136,7 +142,7 @@
   }
   .artL{left:14px;letter-spacing:0;font-size:11.5px}
   .artL b{color:var(--chalk);font-weight:600}
-  .artR{right:14px;color:var(--cyan);display:flex;align-items:center;gap:6px}
+  .artR{right:14px;color:var(--cyan);display:flex;align-items:center;gap:6px;letter-spacing:-.005em;font-size:11.5px}
   .artR i{width:5px;height:5px;border-radius:50%;background:var(--cyan);display:block}
   .artHud{
     position:absolute;left:0;right:0;bottom:0;display:flex;gap:8px;flex-wrap:wrap;
@@ -146,9 +152,9 @@
   .artHud span{
     display:inline-flex;align-items:baseline;gap:6px;
     background:rgba(255,255,255,.05);border:1px solid var(--line-soft);
-    border-radius:999px;padding:5px 11px;font-size:10.5px;letter-spacing:.03em;color:var(--muted)
+    border-radius:999px;padding:5px 11px;font-size:var(--t-xs);letter-spacing:-.008em;color:var(--muted)
   }
-  .artHud b{font-size:12.5px;color:var(--chalk);font-weight:700}
+  .artHud b{font-family:var(--mono);font-size:12.5px;color:var(--chalk);font-weight:700;letter-spacing:0}
   .artHud .good b{color:var(--ok)}
   .heroart figcaption{
     margin-top:14px;font-size:var(--t-sm);color:var(--muted);line-height:1.65
@@ -429,19 +435,19 @@
 
 <header>
   <div class="wrap hd">
-    <div class="logo"><b>되감기</b><span class="mono">REWIND</span></div>
-    <div class="badge mono">ON-DEVICE · 영상 전송 없음</div>
+    <div class="logo"><b>되감기</b><span class="tag">AI 자세 트레이너</span></div>
+    <div class="badge"><b class="mono">ON-DEVICE</b><span>영상 전송 없음</span></div>
   </div>
 </header>
 
 <div class="wrap">
   <div class="hero">
     <div class="herotext">
-      <div class="eyebrow mono">일상뒤집기 · AI 어플 아이디어</div>
-      <h1>거울은 <span class="dim">지금</span>만 보여줍니다.<br>되감기는 <span style="color:var(--cyan)">무너진 순간</span>을 남깁니다.</h1>
+      <div class="eyebrow">일상뒤집기 · AI 어플 아이디어 공모전 출품작</div>
+      <h1><span style="color:var(--cyan)">AI 트레이너</span>가<br>당신의 자세를 대신 봐 줍니다.</h1>
       <p class="sub">
-        자세가 무너지는 건 <b>거울을 볼 여유가 없는 마지막 몇 회</b>입니다.
-        되감기는 관절 각도를 매 프레임 재서 그 순간만 자동으로 잡아 둡니다.
+        웹캠 앞에서 운동하면 무릎·상체·좌우 균형을 <b>매 프레임 각도로</b> 잽니다.
+        거울은 지금만 보여주지만, 되감기는 <b>자세가 무너진 순간</b>만 골라 사진으로 남깁니다.
       </p>
       <div class="cta">
         <button class="btn" id="startBtn">카메라 켜고 측정 시작</button>
@@ -453,8 +459,8 @@
       <div class="art">
         <canvas id="pv" width="640" height="520" aria-hidden="true"></canvas>
         <span class="artL">관절 <b>33점</b>을 실시간으로 추정하는 중</span>
-        <span class="artR mono"><i></i>측정 중</span>
-        <div class="artHud mono" id="pvHud"></div>
+        <span class="artR"><i></i>측정 중</span>
+        <div class="artHud" id="pvHud"></div>
       </div>
       <figcaption id="pvCap">화면의 각도는 장식이 아니라 <b>이 페이지가 실제로 계산한 값</b>입니다. 종목을 바꾸면 함께 바뀝니다.</figcaption>
     </figure>
