@@ -461,6 +461,9 @@
     padding:12px 20px;border-radius:4px;opacity:0;pointer-events:none;transition:opacity .2s
   }
   .toast.on{opacity:1}
+  /* 화면 낭독기 전용. 상태가 바뀐 순간에만 한 줄 넣는다. */
+  .sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+    clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
   a{color:var(--cyan)}
   ::selection{background:rgba(121,184,255,.28);color:var(--chalk)}
 </style>
@@ -513,7 +516,7 @@
     <span class="exdiv" aria-hidden="true"></span>
     <button class="ex timed" data-ex="plank" aria-pressed="false">플랭크</button>
     <button class="ex timed" data-ex="neck" aria-pressed="false">목 스트레칭</button>
-    <span class="exnote">왼쪽 다섯은 <b style="color:#B3BCCA">횟수</b>를, 오른쪽 둘은 <b style="color:#B3BCCA">버틴 시간</b>을 셉니다.
+    <span class="exnote"><b style="color:#B3BCCA">플랭크·목 스트레칭</b>은 버틴 시간을, 나머지 다섯은 횟수를 셉니다.
       종목이 바뀌어도 바뀌는 건 재는 3점 각도와 임계값뿐입니다.</span>
   </div>
   <div class="stage">
@@ -525,7 +528,7 @@
       <div class="corner tr mono" id="cornerR"></div>
       <div class="beat" id="beat"></div>
       <div class="beatlbl mono" id="beatLbl"></div>
-      <div class="guide" id="guide" aria-live="polite"></div>
+      <div class="guide" id="guide"></div>
       <span class="vf a" aria-hidden="true"></span><span class="vf b" aria-hidden="true"></span>
       <span class="vf c" aria-hidden="true"></span><span class="vf d" aria-hidden="true"></span>
       <div class="placeholder" id="ph">
@@ -563,7 +566,7 @@
         </div>
       </div>
       <div class="combo" id="combo"><b id="comboN">0</b><span>연속 성공</span><span class="best" id="comboBest"></span></div>
-      <div class="cue" id="cue" aria-live="polite">측정을 시작하면 지금 숫자가 무엇을 뜻하는지 여기에 한 줄로 적습니다.</div>
+      <div class="cue" id="cue">측정을 시작하면 지금 숫자가 무엇을 뜻하는지 여기에 한 줄로 적습니다.</div>
       <div class="chal" id="chal">
         <div class="chd">
           <span class="cttl mono" id="chalTitle">DEPTH CHALLENGE</span>
@@ -752,6 +755,7 @@
 </footer>
 
 <div class="toast mono" id="toast" role="status" aria-live="polite"></div>
+<div id="say" class="sr" role="status" aria-live="polite"></div>
 
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="캡처 확대 보기">
   <button class="x" id="lbX" aria-label="닫기">×</button>
@@ -1219,9 +1223,11 @@ const VIEW=f=> f<0.25?['측면','무릎·상체 계측에 가장 좋은 각도�
              :         ['정면','좌우 비대칭은 정확하지만, 주 각도는 옆모습보다 부정확합니다.'];
 function setGuide(q){
   const g=$('guide');
-  if(!q){ g.classList.remove('on'); return; }
+  if(!q){ g.classList.remove('on'); g.dataset.k=''; return; }
   g.classList.add('on');
   if(!q.ok){
+    if(g.dataset.k==='w:'+q.why) return;    // 매 프레임 같은 안내를 다시 그리지 않는다
+    g.dataset.k='w:'+q.why;
     g.classList.add('warn');
     const msg = q.why==='vis' ? ['관절 인식이 불안정합니다','전신이 다 보이도록 서 주세요. 계측을 잠시 멈췄습니다.']
               : q.why==='cut' ? ['몸이 화면 밖으로 나갔습니다','한 걸음 물러나거나 카메라를 낮춰 주세요. 계측을 잠시 멈췄습니다.']
@@ -1231,6 +1237,8 @@ function setGuide(q){
   }
   g.classList.remove('warn');
   const v=VIEW(q.facing);
+  if(g.dataset.k==='v:'+v[0]) return;      // 촬영 뷰가 그대로면 다시 그리지 않는다
+  g.dataset.k='v:'+v[0];
   g.innerHTML='<div class="lead2"><span class="dotq"></span>'+v[0]+' · 계측 중</div><div class="hint">'+v[1]+'</div>';
 }
 
@@ -1359,7 +1367,9 @@ function gauge(el,barEl,valEl,val,unit,warn,good){
 }
 /* 숫자를 대신 판정하지 않는다. 방금 뜬 숫자가 무슨 뜻인지 한 줄로 옮겨 적을 뿐이다.
    판단 근거는 항상 옆의 게이지에 그대로 남아 있다. */
-let lastCue='';
+let lastCue='', lastSay='';
+/* 계기판은 눈으로 보고, 낭독기에는 '무엇이 바뀌었는지'만 한 번 알린다. */
+function say(msg){ if(msg===lastSay) return; lastSay=msg; $('say').textContent=msg; }
 function cue(m,flags){
   const el=$('cue'), C=CUR.cue;
   let warn=true, msg;
@@ -1376,6 +1386,10 @@ function cue(m,flags){
   else { warn=false; msg=C.stand+' 각도가 <b>'+TH.DOWN+'°</b> 아래로 내려가면 한 회차가 시작됩니다.'; }
   el.classList.toggle('warn',warn);
   if(msg!==lastCue){ el.innerHTML=msg; lastCue=msg; }
+  // 낭독은 '상태'로 키를 잡는다. 문구에는 각도가 들어 있어 매 프레임 달라지므로
+  // 문구를 그대로 넘기면 전환이 아니라 프레임마다 읽게 된다.
+  say(flags.torso ? CUR.sec+' 기준을 넘었습니다'
+    : flags.tilt  ? CUR.tiltL+' 기준을 넘었습니다' : '');
 }
 function updatePanel(m,flags){
   gauge($('gKnee'),$('bKnee'),$('vKnee'),Math.round(m.knee)+'°',
@@ -1899,6 +1913,7 @@ async function startCam(){
       head='보안 연결(HTTPS)이 아니어서 카메라를 열 수 없습니다. 배포된 https 주소로 접속해 주세요.';
     else
       head='포즈 인식 모델을 내려받지 못했습니다. 네트워크가 막혀 있을 수 있습니다.';
+    stopCam();                 // 스트림은 열렸는데 뒤에서 실패한 경우 여기서 놓아 준다
     ph.style.display='flex'; setIdle(true);
     // 실패 안내는 화면 아래쪽에 조용히 바뀌기만 해서, 못 보고 넘어가기 쉬웠다.
     ph.innerHTML='<p role="alert" style="color:var(--alarm)">'+head+'</p><p>아래 <b style="color:var(--chalk)">카메라 없이 시연 보기</b>로 전체 흐름을 그대로 확인할 수 있습니다.</p>';
