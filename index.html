@@ -609,8 +609,8 @@
     <div class="rcard" id="rcard">
       <div class="rct mono">SET REPORT · <span id="rcName" style="color:var(--cyan)">스쿼트</span></div>
       <div class="rcs">
-        <div class="c1"><div class="k">총 회차</div><div class="v mono" id="rcTotal">0</div></div>
-        <div class="c2"><div class="k">깊이 도달</div><div class="v mono" id="rcDeep">0</div></div>
+        <div class="c1"><div class="k" id="rcTotalK">총 회차</div><div class="v mono" id="rcTotal">0</div></div>
+        <div class="c2"><div class="k" id="rcDeepK">깊이 도달</div><div class="v mono" id="rcDeep">0</div></div>
         <div class="c3"><div class="k">첫 무너짐</div><div class="v mono" id="rcFirst">—</div></div>
         <div class="c4"><div class="k">챌린지 성공</div><div class="v mono" id="rcChal">0</div></div>
       </div>
@@ -1540,7 +1540,7 @@ function renderShots(){
   $('shotsEmpty').style.display = shots.length?'none':'block';
   $('shots').innerHTML = shots.map((s,i)=>`<div class="shot" tabindex="0" role="button" data-i="${i}"
       aria-label="${s.rep}회차 캡처 크게 보기"><img src="${s.url}" alt="${s.rep}회차 자세 캡처">
-    <div class="cap mono"><span>${s.tags}</span><span>${s.rep}회 · 깊이 ${s.depth}</span></div></div>`).join('');
+    <div class="cap mono"><span>${s.tags}</span><span>${s.rep}${CUR.unit} · ${CUR.kind==='hold'?'최저 이탈':'깊이'} ${s.depth}</span></div></div>`).join('');
 }
 /* 캡처를 눌러 크게 보기 — 증거는 작게 보면 읽히지 않는다 */
 function openLb(i){
@@ -1617,7 +1617,7 @@ function finishSet(){
   const parts=[];
   if(prev.first&&cur.first){
     const diff=cur.first-prev.first;
-    parts.push('첫 무너짐 '+prev.first+'회차 → <b class="'+(diff<0?'worse':'')+'">'+cur.first+'회차</b>'+
+    parts.push('첫 무너짐 '+prev.first+CUR.unit+' → <b class="'+(diff<0?'worse':'')+'">'+cur.first+CUR.unit+'</b>'+
                (diff===0?' (그대로)':' ('+(diff>0?'+':'')+diff+')'));
   }
   parts.push('깊이 '+prev.deep+'/'+prev.total+' → <b>'+cur.deep+'/'+cur.total+'</b>');
@@ -1630,9 +1630,13 @@ function renderReport(){
   const S=summary();
   $('rcard').classList.toggle('on', S.total>0);
   if(!S.total) return;
+  // 버티기 종목에서는 '회차·깊이'가 아니라 '구간·목표 달성'이다.
+  const H=CUR.kind==='hold';
+  $('rcTotalK').textContent = H?'총 구간':'총 회차';
+  $('rcDeepK').textContent  = H?'목표 달성':'깊이 도달';
   $('rcTotal').textContent=S.total;
   $('rcDeep').innerHTML=S.deep+'<small> / '+S.total+'</small>';
-  $('rcFirst').innerHTML=S.first?(S.first.n+'<small>회차</small>'):'<small>없음</small>';
+  $('rcFirst').innerHTML=S.first?(S.first.n+'<small>'+CUR.unit+'</small>'):'<small>없음</small>';
   $('rcChal').innerHTML=S.hasChal?(S.chal+'<small> / '+S.total+'</small>'):'<small>꺼짐</small>';
   const extra=[];
   if(S.combo) extra.push('최고 <b>'+S.combo+' 연속</b> 성공');
@@ -1643,10 +1647,12 @@ function renderReport(){
   if(S.desc)  extra.push('평균 하강 <b>'+S.desc.toFixed(2)+'초</b>'+(tempoOn?' · 목표 '+(TEMPO_MS/1000).toFixed(1)+'초보다 '+(S.desc<TEMPO_MS/1000?'빠릅니다':'느립니다'):''));
   $('rcExtra').innerHTML=extra.join(' · ');
   $('rcExtra').style.display=extra.length?'block':'none';
+  // 서수(5회차·2구간)와 개수(6회·1구간)는 단위가 다르다.
+  const U=CUR.unit, CNT=H?'구간':'회', GOALW=H?'목표 시간은':'깊이는', HIT=H?'채웠고':'도달했고';
   $('rcLine').innerHTML = S.first
-    ? '이번 세트는 <b>'+S.first.n+'회차</b>에서 처음 기준을 넘겼습니다 ('+S.first.all+'). '+
-      '깊이는 <b>'+S.deep+'회</b> 도달했고'+(S.hasChal?', '+chalDesc()+' 유지는 <b>'+S.chal+'회</b> 성공했습니다.':'습니다.')
-    : '아직 기준을 넘긴 회차가 없습니다. 깊이는 <b>'+S.deep+'회</b> 도달했습니다.';
+    ? '이번 세트는 <b>'+S.first.n+U+'</b>에서 처음 기준을 넘겼습니다 ('+S.first.all+'). '+
+      GOALW+' <b>'+S.deep+CNT+'</b> '+HIT+(S.hasChal?', '+chalDesc()+' 유지는 <b>'+S.chal+'회</b> 성공했습니다.':'습니다.')
+    : '아직 기준을 넘긴 '+U+'가 없습니다. '+GOALW+' <b>'+S.deep+CNT+'</b> '+(H?'채웠습니다.':'도달했습니다.');
 }
 
 /* 결과를 한 장의 PNG로 합성한다. 서버로 보내지 않고 캔버스에서 바로 만든다. */
@@ -1679,9 +1685,10 @@ async function saveReport(){
     g.fillText(stamp, W-PAD-g.measureText(stamp).width, 72);
     g.strokeStyle='rgba(200,214,235,.22)'; g.beginPath(); g.moveTo(PAD,100); g.lineTo(W-PAD,100); g.stroke();
 
-    const stats=[['총 회차',String(S.total),'','#EDF1F6'],
-                 ['깊이 도달',String(S.deep),' / '+S.total,'#79B8FF'],
-                 ['첫 무너짐',S.first?String(S.first.n):'—',S.first?'회차':'','#E8A25E'],
+    const H2=CUR.kind==='hold';
+    const stats=[[H2?'총 구간':'총 회차',String(S.total),'','#EDF1F6'],
+                 [H2?'목표 달성':'깊이 도달',String(S.deep),' / '+S.total,'#79B8FF'],
+                 ['첫 무너짐',S.first?String(S.first.n):'—',S.first?CUR.unit:'','#E8A25E'],
                  ['챌린지 성공',S.hasChal?String(S.chal):'—',S.hasChal?' / '+S.total:'','#5CCB9B']];
     const cw=(W-PAD*2)/4;
     stats.forEach((st,i)=>{
@@ -1693,7 +1700,7 @@ async function saveReport(){
     });
 
     // 회차별 최저 무릎각
-    g.fillStyle='#8A93A3'; g.font='700 13px '+MONOF; g.fillText('SET TIMELINE · 회차별 최저 '+CUR.joint+' 각도', PAD, 250);
+    g.fillStyle='#8A93A3'; g.font='700 13px '+MONOF; g.fillText('SET TIMELINE · '+(H2?'구간별 버틴 시간':'회차별 최저 '+CUR.joint+' 각도'), PAD, 250);
     const n=Math.min(timeline.length,8), bw=(W-PAD*2-10*(n-1))/n;
     for(let i=0;i<n;i++){
       const r=timeline[i], x=PAD+(bw+10)*i, y=266, h=92, bad=!!r.tag;
@@ -1701,19 +1708,20 @@ async function saveReport(){
       g.strokeStyle=bad?'rgba(232,162,94,.55)':'rgba(200,214,235,.22)';
       g.beginPath(); g.rect(x+.5,y+.5,bw,h); g.fill(); g.stroke();
       g.textAlign='center';
-      g.fillStyle='#8A93A3'; g.font='400 12px '+SANS; g.fillText(r.n+'회', x+bw/2, y+24);
+      g.fillStyle='#8A93A3'; g.font='400 12px '+SANS; g.fillText(r.n+CUR.unit, x+bw/2, y+24);
       g.fillStyle=bad?'#E8A25E':(r.deep?'#5CCB9B':'#EDF1F6'); g.font='800 26px '+MONOF;
-      g.fillText(r.low+'°', x+bw/2, y+58);
+      g.fillText(H2&&r.secs!=null ? r.secs+'초' : r.low+'°', x+bw/2, y+58);
       g.fillStyle=bad?'#E8A25E':'#8A93A3'; g.font='400 11.5px '+SANS;
-      g.fillText(bad?r.tag:(r.deep?'깊이 인정':'깊이 부족'), x+bw/2, y+79);
+      g.fillText(bad?r.tag:(r.deep?(H2?'목표 달성':'깊이 인정'):(H2?'목표 미달':'깊이 부족')), x+bw/2, y+79);
       g.textAlign='left';
     }
 
     // 한 줄 요약
     g.fillStyle='#C4CDDA'; g.font='400 16px '+SANS;
+    const U2=CUR.unit, C2=H2?'구간':'회', G2=H2?'목표 ':'깊이 ', D2=H2?' 채움':' 도달';
     const line=S.first
-      ? S.first.n+'회차에서 처음 기준을 넘겼습니다 ('+S.first.all+'). 깊이 '+S.deep+'회 도달'+(S.hasChal?' · 챌린지 '+S.chal+'회 성공':'')+'.'
-      : '기준을 넘긴 회차가 없습니다. 깊이 '+S.deep+'회 도달.';
+      ? S.first.n+U2+'에서 처음 기준을 넘겼습니다 ('+S.first.all+'). '+G2+S.deep+C2+D2+(S.hasChal?' · 챌린지 '+S.chal+'회 성공':'')+'.'
+      : '기준을 넘긴 '+U2+'가 없습니다. '+G2+S.deep+C2+D2+'.';
     g.fillText(line, PAD, 404);
     const ex=[];
     if(S.combo) ex.push('최고 '+S.combo+' 연속 성공');
@@ -1732,7 +1740,7 @@ async function saveReport(){
         g.strokeStyle='rgba(232,162,94,.45)'; g.strokeRect(x+.5,y+.5,tw,th);
         g.fillStyle='#E8A25E'; g.font='700 13px '+SANS; g.fillText(pics[i].tags, x, y+th+24);
         g.fillStyle='#8A93A3'; g.font='400 12.5px '+SANS;
-        g.fillText(pics[i].rep+'회차 · 최저 '+CUR.joint+'각 '+pics[i].depth, x, y+th+44);
+        g.fillText(pics[i].rep+CUR.unit+' · '+(H2?'최저 이탈 ':'최저 '+CUR.joint+'각 ')+pics[i].depth, x, y+th+44);
       });
     }
     g.strokeStyle='rgba(200,214,235,.22)'; g.beginPath(); g.moveTo(PAD,H-72); g.lineTo(W-PAD,H-72); g.stroke();
