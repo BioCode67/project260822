@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>되감기 — AI 자세 트레이너</title>
+<title>AI 자세 트레이너</title>
 <meta name="description" content="웹캠 앞에서 운동하면 관절 각도를 매 프레임 재서 자세가 무너진 순간만 잡아 남깁니다. 브라우저 안에서 계산해 영상이 기기 밖으로 나가지 않습니다." />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="되감기 — AI 자세 트레이너" />
+<meta property="og:title" content="AI 자세 트레이너 — 홈트 자세를 대신 봐 줍니다" />
 <meta property="og:description" content="웹캠 앞에서 운동하면 관절 각도를 매 프레임 재서 자세가 무너진 순간만 잡아 남깁니다. 브라우저 안에서 계산해 영상이 기기 밖으로 나가지 않습니다." />
 <meta property="og:locale" content="ko_KR" />
 <meta name="twitter:card" content="summary" />
@@ -91,7 +91,9 @@
   /* 좁은 화면에서 배지(nowrap)가 안 줄어 로고를 헤더 밖으로 밀어냈다. REWIND를 접어 자리를 만든다. */
   @media(max-width:560px){
     .logo .tag{display:none}
-    .badge{font-size:12px;padding:5px 11px;gap:6px}
+    .logo b{font-size:18px;white-space:nowrap}   /* 이름이 길어져 두 줄로 접혔다 */
+    .badge{font-size:11px;padding:5px 9px;gap:5px}
+    .badge span{display:none}                    /* 좁은 화면에서는 ON-DEVICE만 */
     .hd{gap:10px}
   }
 
@@ -435,7 +437,7 @@
 
 <header>
   <div class="wrap hd">
-    <div class="logo"><b>되감기</b><span class="tag">AI 자세 트레이너</span></div>
+    <div class="logo"><b>AI 자세 트레이너</b><span class="tag">홈트 자세를 대신 봐 줍니다</span></div>
     <div class="badge"><b class="mono">ON-DEVICE</b><span>영상 전송 없음</span></div>
   </div>
 </header>
@@ -447,7 +449,7 @@
       <h1><span style="color:var(--cyan)">AI 트레이너</span>가<br>당신의 자세를 대신 봐 줍니다.</h1>
       <p class="sub">
         웹캠 앞에서 운동하면 무릎·상체·좌우 균형을 <b>매 프레임 각도로</b> 잽니다.
-        거울은 지금만 보여주지만, 되감기는 <b>자세가 무너진 순간</b>만 골라 사진으로 남깁니다.
+        거울은 지금만 보여주지만, 이 페이지는 <b>자세가 무너진 순간</b>만 골라 사진으로 남깁니다.
       </p>
       <div class="cta">
         <button class="btn" id="startBtn">카메라 켜고 측정 시작</button>
@@ -591,7 +593,7 @@
     <div class="stitle mono">HOW IT MEASURES</div>
     <h2>AI가 “알아서 판단”하지 않습니다.<br>무엇을 어떻게 쟀는지 화면에 그대로 띄웁니다.</h2>
     <p class="lead">
-      자세의 좋고 나쁨을 통째로 맞히려는 모델은 틀렸을 때 이유를 설명하지 못합니다. 되감기는 판정 근거를 세 개의 측정값으로 좁혀, 사용자가 값을 직접 보고 납득하게 만듭니다.
+      자세의 좋고 나쁨을 통째로 맞히려는 모델은 틀렸을 때 이유를 설명하지 못합니다. 그래서 판정 근거를 세 개의 측정값으로 좁혀, 사용자가 값을 직접 보고 납득하게 만듭니다.
     </p>
     <div class="rows">
       <div class="row">
@@ -638,7 +640,7 @@
     <h2>홈트를 그만두는 이유는<br>귀찮아서가 아니라, 맞게 하고 있는지 몰라서입니다.</h2>
     <p class="lead">
       헬스장에 가면 트레이너가 봐 줍니다. 집에서는 아무도 안 봅니다. 영상을 찍어 돌려보는 건 번거롭고, 얼굴이 찍힌 운동 영상을 클라우드에 올리고 싶은 사람도 없습니다.
-      되감기는 그 사이를 메웁니다 — <b style="color:var(--chalk)">봐 주는 눈은 생기되, 영상은 어디로도 가지 않는</b> 방식으로.
+      이 서비스는 그 사이를 메웁니다 — <b style="color:var(--chalk)">봐 주는 눈은 생기되, 영상은 어디로도 가지 않는</b> 방식으로.
     </p>
   </section>
 
@@ -684,8 +686,8 @@
 
 <footer>
   <div class="wrap">
-    <b>되감기 (REWIND)</b> · 제1회 일상뒤집기 AI 어플 아이디어 공모전 출품작<br>
-    매일 홈트 자세가 맞는지 확인하는 게 너무 귀찮다 → AI로 무너진 순간만 잡아 되돌려 보여주는 되감기<br>
+    <b>AI 자세 트레이너</b> · 제1회 일상뒤집기 AI 어플 아이디어 공모전 출품작<br>
+    매일 홈트 자세가 맞는지 확인하는 게 너무 귀찮다 → AI로 무너진 순간만 잡아 되돌려 보여주는 AI 자세 트레이너<br>
     <span style="color:var(--muted)">본 프로토타입은 브라우저 온디바이스 추론으로 동작합니다. 카메라 권한을 거부해도 시연 모드로 전체 흐름을 확인할 수 있습니다.</span>
   </div>
 </footer>
@@ -1576,7 +1578,7 @@ async function saveReport(){
     const PAD=56;
     g.textBaseline='alphabetic';
     g.fillStyle='#EDF1F6'; g.font='800 30px '+SANS;
-    g.fillText('되감기', PAD, 74);
+    g.fillText('AI 자세 트레이너', PAD, 74);
     g.fillStyle='#79B8FF'; g.font='700 15px '+MONOF;
     g.fillText('REWIND · SET REPORT · '+CUR.name, PAD+104, 72);
     const d=new Date(), p2=n=>String(n).padStart(2,'0');
