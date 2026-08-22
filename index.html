@@ -91,26 +91,14 @@
   .herotext{max-width:700px}
   @media(max-width:1000px){
     .hero{grid-template-columns:1fr;gap:22px;padding:40px 0 30px}
-    /* 좁은 화면에서도 제품이 첫 화면에 보여야 한다. 도형만 작게 남긴다. */
-    .heroart canvas{max-height:200px;width:auto;margin:0 auto}
-    .heroart figcaption{justify-content:center;font-size:var(--t-xs);gap:10px}
+    /* 좁은 화면에서도 제품이 첫 화면에 보여야 한다 */
+    .art{max-width:420px;margin:0 auto}
+    .artHud{padding:22px 12px 11px}
   }
-  .heroart{margin:0;position:relative}
-  .heroart canvas{
-    width:100%;height:auto;display:block;border-radius:var(--r-lg);
-    background:linear-gradient(165deg,#111722,#080B11);
-    border:1px solid var(--line-soft);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)
-  }
-  .heroart figcaption{
-    margin-top:14px;font-size:var(--t-sm);color:var(--muted);letter-spacing:.02em;
-    display:flex;gap:14px;flex-wrap:wrap
-  }
-  .heroart figcaption b{color:var(--chalk);font-weight:600}
   .eyebrow{font-size:var(--t-xs);letter-spacing:.2em;color:var(--cyan);margin-bottom:22px;opacity:.85}
   h1{font-size:clamp(27px,3.2vw,37px);line-height:1.24;letter-spacing:-.028em;font-weight:800;text-wrap:balance}
   h1 .dim{color:var(--muted);font-weight:500}
   .sub{margin-top:22px;font-size:clamp(15px,2.1vw,17.5px);line-height:var(--lh-loose);color:#C4CDDA;max-width:660px;text-wrap:pretty}
-  .sub b{color:var(--chalk);font-weight:700}
   .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
   button{font-family:inherit;cursor:pointer;border:none}
   .btn{
@@ -125,6 +113,38 @@
   .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
   .privacy{margin-top:24px;font-size:var(--t-sm);color:var(--muted);display:flex;align-items:center;gap:9px}
   .privacy .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none}
+
+  .heroart{margin:0}
+  .art{
+    position:relative;border-radius:var(--r-lg);overflow:hidden;
+    border:1px solid var(--line-soft);
+    background:linear-gradient(165deg,#121824,#080B11);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.045), 0 20px 50px -30px rgba(0,0,0,.9)
+  }
+  .art canvas{width:100%;height:auto;display:block}
+  .artL,.artR{
+    position:absolute;top:12px;font-size:10.5px;letter-spacing:.16em;color:var(--muted);
+    pointer-events:none;opacity:.85
+  }
+  .artL{left:14px}
+  .artR{right:14px;color:var(--cyan);display:flex;align-items:center;gap:6px}
+  .artR i{width:5px;height:5px;border-radius:50%;background:var(--cyan);display:block}
+  .artHud{
+    position:absolute;left:0;right:0;bottom:0;display:flex;gap:8px;flex-wrap:wrap;
+    padding:26px 14px 13px;
+    background:linear-gradient(transparent,rgba(8,11,17,.9) 46%)
+  }
+  .artHud span{
+    display:inline-flex;align-items:baseline;gap:6px;
+    background:rgba(255,255,255,.05);border:1px solid var(--line-soft);
+    border-radius:999px;padding:5px 11px;font-size:10.5px;letter-spacing:.03em;color:var(--muted)
+  }
+  .artHud b{font-size:12.5px;color:var(--chalk);font-weight:700}
+  .artHud .good b{color:var(--ok)}
+  .heroart figcaption{
+    margin-top:14px;font-size:var(--t-sm);color:var(--muted);line-height:1.65
+  }
+  .heroart figcaption b{color:var(--chalk);font-weight:600}
 
   /* ---------- exercise selector ---------- */
   .exsel{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:10px 0 4px}
@@ -392,8 +412,13 @@
       <div class="privacy"><span class="dot"></span> 브라우저 안에서만 계산합니다. 서버가 없어 영상이 기기 밖으로 나가지 않습니다.</div>
     </div>
     <figure class="heroart">
-      <canvas id="pv" width="640" height="520" aria-hidden="true"></canvas>
-      <figcaption class="mono" id="pvCap">—</figcaption>
+      <div class="art">
+        <canvas id="pv" width="640" height="520" aria-hidden="true"></canvas>
+        <span class="artL mono">POSE LANDMARKER · 33 POINTS</span>
+        <span class="artR mono"><i></i>LIVE</span>
+        <div class="artHud mono" id="pvHud"></div>
+      </div>
+      <figcaption id="pvCap">화면의 각도는 장식이 아니라 <b>이 페이지가 실제로 계산한 값</b>입니다. 종목을 바꾸면 함께 바뀝니다.</figcaption>
     </figure>
   </div>
 </div>
@@ -1871,6 +1896,27 @@ applyEx();
 /* ---------- 첫 화면의 계측 도형 ----------
    장식 그림이 아니다. 실제 synth() → metrics() → draw()를 한 번 통과시켜 그린다.
    그래서 히어로에 적힌 각도는 이 앱이 실제로 계산한 값이다. */
+// 프레임 안쪽 배경 — 계측 도구처럼 보이게 하는 격자와 바닥선
+function artBg(g,W,H,groundY){
+  g.save();
+  g.strokeStyle='rgba(214,226,245,.045)'; g.lineWidth=1;
+  g.beginPath();
+  for(let x=0;x<W;x+=44){ g.moveTo(x+.5,0); g.lineTo(x+.5,H); }
+  for(let y=0;y<H;y+=44){ g.moveTo(0,y+.5); g.lineTo(W,y+.5); }
+  g.stroke();
+  if(groundY!=null && groundY<H+40){
+    const gr=g.createLinearGradient(0,0,W,0);
+    gr.addColorStop(0,'rgba(121,184,255,0)');
+    gr.addColorStop(.5,'rgba(121,184,255,.55)');
+    gr.addColorStop(1,'rgba(121,184,255,0)');
+    g.strokeStyle=gr; g.lineWidth=1.5;
+    g.beginPath(); g.moveTo(0,groundY+.5); g.lineTo(W,groundY+.5); g.stroke();
+    const sh=g.createLinearGradient(0,groundY,0,groundY+26);
+    sh.addColorStop(0,'rgba(121,184,255,.10)'); sh.addColorStop(1,'rgba(121,184,255,0)');
+    g.fillStyle=sh; g.fillRect(0,groundY,W,26);
+  }
+  g.restore();
+}
 function renderPreview(t){
   const pv=$('pv'); if(!pv) return;
   const kc=cv, kx=ctx;
@@ -1884,19 +1930,38 @@ function renderPreview(t){
     IDX.forEach(i=>{ const p=lm[i]; if(!p) return;
       const x=1-p.x; if(x<lo)lo=x; if(x>hi)hi=x;
       if(p.y<top)top=p.y; if(p.y>bot)bot=p.y; });
-    const W=pv.width, H=pv.height, PADF=0.10;
+    // 위는 코너 라벨, 아래는 HUD가 앉을 자리를 비워 둔다
+    const W=pv.width, H=pv.height, PX=0.09, PT=0.155, PB=0.215;
     const bw=Math.max(0.01,(hi-lo)), bh=Math.max(0.01,(bot-top));
-    const z=Math.min(W*(1-PADF*2)/(bw*W), H*(1-PADF*2)/(bh*H));
-    const tx=(W-bw*W*z)/2 - lo*W*z, ty=(H-bh*H*z)/2 - top*H*z;
+    const z=Math.min(W*(1-PX*2)/(bw*W), H*(1-PT-PB)/(bh*H));
+    const tx=(W-bw*W*z)/2 - lo*W*z, ty=H*PT - top*H*z;
     ctx.setTransform(1,0,0,1,0,0);
     ctx.clearRect(0,0,W,H);
     ctx.setTransform(z,0,0,z,tx,ty);
-    draw(lm,m,false);
+    draw(lm,m,false);                       // draw()가 캔버스를 먼저 지우므로 배경은 그 뒤에 깐다
+    ctx.globalCompositeOperation='destination-over';
+    // 선만 있으면 스케치처럼 보인다. 사지에 두께를 깔아 몸의 부피를 만든다(미리보기 전용)
+    const P=i=>({x:(1-lm[i].x)*W, y:lm[i].y*H});
+    const LIMB=[[11,12],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],
+                [11,13],[13,15],[12,14],[14,16]];
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    [[42,'rgba(121,184,255,.10)'],[27,'rgba(121,184,255,.13)']].forEach(([px,col])=>{
+      ctx.lineWidth=px/z; ctx.strokeStyle=col;
+      ctx.beginPath();
+      LIMB.forEach(([a,c])=>{ if(!lm[a]||!lm[c]) return;
+        const p=P(a),q=P(c); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); });
+      ctx.stroke();
+    });
+    if(lm[0]){ const h=P(0); ctx.fillStyle='rgba(121,184,255,.13)';
+      ctx.beginPath(); ctx.arc(h.x,h.y,27/z,0,7); ctx.fill(); }
     ctx.setTransform(1,0,0,1,0,0);
-    $('pvCap').innerHTML =
-      CUR.g1[0]+' <b>'+Math.round(m.knee)+'°</b>' +
-      ' · '+CUR.g2[0]+' <b>'+Math.round(m.torso)+'°</b>' +
-      ' · '+CUR.g3[0]+' <b>'+(m.tilt*100).toFixed(1)+'%</b>';
+    artBg(ctx,W,H, Math.min(bot*H*z+ty+14, H*0.775));
+    ctx.globalCompositeOperation='source-over';
+    const deep=m.knee<=TH.DEPTH;
+    $('pvHud').innerHTML =
+      '<span'+(deep?' class="good"':'')+'>'+CUR.g1[0]+'<b>'+Math.round(m.knee)+'°</b></span>'+
+      '<span>'+CUR.g2[0]+'<b>'+Math.round(m.torso)+'°</b></span>'+
+      '<span>'+CUR.g3[0]+'<b>'+(m.tilt*100).toFixed(1)+'%</b></span>';
   }catch(e){ console.warn('미리보기 렌더 실패',e); }
   cv=kc; ctx=kx;
 }
