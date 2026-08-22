@@ -94,11 +94,15 @@
   .exsel .ex{
     background:transparent;color:var(--muted);border:1px solid var(--line);
     padding:9px 18px;border-radius:999px;font-size:13.5px;font-weight:700;
-    font-family:inherit;letter-spacing:-.01em;transition:all .14s
+    font-family:inherit;letter-spacing:-.01em;transition:all .14s;flex:none;white-space:nowrap
   }
   .exsel .ex:hover{color:var(--chalk);border-color:rgba(84,214,238,.5)}
   .exsel .ex.on{background:rgba(84,214,238,.14);color:var(--cyan);border-color:var(--cyan)}
-  .exsel .exnote{font-size:11.5px;color:var(--muted);line-height:1.6;flex:1;min-width:220px}
+  .exsel .exnote{font-size:11.5px;color:var(--muted);line-height:1.6;flex:1 1 240px;min-width:200px}
+  .exsel .exdiv{width:1px;height:20px;background:var(--line);margin:0 2px;flex:none}
+  @media(max-width:520px){.exsel .exdiv{display:none}}
+  .exsel .ex.timed{border-style:dashed}
+  .exsel .ex.timed.on{border-style:solid}
 
   /* ---------- stage ---------- */
   .stage{display:grid;grid-template-columns:1fr 320px;gap:20px;margin:24px 0 40px;align-items:start}
@@ -348,10 +352,12 @@
     <button class="ex on" data-ex="squat" aria-pressed="true">스쿼트</button>
     <button class="ex" data-ex="pushup" aria-pressed="false">푸시업</button>
     <button class="ex" data-ex="lunge" aria-pressed="false">런지</button>
-    <button class="ex" data-ex="plank" aria-pressed="false">플랭크</button>
     <button class="ex" data-ex="jack" aria-pressed="false">점핑잭</button>
-    <button class="ex" data-ex="neck" aria-pressed="false">목 스트레칭</button>
-    <span class="exnote">종목이 바뀌어도 바뀌는 건 <b style="color:#B9C7E2">재는 3점 각도와 임계값</b>뿐입니다. 횟수 상태머신·캡처 규칙·리포트는 그대로 재사용됩니다.</span>
+    <span class="exdiv" aria-hidden="true"></span>
+    <button class="ex timed" data-ex="plank" aria-pressed="false">플랭크</button>
+    <button class="ex timed" data-ex="neck" aria-pressed="false">목 스트레칭</button>
+    <span class="exnote">왼쪽 넷은 <b style="color:#B9C7E2">횟수</b>를, 오른쪽 둘은 <b style="color:#B9C7E2">버틴 시간</b>을 셉니다.
+      종목이 바뀌어도 바뀌는 건 재는 3점 각도와 임계값뿐입니다.</span>
   </div>
   <div class="stage">
     <div class="screen" id="screen">
